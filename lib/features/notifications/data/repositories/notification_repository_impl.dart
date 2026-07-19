@@ -7,7 +7,6 @@ import '../../domain/entities/app_notification.dart';
 import '../../domain/repositories/notification_repository.dart';
 import '../datasource/notification_local_datasource.dart';
 import '../datasource/notification_remote_datasource.dart';
-import '../models/notification_model.dart';
 
 class NotificationRepositoryImpl implements NotificationRepository {
   const NotificationRepositoryImpl({

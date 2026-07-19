@@ -104,7 +104,7 @@ class NotificationsNotifier extends _$NotificationsNotifier {
   }
 
   Future<void> loadMore() async {
-    final current = state.valueOrNull;
+    final current = state.value;
     if (current == null || !current.canLoadMore) return;
 
     state = AsyncData(
@@ -137,7 +137,7 @@ class NotificationsNotifier extends _$NotificationsNotifier {
   /// While "unread only" is active the row no longer belongs in the list, so
   /// it is dropped rather than left behind as a contradiction.
   Future<Failure?> markAsRead(String id) async {
-    final current = state.valueOrNull;
+    final current = state.value;
     if (current == null) return null;
 
     final target = _find(current, id);
@@ -176,7 +176,7 @@ class NotificationsNotifier extends _$NotificationsNotifier {
     );
 
     if (result case Success(:final value)) {
-      final current = state.valueOrNull;
+      final current = state.value;
       if (current != null) {
         // Under "unread only" the whole page has just stopped matching the
         // filter, so it empties instead of showing rows marked read.
@@ -204,7 +204,7 @@ class NotificationsNotifier extends _$NotificationsNotifier {
 
   /// Deletes one row — 204, no body, so the list is trimmed locally.
   Future<Failure?> delete(String id) async {
-    final current = state.valueOrNull;
+    final current = state.value;
     final wasUnread = current == null || (_find(current, id)?.isRead == false);
 
     final result = await ref.read(deleteNotificationUseCaseProvider)(id);
@@ -240,7 +240,7 @@ class NotificationsNotifier extends _$NotificationsNotifier {
     );
 
     if (result case Success()) {
-      final current = state.valueOrNull;
+      final current = state.value;
       if (current != null) {
         final items = current.notifications.items
             .where((notification) => !notification.isRead)

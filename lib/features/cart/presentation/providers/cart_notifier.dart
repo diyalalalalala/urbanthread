@@ -36,8 +36,8 @@ class CartNotifier extends _$CartNotifier {
     // Watched rather than polled so a write made in a lift reaches the server
     // as soon as the doors open, without the customer revisiting the cart.
     ref.listen(connectionStatusProvider, (previous, next) {
-      final isOnline = next.valueOrNull ?? false;
-      final wasOnline = previous?.valueOrNull ?? false;
+      final isOnline = next.value ?? false;
+      final wasOnline = previous?.value ?? false;
       if (isOnline && !wasOnline) unawaited(sync());
     });
 
@@ -84,7 +84,6 @@ class CartNotifier extends _$CartNotifier {
     if (state.isSyncing || !state.hasPendingWrites) return;
 
     state = state.copyWith(isSyncing: true, clearFailure: true);
-    final queued = state.pendingWrites;
     final result = await ref.read(syncCartUseCaseProvider)(const NoParams());
 
     switch (result) {

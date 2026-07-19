@@ -114,7 +114,7 @@ class WishlistRepositoryImpl implements WishlistRepository {
         kind: WishlistOutboxKinds.add,
         payload: {
           'productId': productId,
-          if (variantId != null) 'variantId': variantId,
+          'variantId': ?variantId,
         },
         // The last thing the customer did to this product is the only one
         // that matters — a save after an unsave is just a save.

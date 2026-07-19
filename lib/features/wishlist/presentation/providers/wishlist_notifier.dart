@@ -4,7 +4,6 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../../../core/domain/result.dart';
 import '../../../../core/domain/usecase.dart';
-import '../../../../core/errors/failures.dart';
 import '../../../../core/providers/core_providers.dart';
 import '../../../cart/presentation/providers/cart_notifier.dart';
 import '../../domain/entities/wishlist.dart';
@@ -28,8 +27,8 @@ class WishlistNotifier extends _$WishlistNotifier {
     final repository = ref.watch(wishlistRepositoryProvider);
 
     ref.listen(connectionStatusProvider, (previous, next) {
-      final isOnline = next.valueOrNull ?? false;
-      final wasOnline = previous?.valueOrNull ?? false;
+      final isOnline = next.value ?? false;
+      final wasOnline = previous?.value ?? false;
       if (isOnline && !wasOnline) unawaited(sync());
     });
 

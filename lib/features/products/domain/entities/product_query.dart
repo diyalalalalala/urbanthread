@@ -220,7 +220,9 @@ class ProductQuery extends Equatable {
     double? minDiscount,
     bool clearMinDiscount = false,
     bool? isFeatured,
+    bool clearIsFeatured = false,
     bool? isNewArrival,
+    bool clearIsNewArrival = false,
     ProductSort? sort,
   }) =>
       ProductQuery(
@@ -240,8 +242,9 @@ class ProductQuery extends Equatable {
             clearHasDiscount ? null : (hasDiscount ?? this.hasDiscount),
         minDiscount:
             clearMinDiscount ? null : (minDiscount ?? this.minDiscount),
-        isFeatured: isFeatured ?? this.isFeatured,
-        isNewArrival: isNewArrival ?? this.isNewArrival,
+        isFeatured: clearIsFeatured ? null : (isFeatured ?? this.isFeatured),
+        isNewArrival:
+            clearIsNewArrival ? null : (isNewArrival ?? this.isNewArrival),
         sort: sort ?? this.sort,
       );
 

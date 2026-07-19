@@ -60,7 +60,7 @@ class AppNetworkImage extends StatelessWidget {
         // placeholder that was never visible reads as a flicker.
         fadeOutDuration: Duration.zero,
         placeholder: (context, _) => _Shimmer(width: width, height: height),
-        errorWidget: (context, _, __) => _Placeholder(
+        errorWidget: (context, _, _) => _Placeholder(
           width: width,
           height: height,
           icon: placeholderIcon,

@@ -34,7 +34,7 @@ final class NotificationsNotifierProvider
 }
 
 String _$notificationsNotifierHash() =>
-    r'23166e079bd91b7c892a0a2642e4d26eff057d88';
+    r'32656a877b21de3a23ab7aa42b859601a3310eea';
 
 abstract class _$NotificationsNotifier
     extends $AsyncNotifier<NotificationsState> {

@@ -33,7 +33,7 @@ final class MyReviewsNotifierProvider
   MyReviewsNotifier create() => MyReviewsNotifier();
 }
 
-String _$myReviewsNotifierHash() => r'51478b552ebe95c294485ce4dce71c7be10d6aab';
+String _$myReviewsNotifierHash() => r'f4ce72e40e6293e3b99a5e4b6a0c2fc2df51bd71';
 
 abstract class _$MyReviewsNotifier extends $AsyncNotifier<MyReviewsState> {
   FutureOr<MyReviewsState> build();

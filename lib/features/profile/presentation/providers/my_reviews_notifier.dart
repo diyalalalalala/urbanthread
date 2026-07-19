@@ -63,7 +63,7 @@ class MyReviewsNotifier extends _$MyReviewsNotifier {
 
   /// Appends the next page, if there is one.
   Future<void> loadMore() async {
-    final current = state.valueOrNull;
+    final current = state.value;
     if (current == null || !current.canLoadMore) return;
 
     state = AsyncData(
@@ -95,7 +95,7 @@ class MyReviewsNotifier extends _$MyReviewsNotifier {
 
     return result.fold(
       onSuccess: (_) {
-        final current = state.valueOrNull;
+        final current = state.value;
         if (current != null) {
           final remaining = current.reviews.items
               .where((review) => review.id != reviewId)
@@ -137,7 +137,7 @@ class MyReviewsNotifier extends _$MyReviewsNotifier {
 
     return result.fold(
       onSuccess: (updated) {
-        final current = state.valueOrNull;
+        final current = state.value;
         if (current != null) {
           state = AsyncData(
             current.copyWith(

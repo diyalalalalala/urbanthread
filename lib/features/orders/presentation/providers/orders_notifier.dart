@@ -5,6 +5,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../../../../core/domain/result.dart';
 import '../../domain/entities/order.dart';
 import '../../domain/repositories/order_repository.dart';
+import '../../domain/usecases/cancel_order_usecase.dart';
 import 'order_providers.dart';
 import 'orders_state.dart';
 

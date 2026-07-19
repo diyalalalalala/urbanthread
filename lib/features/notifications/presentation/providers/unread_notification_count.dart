@@ -51,7 +51,7 @@ class UnreadNotificationCount extends _$UnreadNotificationCount {
 
   /// Decrements by one, floored at zero. For marking a single row read.
   void decrement() {
-    final current = state.valueOrNull ?? 0;
+    final current = state.value ?? 0;
     setCount(current - 1);
   }
 }

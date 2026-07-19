@@ -6,6 +6,7 @@ import '../../../../core/domain/result.dart';
 import '../../domain/entities/home_feed.dart';
 import '../../domain/entities/home_product.dart';
 import '../../domain/usecases/get_home_feed_usecase.dart';
+import '../../domain/usecases/get_product_collection_usecase.dart';
 import 'home_feed_state.dart';
 import 'home_providers.dart';
 

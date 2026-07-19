@@ -32,11 +32,15 @@ enum HomeCollection {
   ///
   /// Returned as a bare path string so this feature owns no routing — the app
   /// router resolves it, and nothing here has to import a router.
+  /// `sort` must be one of the backend's eight allowed values — an unknown
+  /// one is a 422, not a silent fallback to default ordering. `popularity`
+  /// and `best_selling` are the closest catalogue equivalents to what the
+  /// trending and best-seller endpoints rank by.
   String get seeAllPath => switch (this) {
         HomeCollection.newArrivals => '/products?isNewArrival=true',
-        HomeCollection.trending => '/products?sort=-soldCount',
+        HomeCollection.trending => '/products?sort=popularity',
         HomeCollection.featured => '/products?isFeatured=true',
-        HomeCollection.bestSellers => '/products?sort=-soldCount',
+        HomeCollection.bestSellers => '/products?sort=best_selling',
       };
 }
 

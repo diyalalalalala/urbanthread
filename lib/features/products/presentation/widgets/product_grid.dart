@@ -190,7 +190,7 @@ class ProductCarousel extends StatelessWidget {
               horizontal: AppDimens.pageGutter,
             ),
             itemCount: products.length,
-            separatorBuilder: (_, __) =>
+            separatorBuilder: (_, _) =>
                 const SizedBox(width: AppDimens.space12),
             itemBuilder: (context, index) => ProductCard(
               product: products[index],

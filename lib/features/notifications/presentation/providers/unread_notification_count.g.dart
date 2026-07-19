@@ -67,7 +67,7 @@ final class UnreadNotificationCountProvider
 }
 
 String _$unreadNotificationCountHash() =>
-    r'c02ea5351cbfdef17b39e123f878e7c76eaf4049';
+    r'4c40231344b04feada83d793732b5a1bc091d97d';
 
 /// The number behind the app-bar bell badge.
 ///
