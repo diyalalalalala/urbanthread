@@ -68,7 +68,7 @@ abstract class _$AuthNotifier extends $Notifier<AuthState> {
   AuthState build();
   @$mustCallSuper
   @override
-  WhenComplete runBuild() {
+  void runBuild() {
     final ref = this.ref as $Ref<AuthState, AuthState>;
     final element =
         ref.element
@@ -78,7 +78,7 @@ abstract class _$AuthNotifier extends $Notifier<AuthState> {
               Object?,
               Object?
             >;
-    return element.handleCreate(ref, build);
+    element.handleCreate(ref, build);
   }
 }
 

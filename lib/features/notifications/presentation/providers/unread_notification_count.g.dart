@@ -85,7 +85,7 @@ abstract class _$UnreadNotificationCount extends $AsyncNotifier<int> {
   FutureOr<int> build();
   @$mustCallSuper
   @override
-  WhenComplete runBuild() {
+  void runBuild() {
     final ref = this.ref as $Ref<AsyncValue<int>, int>;
     final element =
         ref.element
@@ -95,6 +95,6 @@ abstract class _$UnreadNotificationCount extends $AsyncNotifier<int> {
               Object?,
               Object?
             >;
-    return element.handleCreate(ref, build);
+    element.handleCreate(ref, build);
   }
 }

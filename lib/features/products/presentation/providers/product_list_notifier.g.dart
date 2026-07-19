@@ -138,7 +138,7 @@ abstract class _$ProductListNotifier extends $Notifier<ProductListState> {
   ProductListState build(ProductQuery initialQuery);
   @$mustCallSuper
   @override
-  WhenComplete runBuild() {
+  void runBuild() {
     final ref = this.ref as $Ref<ProductListState, ProductListState>;
     final element =
         ref.element
@@ -148,6 +148,6 @@ abstract class _$ProductListNotifier extends $Notifier<ProductListState> {
               Object?,
               Object?
             >;
-    return element.handleCreate(ref, () => build(_$args));
+    element.handleCreate(ref, () => build(_$args));
   }
 }

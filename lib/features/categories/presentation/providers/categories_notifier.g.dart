@@ -85,7 +85,7 @@ abstract class _$CategoriesNotifier extends $Notifier<CategoriesState> {
   CategoriesState build();
   @$mustCallSuper
   @override
-  WhenComplete runBuild() {
+  void runBuild() {
     final ref = this.ref as $Ref<CategoriesState, CategoriesState>;
     final element =
         ref.element
@@ -95,7 +95,7 @@ abstract class _$CategoriesNotifier extends $Notifier<CategoriesState> {
               Object?,
               Object?
             >;
-    return element.handleCreate(ref, build);
+    element.handleCreate(ref, build);
   }
 }
 

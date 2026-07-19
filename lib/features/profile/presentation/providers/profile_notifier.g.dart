@@ -68,7 +68,7 @@ abstract class _$ProfileNotifier extends $AsyncNotifier<User> {
   FutureOr<User> build();
   @$mustCallSuper
   @override
-  WhenComplete runBuild() {
+  void runBuild() {
     final ref = this.ref as $Ref<AsyncValue<User>, User>;
     final element =
         ref.element
@@ -78,6 +78,6 @@ abstract class _$ProfileNotifier extends $AsyncNotifier<User> {
               Object?,
               Object?
             >;
-    return element.handleCreate(ref, build);
+    element.handleCreate(ref, build);
   }
 }

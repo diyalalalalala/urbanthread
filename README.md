@@ -30,6 +30,20 @@ Two substitutions from the original brief, both forced:
 - **No `riverpod_lint` / `custom_lint`.** They pin `analyzer ^7`, which
   conflicts with Freezed 3's `analyzer >=9`. Nothing else needs them.
 
+### Dependency versions are load-bearing
+
+Verified against **Flutter 3.41.1 / Dart 3.11.0**.
+
+The Flutter SDK pins `meta` (1.17.0 on 3.41), and `analyzer >=10.0.2` requires
+`meta ^1.18`. So every code generator in this project has to stay on
+**analyzer 9.x**, and the pins in `pubspec.yaml` are the newest releases that
+do. Loosening any of them — or blanking the constraints — makes pub wander
+into the analyzer-10/12 releases and report a several-hundred-line unsolvable
+graph instead of the one-line incompatibility it really is.
+
+If you upgrade Flutter, move the whole generator set forward together with
+`flutter pub upgrade --major-versions`, deliberately.
+
 ## Setup
 
 ```bash

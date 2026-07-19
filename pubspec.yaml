@@ -34,14 +34,24 @@ dependencies:
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.8
-  flutter_riverpod: ^3.3.2
-  riverpod_annotation: ^4.0.3
+  # Range, not a pin: riverpod_annotation 4.0.2 depends on an exact riverpod
+  # version, so the solver has to be free to pick the flutter_riverpod release
+  # that agrees with it.
+  flutter_riverpod: ^3.0.0
+  # Pinned to 4.0.2, not ^4.0.3, and the difference matters. riverpod_generator
+  # 4.0.3 depends on riverpod_annotation *exactly* 4.0.2, so requiring ^4.0.3
+  # forces the solver onto generator 4.0.4-dev, which needs analyzer ^12 →
+  # meta ^1.18 — and the Flutter SDK pins meta itself. On an SDK shipping
+  # meta 1.17.0 that is unsolvable.
+  riverpod_annotation: 4.0.2
   go_router: ^17.3.0
   dio: ^5.10.0
   pretty_dio_logger: ^1.4.0
   retrofit: ^4.9.2
   freezed_annotation: ^3.1.0
-  json_annotation: ^4.12.0
+  # Held at 4.11.x to match json_serializable 6.13.0, which is itself the last
+  # release on analyzer 9 — see the dev_dependencies note.
+  json_annotation: ^4.11.0
   equatable: ^2.1.0
   hive_ce: ^2.19.3
   hive_ce_flutter: ^2.3.4
@@ -61,19 +71,35 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
 
-  # The "flutter_lints" package below contains a set of recommended lints to
-  # encourage good coding practices. The lint set provided by the package is
-  # activated in the `analysis_options.yaml` file located at the root of your
-  # package. See that file for information about deactivating specific lint
-  # rules and activating additional ones.
+  # ── These versions are load-bearing. Read before "upgrading". ───────────
+  #
+  # The Flutter SDK pins `meta` itself — 1.17.0 on Flutter 3.41. Every code
+  # generator here depends on `analyzer`, and `analyzer >=10.0.2` requires
+  # `meta ^1.18`, which the SDK's pin forbids. So the whole generator set has
+  # to stay on **analyzer 9.x**, and these are the last releases that do:
+  #
+  #   json_serializable  6.13.1+ → analyzer >=10   (hence json_annotation 4.11)
+  #   hive_ce_generator  1.11.1+ → analyzer ^10/^12
+  #   riverpod_generator 4.0.4+  → analyzer ^12
+  #   flutter_native_splash 2.4.8+ → meta ^1.18 directly
+  #
+  # Exact pins where a caret would drift across those lines. Leaving any of
+  # them unconstrained makes pub explore the analyzer-12 releases and report
+  # the conflict as a several-hundred-line unsolvable graph rather than as
+  # the one-line incompatibility it actually is.
+  #
+  # Verified against Flutter 3.41.1 / Dart 3.11.0. On a newer SDK (3.44+,
+  # which ships meta 1.18) this set still resolves, but you can then move the
+  # whole generator set forward with `flutter pub upgrade --major-versions`.
   flutter_lints: ^6.0.0
   build_runner: ^2.15.1
   freezed: ^3.2.5
-  json_serializable: ^6.14.0
+  json_serializable: 6.13.0
   retrofit_generator: ^10.2.7
-  riverpod_generator: ^4.0.4
-  hive_ce_generator: ^1.11.2
-  flutter_native_splash: ^2.4.8
+  riverpod_generator: 4.0.3
+  hive_ce_generator: 1.11.0
+  # 2.4.8 moved to meta ^1.18; 2.4.7 is the last release the SDK's pin allows.
+  flutter_native_splash: '>=2.4.5 <2.4.8'
   flutter_launcher_icons: ^0.14.4
   mocktail: ^1.0.5
 

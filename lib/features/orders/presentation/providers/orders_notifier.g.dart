@@ -64,7 +64,7 @@ abstract class _$OrdersNotifier extends $Notifier<OrdersState> {
   OrdersState build();
   @$mustCallSuper
   @override
-  WhenComplete runBuild() {
+  void runBuild() {
     final ref = this.ref as $Ref<OrdersState, OrdersState>;
     final element =
         ref.element
@@ -74,7 +74,7 @@ abstract class _$OrdersNotifier extends $Notifier<OrdersState> {
               Object?,
               Object?
             >;
-    return element.handleCreate(ref, build);
+    element.handleCreate(ref, build);
   }
 }
 
@@ -196,7 +196,7 @@ abstract class _$OrderDetailNotifier extends $Notifier<OrderDetailState> {
   OrderDetailState build(String orderId);
   @$mustCallSuper
   @override
-  WhenComplete runBuild() {
+  void runBuild() {
     final ref = this.ref as $Ref<OrderDetailState, OrderDetailState>;
     final element =
         ref.element
@@ -206,7 +206,7 @@ abstract class _$OrderDetailNotifier extends $Notifier<OrderDetailState> {
               Object?,
               Object?
             >;
-    return element.handleCreate(ref, () => build(_$args));
+    element.handleCreate(ref, () => build(_$args));
   }
 }
 
@@ -304,7 +304,7 @@ abstract class _$OrderTrackingNotifier extends $Notifier<OrderTrackingState> {
   OrderTrackingState build(String orderId);
   @$mustCallSuper
   @override
-  WhenComplete runBuild() {
+  void runBuild() {
     final ref = this.ref as $Ref<OrderTrackingState, OrderTrackingState>;
     final element =
         ref.element
@@ -314,6 +314,6 @@ abstract class _$OrderTrackingNotifier extends $Notifier<OrderTrackingState> {
               Object?,
               Object?
             >;
-    return element.handleCreate(ref, () => build(_$args));
+    element.handleCreate(ref, () => build(_$args));
   }
 }

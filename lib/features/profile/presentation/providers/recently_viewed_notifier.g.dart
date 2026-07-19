@@ -62,7 +62,7 @@ abstract class _$RecentlyViewedNotifier
   FutureOr<List<RecentlyViewedItem>> build();
   @$mustCallSuper
   @override
-  WhenComplete runBuild() {
+  void runBuild() {
     final ref =
         this.ref
             as $Ref<
@@ -80,6 +80,6 @@ abstract class _$RecentlyViewedNotifier
               Object?,
               Object?
             >;
-    return element.handleCreate(ref, build);
+    element.handleCreate(ref, build);
   }
 }

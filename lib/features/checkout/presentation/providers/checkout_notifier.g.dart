@@ -72,7 +72,7 @@ abstract class _$CheckoutNotifier extends $Notifier<CheckoutState> {
   CheckoutState build();
   @$mustCallSuper
   @override
-  WhenComplete runBuild() {
+  void runBuild() {
     final ref = this.ref as $Ref<CheckoutState, CheckoutState>;
     final element =
         ref.element
@@ -82,7 +82,7 @@ abstract class _$CheckoutNotifier extends $Notifier<CheckoutState> {
               Object?,
               Object?
             >;
-    return element.handleCreate(ref, build);
+    element.handleCreate(ref, build);
   }
 }
 

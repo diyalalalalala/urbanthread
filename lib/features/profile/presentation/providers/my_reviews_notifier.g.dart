@@ -39,7 +39,7 @@ abstract class _$MyReviewsNotifier extends $AsyncNotifier<MyReviewsState> {
   FutureOr<MyReviewsState> build();
   @$mustCallSuper
   @override
-  WhenComplete runBuild() {
+  void runBuild() {
     final ref = this.ref as $Ref<AsyncValue<MyReviewsState>, MyReviewsState>;
     final element =
         ref.element
@@ -49,7 +49,7 @@ abstract class _$MyReviewsNotifier extends $AsyncNotifier<MyReviewsState> {
               Object?,
               Object?
             >;
-    return element.handleCreate(ref, build);
+    element.handleCreate(ref, build);
   }
 }
 
@@ -107,7 +107,7 @@ abstract class _$ReviewableProductsNotifier
   FutureOr<List<ReviewableProduct>> build();
   @$mustCallSuper
   @override
-  WhenComplete runBuild() {
+  void runBuild() {
     final ref =
         this.ref
             as $Ref<
@@ -125,6 +125,6 @@ abstract class _$ReviewableProductsNotifier
               Object?,
               Object?
             >;
-    return element.handleCreate(ref, build);
+    element.handleCreate(ref, build);
   }
 }

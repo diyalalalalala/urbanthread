@@ -72,7 +72,7 @@ abstract class _$WishlistNotifier extends $Notifier<WishlistState> {
   WishlistState build();
   @$mustCallSuper
   @override
-  WhenComplete runBuild() {
+  void runBuild() {
     final ref = this.ref as $Ref<WishlistState, WishlistState>;
     final element =
         ref.element
@@ -82,7 +82,7 @@ abstract class _$WishlistNotifier extends $Notifier<WishlistState> {
               Object?,
               Object?
             >;
-    return element.handleCreate(ref, build);
+    element.handleCreate(ref, build);
   }
 }
 

@@ -102,7 +102,7 @@ abstract class _$ProductDetailNotifier extends $Notifier<ProductDetailState> {
   ProductDetailState build(String slug);
   @$mustCallSuper
   @override
-  WhenComplete runBuild() {
+  void runBuild() {
     final ref = this.ref as $Ref<ProductDetailState, ProductDetailState>;
     final element =
         ref.element
@@ -112,6 +112,6 @@ abstract class _$ProductDetailNotifier extends $Notifier<ProductDetailState> {
               Object?,
               Object?
             >;
-    return element.handleCreate(ref, () => build(_$args));
+    element.handleCreate(ref, () => build(_$args));
   }
 }
