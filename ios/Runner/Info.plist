@@ -66,5 +66,16 @@
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
+	<key>NSAppTransportSecurity</key>
+	<!-- The dev backend is plain HTTP on localhost. Scoped to loopback only,
+	     so a production build against a real domain keeps full ATS. -->
+	<dict>
+		<key>NSAllowsLocalNetworking</key>
+		<true/>
+	</dict>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>UrbanThread needs access to your photos so you can set a profile picture.</string>
+	<key>NSCameraUsageDescription</key>
+	<string>UrbanThread needs camera access so you can take a profile picture.</string>
 </dict>
 </plist>

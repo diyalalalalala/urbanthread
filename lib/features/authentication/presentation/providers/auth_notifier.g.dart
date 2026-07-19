@@ -82,19 +82,34 @@ abstract class _$AuthNotifier extends $Notifier<AuthState> {
   }
 }
 
-/// The signed-in user, or null. The common read for screens that only need
-/// identity and not the whole auth state.
+/// The signed-in user, or null. The common read for screens that need
+/// identity but not the rest of the auth state.
+///
+/// These derive from the whole state rather than a `.select` on it —
+/// [AuthState] is an Equatable value, so an unchanged state is already
+/// filtered out, and a derived provider only re-emits when its own output
+/// differs. The rebuild savings are the same without the ceremony.
 
 @ProviderFor(currentUser)
 final currentUserProvider = CurrentUserProvider._();
 
-/// The signed-in user, or null. The common read for screens that only need
-/// identity and not the whole auth state.
+/// The signed-in user, or null. The common read for screens that need
+/// identity but not the rest of the auth state.
+///
+/// These derive from the whole state rather than a `.select` on it —
+/// [AuthState] is an Equatable value, so an unchanged state is already
+/// filtered out, and a derived provider only re-emits when its own output
+/// differs. The rebuild savings are the same without the ceremony.
 
 final class CurrentUserProvider extends $FunctionalProvider<User?, User?, User?>
     with $Provider<User?> {
-  /// The signed-in user, or null. The common read for screens that only need
-  /// identity and not the whole auth state.
+  /// The signed-in user, or null. The common read for screens that need
+  /// identity but not the rest of the auth state.
+  ///
+  /// These derive from the whole state rather than a `.select` on it —
+  /// [AuthState] is an Equatable value, so an unchanged state is already
+  /// filtered out, and a derived provider only re-emits when its own output
+  /// differs. The rebuild savings are the same without the ceremony.
   CurrentUserProvider._()
     : super(
         from: null,
@@ -128,7 +143,7 @@ final class CurrentUserProvider extends $FunctionalProvider<User?, User?, User?>
   }
 }
 
-String _$currentUserHash() => r'3b06546ff87c5d3be903f8473b815c804850cc5c';
+String _$currentUserHash() => r'42a64e9add863646f8bc2629da227312483d55b7';
 
 @ProviderFor(isAuthenticated)
 final isAuthenticatedProvider = IsAuthenticatedProvider._();
@@ -169,4 +184,4 @@ final class IsAuthenticatedProvider
   }
 }
 
-String _$isAuthenticatedHash() => r'89bd3a92964e327f27a526b571e6288cf3ad4faa';
+String _$isAuthenticatedHash() => r'9bda0a0cf39820eaa945f2a8b7ef36f5f4b8d690';

@@ -1,5 +1,18 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- The app is API-driven; every screen needs the network. -->
+    <uses-permission android:name="android.permission.INTERNET"/>
+    <!-- connectivity_plus reads the active network to drive offline mode. -->
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+    <!-- image_picker, for the profile avatar. READ_MEDIA_IMAGES is the
+         Android 13+ replacement for READ_EXTERNAL_STORAGE, which is kept
+         (capped) so older devices still work. -->
+    <uses-permission android:name="android.permission.CAMERA"/>
+    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES"/>
+    <uses-permission
+        android:name="android.permission.READ_EXTERNAL_STORAGE"
+        android:maxSdkVersion="32"/>
     <application
+        android:networkSecurityConfig="@xml/network_security_config"
         android:label="urbanthread"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
