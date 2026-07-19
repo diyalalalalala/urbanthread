@@ -330,6 +330,23 @@ class CartNotifier extends _$CartNotifier {
     );
   }
 
+  /// Adopts a cart snapshot produced by another feature's request.
+  ///
+  /// `POST /wishlist/{productId}/move-to-cart` returns the complete cart
+  /// triple nested inside its response, so the cart is already authoritative
+  /// by the time the wishlist has finished. Re-reading `/cart` to learn what
+  /// we were just told would waste a round trip and, worse, throw away the
+  /// notices that response carried. The wishlist repository has already
+  /// written the same snapshot to the cart's cache, so this only has to catch
+  /// the in-memory state up.
+  void adoptSnapshot(CartSnapshot snapshot) {
+    state = state.copyWith(
+      snapshot: snapshot,
+      clearFailure: true,
+      pendingWrites: _pendingWrites,
+    );
+  }
+
   /// Drops the one-shot snack-bar line once it has been shown.
   void consumeMessage() => state = state.copyWith(clearMessage: true);
 

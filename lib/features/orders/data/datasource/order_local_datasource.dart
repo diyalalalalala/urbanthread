@@ -44,7 +44,10 @@ class OrderLocalDataSource {
   ({List<OrderModel> orders, PaginationMeta meta})? readOrderPage(
     String filterKey,
   ) =>
-      _cache.read('$_listPrefix$filterKey', (json) {
+      // The type argument is spelled nullable so the decoder may answer "this
+      // entry is unusable" without CacheStore treating it as a parse crash.
+      _cache.read<({List<OrderModel> orders, PaginationMeta meta})?>(
+          '$_listPrefix$filterKey', (json) {
         if (json is! Map) return null;
 
         final rawItems = json['items'];
@@ -74,7 +77,7 @@ class OrderLocalDataSource {
   Future<void> writeOrder(OrderModel order) =>
       _cache.write('$_detailPrefix${order.id}', order.toJson());
 
-  OrderModel? readOrder(String id) => _cache.read(
+  OrderModel? readOrder(String id) => _cache.read<OrderModel?>(
         '$_detailPrefix$id',
         (json) => json is Map
             ? OrderModel.fromJson(Map<String, dynamic>.from(json))
@@ -86,7 +89,8 @@ class OrderLocalDataSource {
   Future<void> writeTracking(String orderId, OrderTrackingModel tracking) =>
       _cache.write('$_trackingPrefix$orderId', tracking.toJson());
 
-  OrderTrackingModel? readTracking(String orderId) => _cache.read(
+  OrderTrackingModel? readTracking(String orderId) =>
+      _cache.read<OrderTrackingModel?>(
         '$_trackingPrefix$orderId',
         (json) => json is Map
             ? OrderTrackingModel.fromJson(Map<String, dynamic>.from(json))

@@ -88,6 +88,41 @@ class Review extends Equatable {
   /// The timestamp worth showing: the edit if there was one, else the write.
   DateTime? get displayedAt => isEdited ? (editedAt ?? createdAt) : createdAt;
 
+  /// Applies the fields a `PATCH /reviews/{id}` response can change.
+  ///
+  /// [product] and [productId] are deliberately absent: the PATCH response
+  /// carries `product` as a bare id, so merging it would replace the
+  /// populated projection the list was built from with nothing.
+  Review copyWith({
+    int? rating,
+    String? title,
+    String? comment,
+    ReviewStatus? status,
+    String? moderationNote,
+    int? helpfulCount,
+    bool? isEdited,
+    DateTime? editedAt,
+    DateTime? updatedAt,
+  }) =>
+      Review(
+        id: id,
+        productId: productId,
+        product: product,
+        userName: userName,
+        userAvatarUrl: userAvatarUrl,
+        rating: rating ?? this.rating,
+        title: title ?? this.title,
+        comment: comment ?? this.comment,
+        isVerifiedPurchase: isVerifiedPurchase,
+        status: status ?? this.status,
+        moderationNote: moderationNote ?? this.moderationNote,
+        helpfulCount: helpfulCount ?? this.helpfulCount,
+        isEdited: isEdited ?? this.isEdited,
+        editedAt: editedAt ?? this.editedAt,
+        createdAt: createdAt,
+        updatedAt: updatedAt ?? this.updatedAt,
+      );
+
   @override
   List<Object?> get props => [
         id,
