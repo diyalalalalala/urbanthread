@@ -20,6 +20,7 @@ import '../../domain/usecases/get_product_review_stats_usecase.dart';
 import '../../domain/usecases/get_product_reviews_usecase.dart';
 import '../../domain/usecases/get_products_usecase.dart';
 import '../../domain/usecases/get_related_products_usecase.dart';
+import '../../domain/usecases/refresh_catalogue_usecase.dart';
 import '../../domain/usecases/search_products_usecase.dart';
 
 part 'product_providers.g.dart';
@@ -82,6 +83,10 @@ GetRelatedProductsUseCase getRelatedProductsUseCase(Ref ref) =>
 @riverpod
 GetFrequentlyBoughtTogetherUseCase getFrequentlyBoughtTogetherUseCase(Ref ref) =>
     GetFrequentlyBoughtTogetherUseCase(ref.watch(productRepositoryProvider));
+
+@riverpod
+RefreshCatalogueUseCase refreshCatalogueUseCase(Ref ref) =>
+    RefreshCatalogueUseCase(ref.watch(productRepositoryProvider));
 
 @riverpod
 GetProductReviewsUseCase getProductReviewsUseCase(Ref ref) =>
