@@ -63,6 +63,64 @@ class ProductQuery extends Equatable {
     this.sort = ProductSort.latest,
   });
 
+  /// Rebuilds a query from URL parameters — the inverse of
+  /// [toQueryParameters].
+  ///
+  /// The web client treats the URL as the single source of truth for
+  /// catalogue filter state, and deep links are shared between the two
+  /// clients, so `/products?isNewArrival=true&sort=price_asc` has to mean the
+  /// same thing here.
+  ///
+  /// Unparseable values are dropped rather than defaulted: a malformed
+  /// `minPrice` should widen the result set, never silently pin it to zero.
+  /// `sort` is the exception — [ProductSort.parse] falls back to `latest`,
+  /// because an unknown sort string reaching the API is a 422 rather than a
+  /// harmless no-op.
+  factory ProductQuery.fromQueryParameters(Map<String, String> params) {
+    List<String> list(String key) {
+      final raw = params[key]?.trim() ?? '';
+      if (raw.isEmpty) return const [];
+      return raw
+          .split(',')
+          .map((value) => value.trim())
+          .where((value) => value.isNotEmpty)
+          .toList(growable: false);
+    }
+
+    String? text(String key) {
+      final value = params[key]?.trim();
+      return (value == null || value.isEmpty) ? null : value;
+    }
+
+    // Absent and malformed both yield null, so an unrecognised flag simply
+    // does not narrow anything.
+    bool? flag(String key) => switch (params[key]?.toLowerCase()) {
+          'true' || '1' => true,
+          'false' || '0' => false,
+          _ => null,
+        };
+
+    return ProductQuery(
+      page: int.tryParse(params['page'] ?? '') ?? 1,
+      limit: int.tryParse(params['limit'] ?? '') ?? defaultLimit,
+      search: text('search'),
+      category: text('category'),
+      brands: list('brand'),
+      sizes: list('size'),
+      colors: list('color'),
+      tags: list('tags'),
+      minPrice: double.tryParse(params['minPrice'] ?? ''),
+      maxPrice: double.tryParse(params['maxPrice'] ?? ''),
+      minRating: double.tryParse(params['minRating'] ?? ''),
+      inStock: flag('inStock'),
+      hasDiscount: flag('hasDiscount'),
+      minDiscount: double.tryParse(params['minDiscount'] ?? ''),
+      isFeatured: flag('isFeatured'),
+      isNewArrival: flag('isNewArrival'),
+      sort: ProductSort.parse(params['sort']),
+    );
+  }
+
   static const defaultLimit = 20;
 
   final int page;

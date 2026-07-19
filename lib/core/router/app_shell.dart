@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../features/cart/presentation/providers/cart_providers.dart';
-import '../../features/wishlist/presentation/providers/wishlist_providers.dart';
+import '../../features/cart/presentation/providers/cart_notifier.dart';
+import '../../features/wishlist/presentation/providers/wishlist_notifier.dart';
 import '../extensions/context_extensions.dart';
 import '../providers/core_providers.dart';
 import '../widgets/state_views.dart';

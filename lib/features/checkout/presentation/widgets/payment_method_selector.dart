@@ -107,12 +107,17 @@ class _MethodTile extends StatelessWidget {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Radio<bool>(
-              value: true,
-              groupValue: isSelected,
-              onChanged: (_) => onTap(),
+            // A glyph rather than a Radio: the whole tile is the tap target,
+            // so the control is purely an affordance and a real Radio would
+            // drag in a RadioGroup ancestor for nothing.
+            Icon(
+              isSelected
+                  ? Icons.radio_button_checked
+                  : Icons.radio_button_unchecked,
+              size: 20,
+              color: isSelected ? palette.accent : palette.lineStrong,
             ),
-            const SizedBox(width: AppDimens.space4),
+            const SizedBox(width: AppDimens.space12),
             Icon(
               method == PaymentMethod.cod
                   ? Icons.payments_outlined
