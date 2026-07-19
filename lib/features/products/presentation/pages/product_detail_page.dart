@@ -41,9 +41,9 @@ class ProductDetailPage extends ConsumerWidget {
 
   final String slug;
 
-  /// Wired up by whoever owns the route. Null renders the button disabled
-  /// with an explanatory snack rather than hiding it, so the page layout does
-  /// not change depending on how it was mounted.
+  /// Wired up by whoever owns the route. When null the buy button renders
+  /// disabled rather than being hidden, so the page keeps the same layout
+  /// however it was mounted.
   final AddToCartCallback? onAddToCart;
 
   @override
