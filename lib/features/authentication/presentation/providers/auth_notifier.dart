@@ -184,12 +184,15 @@ class AuthNotifier extends _$AuthNotifier {
   void clearFailure() => state = state.copyWith(clearFailure: true);
 }
 
-/// The signed-in user, or null. The common read for screens that only need
-/// identity and not the whole auth state.
+/// The signed-in user, or null. The common read for screens that need
+/// identity but not the rest of the auth state.
+///
+/// These derive from the whole state rather than a `.select` on it —
+/// [AuthState] is an Equatable value, so an unchanged state is already
+/// filtered out, and a derived provider only re-emits when its own output
+/// differs. The rebuild savings are the same without the ceremony.
 @riverpod
-User? currentUser(Ref ref) =>
-    ref.watch(authProvider.select((state) => state.user));
+User? currentUser(Ref ref) => ref.watch(authProvider).user;
 
 @riverpod
-bool isAuthenticated(Ref ref) =>
-    ref.watch(authProvider.select((state) => state.isAuthenticated));
+bool isAuthenticated(Ref ref) => ref.watch(authProvider).isAuthenticated;
