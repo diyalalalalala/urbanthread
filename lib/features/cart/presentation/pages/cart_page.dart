@@ -118,7 +118,7 @@ class _Body extends ConsumerWidget {
         message: 'Everything you add will be waiting here.',
         icon: Icons.shopping_bag_outlined,
         actionLabel: 'Start shopping',
-        onAction: () => context.go(AppRoutes.products),
+        onAction: () => context.push(AppRoutes.products),
       );
     }
 

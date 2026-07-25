@@ -24,6 +24,10 @@ import 'rating_stars.dart';
 /// The wishlist affordance is opt-in ([showWishlistButton]) so that this
 /// feature does not acquire a dependency on the wishlist feature; the owner
 /// passes the state and the callback in.
+///
+/// Expects a **bounded** height — a grid cell from [ProductGridGeometry], or
+/// the fixed height a horizontal strip must give its children. The caption
+/// flexes to fill it, which is what keeps a long name from overflowing.
 class ProductCard extends StatelessWidget {
   const ProductCard({
     required this.product,
@@ -97,11 +101,19 @@ class ProductCard extends StatelessWidget {
                     ),
                     const SizedBox(height: AppDimens.space8),
                   ],
-                  Text(
-                    product.name,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                    style: context.text.titleSmall,
+                  // The name is the only part of the caption that can give
+                  // ground, so it is the flexible one: everything else is a
+                  // single line of fixed size. If the cell turns out a pixel
+                  // short of two lines — a font whose metrics differ, an
+                  // unusual text scale — the name ellipsises into what is
+                  // left instead of overflowing the tile.
+                  Flexible(
+                    child: Text(
+                      product.name,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: context.text.titleSmall,
+                    ),
                   ),
                   if (!dense && product.rating.hasReviews) ...[
                     const SizedBox(height: AppDimens.space4),
@@ -115,6 +127,9 @@ class ProductCard extends StatelessWidget {
                   PriceLabel.forProduct(
                     product,
                     size: dense ? PriceLabelSize.small : PriceLabelSize.medium,
+                    // The cell's height is fixed, so the price is not allowed
+                    // to wrap onto a second run.
+                    singleLine: true,
                   ),
                 ],
               ),

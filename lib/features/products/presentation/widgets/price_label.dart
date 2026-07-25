@@ -24,6 +24,7 @@ class PriceLabel extends StatelessWidget {
     this.discountPercentage = 0,
     this.size = PriceLabelSize.medium,
     this.alignment = MainAxisAlignment.start,
+    this.singleLine = false,
   });
 
   /// Reads the paid price, the strike-through and the badge off an entity.
@@ -32,6 +33,7 @@ class PriceLabel extends StatelessWidget {
     Key? key,
     PriceLabelSize size = PriceLabelSize.medium,
     MainAxisAlignment alignment = MainAxisAlignment.start,
+    bool singleLine = false,
   }) : this(
           key: key,
           price: product.sellingPrice,
@@ -39,6 +41,7 @@ class PriceLabel extends StatelessWidget {
           discountPercentage: product.discountPercentage,
           size: size,
           alignment: alignment,
+          singleLine: singleLine,
         );
 
   /// What the customer pays.
@@ -50,6 +53,16 @@ class PriceLabel extends StatelessWidget {
   final double discountPercentage;
   final PriceLabelSize size;
   final MainAxisAlignment alignment;
+
+  /// Keeps the label to one line, for a caller whose height is fixed.
+  ///
+  /// The default [Wrap] grows a run whenever the three parts do not fit side
+  /// by side, which on a narrow tile is most of the time — and a caption that
+  /// silently gets taller is what overflows a grid cell. In single-line mode
+  /// the strike-through ellipsises instead and the badge is dropped, which
+  /// costs a card nothing: the tiles that use this already paint the discount
+  /// over the photograph.
+  final bool singleLine;
 
   @override
   Widget build(BuildContext context) {
@@ -66,6 +79,39 @@ class PriceLabel extends StatelessWidget {
       },
     );
 
+    final compareStyle = context.text.bodySmall?.copyWith(
+      color: palette.inkSubtle,
+      decoration: TextDecoration.lineThrough,
+      decorationColor: palette.inkSubtle,
+    );
+
+    if (singleLine) {
+      return Row(
+        mainAxisAlignment: alignment,
+        children: [
+          Flexible(
+            child: Text(
+              Formatters.price(price),
+              style: priceStyle,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+          if (showsCompare) ...[
+            const SizedBox(width: AppDimens.space8),
+            Flexible(
+              child: Text(
+                Formatters.price(compareAtPrice),
+                style: compareStyle,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+          ],
+        ],
+      );
+    }
+
     return Wrap(
       spacing: AppDimens.space8,
       runSpacing: AppDimens.space4,
@@ -78,14 +124,7 @@ class PriceLabel extends StatelessWidget {
       children: [
         Text(Formatters.price(price), style: priceStyle),
         if (showsCompare)
-          Text(
-            Formatters.price(compareAtPrice),
-            style: context.text.bodySmall?.copyWith(
-              color: palette.inkSubtle,
-              decoration: TextDecoration.lineThrough,
-              decorationColor: palette.inkSubtle,
-            ),
-          ),
+          Text(Formatters.price(compareAtPrice), style: compareStyle),
         if (badge != null && size != PriceLabelSize.small)
           Container(
             padding: const EdgeInsets.symmetric(

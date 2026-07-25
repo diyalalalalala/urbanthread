@@ -1,7 +1,11 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 
 import '../../../../core/extensions/context_extensions.dart';
 import '../../../../core/theme/app_dimens.dart';
+import '../../../../core/theme/app_typography.dart';
+import '../../../../core/utils/text_metrics.dart';
 import '../../domain/entities/product.dart';
 import 'product_card.dart';
 
@@ -16,8 +20,47 @@ class ProductGridGeometry {
 
   static const spacing = AppDimens.space16;
 
-  /// Vertical space the name, rating and price need under the image.
-  static const _captionHeight = 108.0;
+  /// Vertical space the caption needs under the image.
+  ///
+  /// Measured from the styles the card actually uses, at the tallest the
+  /// caption can get: brand eyebrow, a name that takes both of its lines, the
+  /// rating row and the price. Every cell in a grid is one ratio, so it has
+  /// to be the tallest one that fits — and a card with no brand or no reviews
+  /// simply leaves slack, which is what keeps the prices on a row aligned.
+  ///
+  /// This used to be a hardcoded 108, which was a couple of pixels short of
+  /// two lines of name and clipped the price outright at a large text scale.
+  static double captionHeight(BuildContext context, {bool dense = false}) {
+    final text = context.text;
+    final priceStyle = AppTypography.price.copyWith(
+      fontSize: dense ? 15 : 18,
+    );
+
+    // The caption's own padding, then name and price — the two parts every
+    // card has.
+    var height = AppDimens.space12 +
+        AppDimens.space4 +
+        textBlockHeight(context, text.titleSmall, lines: _nameLines) +
+        AppDimens.space8 +
+        textBlockHeight(context, priceStyle);
+
+    if (!dense) {
+      height += textBlockHeight(context, AppTypography.eyebrow) +
+          AppDimens.space8 +
+          AppDimens.space4 +
+          math.max(
+            _ratingIconSize,
+            textBlockHeight(context, text.labelMedium),
+          );
+    }
+
+    return height.ceilToDouble();
+  }
+
+  /// Kept in step with the card: the name's `maxLines` and the size passed to
+  /// its [RatingStars].
+  static const _nameLines = 2;
+  static const _ratingIconSize = 12.0;
 
   static SliverGridDelegate delegate(BuildContext context) {
     final columns = context.productGridColumns;
@@ -26,7 +69,7 @@ class ProductGridGeometry {
         (spacing * (columns - 1));
     final cellWidth = available / columns;
     final cellHeight =
-        (cellWidth / AppDimens.productAspectRatio) + _captionHeight;
+        (cellWidth / AppDimens.productAspectRatio) + captionHeight(context);
 
     return SliverGridDelegateWithFixedCrossAxisCount(
       crossAxisCount: columns,
@@ -156,7 +199,7 @@ class ProductCarousel extends StatelessWidget {
     // The strip's height has to be fixed for a horizontal list, so it is
     // derived from the tile width the same way the grid derives its cells.
     final height = (itemWidth / AppDimens.productAspectRatio) +
-        (dense ? 76 : ProductGridGeometry._captionHeight);
+        ProductGridGeometry.captionHeight(context, dense: dense);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,

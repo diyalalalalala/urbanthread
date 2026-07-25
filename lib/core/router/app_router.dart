@@ -15,8 +15,10 @@ import '../../features/cart/presentation/pages/cart_page.dart';
 import '../../features/cart/presentation/providers/cart_notifier.dart';
 import '../../features/categories/presentation/pages/categories_page.dart';
 import '../../features/checkout/presentation/pages/checkout_page.dart';
+import '../../features/checkout/presentation/pages/order_success_page.dart';
 import '../../features/home/presentation/pages/home_page.dart';
 import '../../features/notifications/presentation/pages/notifications_page.dart';
+import '../../features/orders/domain/entities/order.dart';
 import '../../features/orders/presentation/pages/order_detail_page.dart';
 import '../../features/orders/presentation/pages/order_tracking_page.dart';
 import '../../features/orders/presentation/pages/orders_page.dart';
@@ -48,6 +50,9 @@ const _protectedPrefixes = <String>[
   AppRoutes.orders,
   AppRoutes.profile,
   AppRoutes.notifications,
+  // Written out rather than taken from `AppRoutes.orderConfirmation`, which
+  // carries a `:id` segment that would never match a real location.
+  '/order-confirmation',
 ];
 
 /// Routes a signed-in user has no business seeing.
@@ -250,6 +255,21 @@ GoRouter appRouter(Ref ref) {
         path: AppRoutes.checkout,
         name: AppRouteNames.checkout,
         builder: (context, state) => const CheckoutPage(),
+      ),
+      // The confirmation carries the placed order in `extra` — the checkout
+      // response *is* the finished order, so re-fetching it would put a
+      // spinner (or an error) on the one screen that must reassure. `extra`
+      // does not survive a deep link or a restore, and there is nothing to
+      // confirm in that case, so those fall through to the order itself.
+      GoRoute(
+        path: AppRoutes.orderConfirmation,
+        name: AppRouteNames.orderConfirmation,
+        builder: (context, state) {
+          final order = state.extra;
+          return order is Order
+              ? OrderSuccessPage(order: order)
+              : OrderDetailPage(orderId: state.pathParameters['id'] ?? '');
+        },
       ),
       GoRoute(
         path: AppRoutes.orders,

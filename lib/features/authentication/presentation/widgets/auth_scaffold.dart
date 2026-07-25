@@ -18,6 +18,7 @@ class AuthScaffold extends StatelessWidget {
     this.subtitle,
     this.footer,
     this.showBackButton = true,
+    this.onClose,
   });
 
   final String title;
@@ -26,11 +27,26 @@ class AuthScaffold extends StatelessWidget {
   final Widget? footer;
   final bool showBackButton;
 
+  /// Dismisses the screen when there is no route beneath it to pop back to.
+  ///
+  /// The router *replaces* the stack when it bounces a guest off a guarded
+  /// route, so the sign-in screen it lands on has no back arrow to offer and
+  /// would otherwise be a dead end — the only way out being the gesture that
+  /// closes the app.
+  final VoidCallback? onClose;
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    final scaffold = Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: showBackButton,
+        leading: onClose == null
+            ? null
+            : IconButton(
+                icon: const Icon(Icons.close),
+                onPressed: onClose,
+                tooltip: 'Close',
+              ),
         title: Text('URBANTHREAD', style: AppTypography.wordmark.copyWith(
           fontSize: 15,
           letterSpacing: 4.5,
@@ -51,33 +67,53 @@ class AuthScaffold extends StatelessWidget {
             ),
             child: ConstrainedBox(
               constraints: BoxConstraints(
-                minHeight: constraints.maxHeight -
-                    AppDimens.space32 -
-                    AppDimens.space24,
+                minHeight: (constraints.maxHeight -
+                        AppDimens.space32 -
+                        AppDimens.space24)
+                    .clamp(0.0, double.infinity),
               ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  Text(title, style: context.text.displaySmall),
-                  if (subtitle != null) ...[
-                    const SizedBox(height: AppDimens.space12),
-                    Text(subtitle!, style: context.text.bodyMedium?.copyWith(
-                      color: context.palette.inkMuted,
-                    )),
-                  ],
-                  const SizedBox(height: AppDimens.space32),
-                  child,
-                  if (footer != null) ...[
-                    const Spacer(),
+              // The scroll view offers unbounded height, which the `Spacer`
+              // below cannot resolve against. IntrinsicHeight tightens the
+              // column to its natural height first, so the footer still gets
+              // pushed to the bottom of the viewport on a tall screen.
+              child: IntrinsicHeight(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Text(title, style: context.text.displaySmall),
+                    if (subtitle != null) ...[
+                      const SizedBox(height: AppDimens.space12),
+                      Text(subtitle!, style: context.text.bodyMedium?.copyWith(
+                        color: context.palette.inkMuted,
+                      )),
+                    ],
                     const SizedBox(height: AppDimens.space32),
-                    footer!,
+                    child,
+                    if (footer != null) ...[
+                      const Spacer(),
+                      const SizedBox(height: AppDimens.space32),
+                      footer!,
+                    ],
                   ],
-                ],
+                ),
               ),
             ),
           ),
         ),
       ),
+    );
+
+    if (onClose == null) return scaffold;
+
+    // The system back gesture is given the same meaning as the close button,
+    // so the two cannot disagree. Without this, back on a screen the router
+    // arrived at by replacement has no route to pop and closes the app.
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, _) {
+        if (!didPop) onClose!();
+      },
+      child: scaffold,
     );
   }
 }

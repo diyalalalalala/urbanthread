@@ -30,7 +30,26 @@ class FeaturedCategoriesStrip extends StatelessWidget {
   final bool isLoading;
 
   static const _diameter = 76.0;
-  static const _stripHeight = _diameter + 44;
+  static const _labelLines = 2;
+
+  /// Artwork, gap, and exactly [_labelLines] lines of the label.
+  ///
+  /// Measured from the resolved style rather than hardcoded: `bodySmall` is
+  /// 12.5 at a 1.5 line height, so two lines need 37.5 and the 44 this used
+  /// to reserve for gap-plus-label was two pixels short of the pair. Reading
+  /// it off the theme also means the strip grows with the system font scale
+  /// instead of clipping at the first accessibility step.
+  static double _stripHeight(BuildContext context) {
+    final style = context.text.bodySmall;
+    final fontSize = MediaQuery.textScalerOf(
+      context,
+    ).scale(style?.fontSize ?? 12.5);
+    final lineHeight = fontSize * (style?.height ?? 1.5);
+
+    return _diameter +
+        AppDimens.space8 +
+        (lineHeight * _labelLines).ceilToDouble();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -50,7 +69,7 @@ class FeaturedCategoriesStrip extends StatelessWidget {
           onSeeAll: onSeeAll,
         ),
         SizedBox(
-          height: _stripHeight,
+          height: _stripHeight(context),
           child: ListView.separated(
             scrollDirection: Axis.horizontal,
             padding: const EdgeInsets.symmetric(
@@ -97,12 +116,17 @@ class _CategoryChip extends StatelessWidget {
                 placeholderIcon: Icons.category_outlined,
               ),
               const SizedBox(height: AppDimens.space8),
-              Text(
-                category.name,
-                style: context.text.bodySmall,
-                maxLines: 2,
-                textAlign: TextAlign.center,
-                overflow: TextOverflow.ellipsis,
+              // Flexible as well as measured: the height above is right for
+              // this style, but a label is one ellipsis away from fitting
+              // whatever is left rather than overflowing the strip.
+              Flexible(
+                child: Text(
+                  category.name,
+                  style: context.text.bodySmall,
+                  maxLines: FeaturedCategoriesStrip._labelLines,
+                  textAlign: TextAlign.center,
+                  overflow: TextOverflow.ellipsis,
+                ),
               ),
             ],
           ),
@@ -114,10 +138,10 @@ class _StripSkeleton extends StatelessWidget {
   const _StripSkeleton();
 
   @override
-  Widget build(BuildContext context) => const Column(
+  Widget build(BuildContext context) => Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Padding(
+          const Padding(
             padding: EdgeInsets.fromLTRB(
               AppDimens.pageGutter,
               AppDimens.space32,
@@ -134,8 +158,10 @@ class _StripSkeleton extends StatelessWidget {
             ),
           ),
           SizedBox(
-            height: FeaturedCategoriesStrip._stripHeight,
-            child: Padding(
+            // The same measurement as the loaded strip, so the placeholder
+            // does not resize the page the moment the categories arrive.
+            height: FeaturedCategoriesStrip._stripHeight(context),
+            child: const Padding(
               padding: EdgeInsets.symmetric(horizontal: AppDimens.pageGutter),
               child: Row(
                 children: [

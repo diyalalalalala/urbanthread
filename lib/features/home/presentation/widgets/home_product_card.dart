@@ -105,11 +105,17 @@ class HomeProductCard extends StatelessWidget {
               ),
               const SizedBox(height: AppDimens.space4),
             ],
-            Text(
-              product.name,
-              style: context.text.bodyMedium,
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
+            // Flexible for the same reason the rail's height is measured: the
+            // name is the one part of the caption that can give ground, so a
+            // card a pixel short of two lines ellipsises the name rather than
+            // overflowing.
+            Flexible(
+              child: Text(
+                product.name,
+                style: context.text.bodyMedium,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+              ),
             ),
             const SizedBox(height: AppDimens.space8),
             Row(
@@ -152,10 +158,17 @@ class HomeProductCard extends StatelessWidget {
                     style: context.text.bodySmall,
                   ),
                   const SizedBox(width: AppDimens.space4),
-                  Text(
-                    '(${Formatters.compact(product.ratingCount)})',
-                    style: context.text.bodySmall?.copyWith(
-                      color: palette.inkSubtle,
+                  // The count is what goes when the card runs out of width —
+                  // at a large text scale the star and "4.5" already fill a
+                  // 156dp tile, and the average is the useful half.
+                  Flexible(
+                    child: Text(
+                      '(${Formatters.compact(product.ratingCount)})',
+                      style: context.text.bodySmall?.copyWith(
+                        color: palette.inkSubtle,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                     ),
                   ),
                 ],

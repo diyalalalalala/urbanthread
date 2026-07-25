@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../core/extensions/context_extensions.dart';
 import '../../../../core/router/app_routes.dart';
+import '../../../../core/router/navigation_extensions.dart';
 import '../../../../core/theme/app_dimens.dart';
 import '../../../../core/utils/validators.dart';
 import '../providers/auth_notifier.dart';
@@ -56,6 +57,11 @@ class _LoginPageState extends ConsumerState<LoginPage> {
       title: 'Welcome back',
       subtitle: 'Sign in to your UrbanThread account.',
       showBackButton: false,
+      // Reached by a redirect, which replaced the stack. Everything except
+      // the guarded tabs works signed out, so closing means "carry on
+      // browsing" — and it gives the back gesture something to do other than
+      // quit the app.
+      onClose: () => context.goHome(),
       footer: _SignUpPrompt(redirectTo: widget.redirectTo),
       child: Form(
         key: _formKey,

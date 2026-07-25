@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../core/extensions/context_extensions.dart';
 import '../../../../core/router/app_routes.dart';
+import '../../../../core/router/navigation_extensions.dart';
 import '../../../../core/theme/app_dimens.dart';
 import '../../../../core/utils/validators.dart';
 import '../providers/auth_notifier.dart';
@@ -72,7 +73,10 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
         children: [
           Text('Already have an account?', style: context.text.bodySmall),
           TextButton(
-            onPressed: () => context.pop(),
+            // Registration is pushed from sign-in, so this unwinds rather
+            // than stacking a second sign-in screen on the first. The
+            // fallback covers arriving here from a link.
+            onPressed: () => context.popOrGo(AppRoutes.login),
             child: const Text('SIGN IN'),
           ),
         ],

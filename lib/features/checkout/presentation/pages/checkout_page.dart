@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/errors/failures.dart';
 import '../../../../core/extensions/context_extensions.dart';
 import '../../../../core/router/app_routes.dart';
+import '../../../../core/router/navigation_extensions.dart';
 import '../../../../core/theme/app_dimens.dart';
 import '../../../../core/utils/formatters.dart';
 import '../../../../core/widgets/app_network_image.dart';
@@ -20,7 +21,6 @@ import '../widgets/address_form_sheet.dart';
 import '../widgets/address_selector.dart';
 import '../widgets/coupon_section.dart';
 import '../widgets/payment_method_selector.dart';
-import 'order_success_page.dart';
 
 /// The place-order screen.
 ///
@@ -104,7 +104,10 @@ class _LoadFailure extends StatelessWidget {
               Row(
                 children: [
                   OutlinedButton(
-                    onPressed: () => context.go(AppRoutes.cart),
+                    // Checkout is always pushed from the basket, so popping
+                    // returns to it with its state intact. The fallback only
+                    // matters for a deep link straight here.
+                    onPressed: () => context.popOrGo(AppRoutes.cart),
                     child: const Text('BACK TO BASKET'),
                   ),
                   const SizedBox(width: AppDimens.space12),
@@ -552,9 +555,11 @@ class _PlaceOrderBar extends ConsumerWidget {
 
     // Replacing rather than pushing: there is nothing to go back to. The cart
     // is empty and the order is placed, so a back gesture onto checkout would
-    // only offer to buy an empty basket.
-    await Navigator.of(context).pushReplacement(
-      MaterialPageRoute<void>(builder: (_) => OrderSuccessPage(order: order)),
+    // only offer to buy an empty basket. Replacing it also leaves the shell
+    // directly beneath the confirmation, so back lands on the tabs.
+    context.pushReplacement(
+      AppRoutes.orderConfirmationPath(order.id),
+      extra: order,
     );
   }
 }

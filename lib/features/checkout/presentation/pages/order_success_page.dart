@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../core/extensions/context_extensions.dart';
 import '../../../../core/router/app_routes.dart';
+import '../../../../core/router/navigation_extensions.dart';
 import '../../../../core/theme/app_dimens.dart';
 import '../../../../core/utils/formatters.dart';
 import '../../../orders/domain/entities/order.dart';
@@ -28,10 +29,12 @@ class OrderSuccessPage extends ConsumerWidget {
 
     return PopScope(
       // The order is placed and the basket is gone; there is no checkout to
-      // return to. Back leaves for the order itself instead.
+      // return to — it was replaced by this screen. Back drops the stack for
+      // the tabs, which is what the button at the bottom does too: a
+      // confirmation should not be something you have to dismiss twice.
       canPop: false,
       onPopInvokedWithResult: (didPop, _) {
-        if (!didPop) context.go(AppRoutes.orderDetailPath(order.id));
+        if (!didPop) context.goHome();
       },
       child: Scaffold(
         backgroundColor: palette.canvas,
@@ -150,13 +153,17 @@ class OrderSuccessPage extends ConsumerWidget {
 
               const SizedBox(height: AppDimens.space32),
               FilledButton(
-                onPressed: () =>
-                    context.go(AppRoutes.orderDetailPath(order.id)),
+                // Replaces the confirmation rather than stacking on it: an
+                // order that has already been placed is not worth a second
+                // screen of celebration on the way back out.
+                onPressed: () => context.pushReplacement(
+                  AppRoutes.orderDetailPath(order.id),
+                ),
                 child: const Text('VIEW ORDER'),
               ),
               const SizedBox(height: AppDimens.space12),
               OutlinedButton(
-                onPressed: () => context.go(AppRoutes.home),
+                onPressed: () => context.goHome(),
                 child: const Text('CONTINUE SHOPPING'),
               ),
             ],

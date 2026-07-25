@@ -1,7 +1,11 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 
 import '../../../../core/extensions/context_extensions.dart';
 import '../../../../core/theme/app_dimens.dart';
+import '../../../../core/theme/app_typography.dart';
+import '../../../../core/utils/text_metrics.dart';
 import '../../domain/entities/home_feed.dart';
 import '../../domain/entities/home_product.dart';
 import 'home_product_card.dart';
@@ -40,10 +44,33 @@ class ProductRail extends StatelessWidget {
 
   static const _cardWidth = 156.0;
 
-  /// Card width, plus the image's 3:4 height, plus room for two lines of
-  /// name, a price and a rating. Fixed rather than measured because a
-  /// horizontal `ListView` has no intrinsic height to fall back on.
-  static const railHeight = _cardWidth / AppDimens.productAspectRatio + 132;
+  /// Kept in step with [HomeProductCard]: its name's `maxLines` and the size
+  /// of the star in its rating row.
+  static const _nameLines = 2;
+  static const _ratingIconSize = 14.0;
+
+  /// Card width, plus the image's 3:4 height, plus the caption.
+  ///
+  /// A horizontal `ListView` has no intrinsic height to fall back on, so this
+  /// has to be stated up front — which is why the caption is measured from
+  /// the card's own styles rather than being the constant 132 it was. That
+  /// constant was right for one font at one text scale and clipped everywhere
+  /// else.
+  static double railHeight(BuildContext context) {
+    final text = context.text;
+
+    final caption = AppDimens.space12 +
+        textBlockHeight(context, AppTypography.eyebrow) +
+        AppDimens.space4 +
+        textBlockHeight(context, text.bodyMedium, lines: _nameLines) +
+        AppDimens.space8 +
+        textBlockHeight(context, text.titleSmall) +
+        AppDimens.space4 +
+        math.max(_ratingIconSize, textBlockHeight(context, text.bodySmall));
+
+    return (_cardWidth / AppDimens.productAspectRatio + caption)
+        .ceilToDouble();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -68,7 +95,7 @@ class ProductRail extends StatelessWidget {
           onSeeAll: onSeeAll,
         ),
         SizedBox(
-          height: railHeight,
+          height: railHeight(context),
           child: ListView.separated(
             scrollDirection: Axis.horizontal,
             padding: const EdgeInsets.symmetric(
@@ -167,7 +194,9 @@ class _RailSkeleton extends StatelessWidget {
             ),
           ),
           SizedBox(
-            height: ProductRail.railHeight,
+            // The same measurement as the loaded rail, so the placeholder
+            // does not resize the page the moment the products arrive.
+            height: ProductRail.railHeight(context),
             child: ListView.separated(
               scrollDirection: Axis.horizontal,
               physics: const NeverScrollableScrollPhysics(),

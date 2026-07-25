@@ -43,11 +43,13 @@ class HomePage extends ConsumerWidget {
         centerTitle: true,
         actions: [
           IconButton(
-            onPressed: () => context.go(AppRoutes.search),
+            onPressed: () => context.push(AppRoutes.search),
             icon: const Icon(Icons.search),
             tooltip: 'Search',
           ),
           IconButton(
+            // The basket is a tab, so this switches branches rather than
+            // stacking a second copy of it over the home one.
             onPressed: () => context.go(AppRoutes.cart),
             icon: const Icon(Icons.shopping_bag_outlined),
             tooltip: 'Bag',
@@ -103,7 +105,7 @@ class HomePage extends ConsumerWidget {
       children: [
         HomeHero(
           userName: userName,
-          onShopAll: () => context.go(AppRoutes.products),
+          onShopAll: () => context.push(AppRoutes.products),
         ),
         FeaturedCategoriesStrip(
           section: feed.featuredCategories,
@@ -119,7 +121,7 @@ class HomePage extends ConsumerWidget {
             collection: entry.key,
             section: entry.value,
             isLoading: showSkeletons,
-            onSeeAll: () => context.go(entry.key.seeAllPath),
+            onSeeAll: () => context.push(entry.key.seeAllPath),
             onRetry: () =>
                 ref.read(homeFeedProvider.notifier).refreshRail(entry.key),
             onOpenProduct: (product) => _openProduct(context, product),
@@ -136,12 +138,16 @@ class HomePage extends ConsumerWidget {
 
   /// Product detail is slug-only — there is no `/products/:id` route on the
   /// backend, which is why every card carries its slug.
+  ///
+  /// Pushed, not `go`: these open *over* the tabs, so back returns to the feed
+  /// at the scroll position the shopper left it at. `go` would replace the
+  /// shell outright and leave back with nothing beneath it but the app itself.
   void _openProduct(BuildContext context, HomeProduct product) =>
-      context.go(AppRoutes.productDetailPath(product.slug));
+      context.push(AppRoutes.productDetailPath(product.slug));
 
   void _openCategory(BuildContext context, Category category) =>
-      context.go(AppRoutes.categoryProductsPath(category.slug));
+      context.push(AppRoutes.categoryProductsPath(category.slug));
 
   void _openBrand(BuildContext context, Brand brand) =>
-      context.go(AppRoutes.brandProductsPath(brand.slug));
+      context.push(AppRoutes.brandProductsPath(brand.slug));
 }

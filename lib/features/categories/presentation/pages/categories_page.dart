@@ -44,11 +44,13 @@ class _CategoriesPageState extends ConsumerState<CategoriesPage> {
     super.dispose();
   }
 
+  /// Pushed so the listing sits on top of this tab and back returns here,
+  /// rather than replacing the shell and leaving nowhere to go back to.
   void _openCategory(Category category) =>
-      context.go(AppRoutes.categoryProductsPath(category.slug));
+      context.push(AppRoutes.categoryProductsPath(category.slug));
 
   void _openBrand(Brand brand) =>
-      context.go(AppRoutes.brandProductsPath(brand.slug));
+      context.push(AppRoutes.brandProductsPath(brand.slug));
 
   @override
   Widget build(BuildContext context) {

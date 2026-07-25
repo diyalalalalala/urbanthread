@@ -100,7 +100,7 @@ class _Body extends ConsumerWidget {
         message: 'Tap the heart on anything you want to come back to.',
         icon: Icons.favorite_border,
         actionLabel: 'Browse the shop',
-        onAction: () => context.go(AppRoutes.products),
+        onAction: () => context.push(AppRoutes.products),
       );
     }
 

@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/domain/usecase.dart';
 import '../../../../core/extensions/context_extensions.dart';
 import '../../../../core/router/app_routes.dart';
+import '../../../../core/router/navigation_extensions.dart';
 import '../../../../core/theme/app_dimens.dart';
 import '../../../authentication/presentation/providers/auth_notifier.dart';
 import '../../domain/entities/theme_preference.dart';
@@ -186,6 +187,11 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
     await ref.read(authProvider.notifier).logout();
     if (!mounted) return;
     setState(() => _isSigningOut = false);
+
+    // Settings was pushed over the tabs, and half of those now need a session
+    // the user just gave up. Dropping the stack for the home tab avoids
+    // popping back into a screen that would immediately bounce to sign-in.
+    context.goHome();
   }
 
   Future<void> _signOutEverywhere() async {
@@ -206,7 +212,10 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
     setState(() => _isSigningOut = false);
     if (failure != null) {
       context.showSnack(failure.message, isError: true);
+      return;
     }
+
+    context.goHome();
   }
 
   Future<bool?> _confirm({
