@@ -19,6 +19,18 @@ abstract final class AppTheme {
 
   static ThemeData get dark => _build(AppPalette.dark, Brightness.dark);
 
+  /// For a button that should hug its label rather than fill the line.
+  ///
+  /// The button themes below set `minimumSize` with [Size.fromHeight], and
+  /// that size's *width* is infinite — which is exactly what makes a stacked
+  /// CTA span its column. A [Row], though, hands its non-flexible children an
+  /// unbounded width, so there is nothing for the infinite minimum to be
+  /// clamped against and layout dies with "BoxConstraints forces an infinite
+  /// width". Any button placed directly in a row needs this.
+  static const ButtonStyle hugContent = ButtonStyle(
+    minimumSize: WidgetStatePropertyAll(Size(0, AppDimens.controlHeight)),
+  );
+
   static ThemeData _build(AppPalette palette, Brightness brightness) {
     final scheme = ColorScheme(
       brightness: brightness,

@@ -6,6 +6,7 @@ import '../../../../core/extensions/context_extensions.dart';
 import '../../../../core/providers/core_providers.dart';
 import '../../../../core/router/app_routes.dart';
 import '../../../../core/theme/app_dimens.dart';
+import '../../../../core/widgets/shake_to_refresh.dart';
 import '../../../../core/widgets/state_views.dart';
 import '../../../authentication/presentation/providers/auth_notifier.dart';
 import '../../../categories/domain/entities/brand.dart';
@@ -56,18 +57,30 @@ class HomePage extends ConsumerWidget {
           ),
         ],
       ),
-      body: Column(
-        children: [
-          // Informs rather than interrupts: everything below is cached and
-          // fully browsable without a connection.
-          if (isOffline) const OfflineBanner(),
-          Expanded(
-            child: RefreshIndicator(
-              onRefresh: () => ref.read(homeFeedProvider.notifier).refresh(),
-              child: _body(context, ref, state, userName),
+      // Shake reloads every rail — the same call pull-to-refresh makes, so
+      // there is one refresh path and the gesture is just another way in.
+      body: ShakeToRefresh(
+        onRefresh: () async {
+          await ref.read(homeFeedProvider.notifier).refresh();
+          // Silent on failure: a section that could not reload keeps its own
+          // inline retry, and a "refreshed" toast over it would contradict it.
+          return ref.read(homeFeedProvider).blockingFailure == null
+              ? 'Storefront updated'
+              : null;
+        },
+        child: Column(
+          children: [
+            // Informs rather than interrupts: everything below is cached and
+            // fully browsable without a connection.
+            if (isOffline) const OfflineBanner(),
+            Expanded(
+              child: RefreshIndicator(
+                onRefresh: () => ref.read(homeFeedProvider.notifier).refresh(),
+                child: _body(context, ref, state, userName),
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

@@ -7,6 +7,7 @@ import '../../../../core/extensions/context_extensions.dart';
 import '../../../../core/router/app_routes.dart';
 import '../../../../core/theme/app_dimens.dart';
 import '../../../../core/theme/app_typography.dart';
+import '../../../../core/widgets/shake_to_refresh.dart';
 import '../../../../core/widgets/state_views.dart';
 import '../../domain/entities/product_filters.dart';
 import '../../domain/entities/product_query.dart';
@@ -135,23 +136,35 @@ class _ProductListPageState extends ConsumerState<ProductListPage> {
           ),
         ],
       ),
-      body: Column(
-        children: [
-          _Toolbar(
-            total: state.total,
-            query: state.query,
-            isLoading: state.isLoading,
-            onSort: () => _openSortSheet(state.query.sort),
-            onFilter: () => _openFilterSheet(state.query),
-          ),
-          Divider(height: 1, color: context.palette.line),
-          Expanded(
-            child: RefreshIndicator(
-              onRefresh: _notifier.refresh,
-              child: _body(state),
+      // Shake re-runs the current query, filters and sort included — the same
+      // call pull-to-refresh makes.
+      body: ShakeToRefresh(
+        onRefresh: () async {
+          await _notifier.refresh();
+          if (!mounted) return null;
+          return ref.read(productListProvider(widget.initialQuery)).failure ==
+                  null
+              ? 'Product list updated'
+              : null;
+        },
+        child: Column(
+          children: [
+            _Toolbar(
+              total: state.total,
+              query: state.query,
+              isLoading: state.isLoading,
+              onSort: () => _openSortSheet(state.query.sort),
+              onFilter: () => _openFilterSheet(state.query),
             ),
-          ),
-        ],
+            Divider(height: 1, color: context.palette.line),
+            Expanded(
+              child: RefreshIndicator(
+                onRefresh: _notifier.refresh,
+                child: _body(state),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

@@ -41,13 +41,28 @@ class HomeProductModel {
   factory HomeProductModel.fromJson(Map<String, dynamic> json) =>
       _$HomeProductModelFromJson(json);
 
-  @JsonKey(name: '_id')
+  /// The four identity fields below all carry a `defaultValue`, which makes
+  /// the generated decoder read them as nullable and fall back rather than
+  /// cast. That matters more than it looks: retrofit maps the whole `data`
+  /// array in one expression, so a single row that throws takes the entire
+  /// rail down with it — as a raw `TypeError`, which [ErrorMapper] can only
+  /// report as "Something unexpected happened". `slug` is the live example:
+  /// the backend's schema does not mark it `required`, so a product created
+  /// without one is a payload the endpoint is entitled to return.
+  ///
+  /// A row that comes back short is not rendered — see [isRenderable] — it
+  /// simply does not cost the other nine their rail.
+  @JsonKey(name: '_id', defaultValue: '')
   final String id;
+
+  @JsonKey(defaultValue: '')
   final String name;
 
-  /// Product detail is slug-only, so this is not optional on a card.
+  /// Product detail is slug-only, so a card without one cannot navigate.
+  @JsonKey(defaultValue: '')
   final String slug;
 
+  @JsonKey(defaultValue: 0)
   final num price;
   final num discountPercentage;
 
@@ -70,6 +85,16 @@ class HomeProductModel {
   final bool isNewArrival;
 
   Map<String, dynamic> toJson() => _$HomeProductModelToJson(this);
+
+  /// Whether this row is worth putting on screen.
+  ///
+  /// A card needs an id to be distinct, a name to read as anything, and a slug
+  /// to open — product detail is slug-only. Missing any of them, the card
+  /// would be a dead tile, so the row is dropped instead. Silently: the rail
+  /// is merchandising, and one absent product is not worth an error over the
+  /// nine that are fine.
+  bool get isRenderable =>
+      id.isNotEmpty && name.isNotEmpty && slug.isNotEmpty;
 
   /// The image a card should draw: the one flagged primary, else the first
   /// uploaded, else nothing.
@@ -161,7 +186,10 @@ class ProductRefModel {
   factory ProductRefModel.fromJson(Map<String, dynamic> json) =>
       _$ProductRefModelFromJson(json);
 
-  @JsonKey(name: '_id')
+  /// Defaulted for the same reason as the fields on [HomeProductModel]: a
+  /// populated reference that arrived without its `_id` must not cost the
+  /// whole rail.
+  @JsonKey(name: '_id', defaultValue: '')
   final String id;
   final String name;
   final String slug;

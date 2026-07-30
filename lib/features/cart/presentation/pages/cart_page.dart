@@ -9,6 +9,7 @@ import '../../../../core/router/app_routes.dart';
 import '../../../../core/theme/app_dimens.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../core/utils/formatters.dart';
+import '../../../../core/widgets/shake_to_refresh.dart';
 import '../../../../core/widgets/state_views.dart';
 import '../../domain/entities/cart.dart';
 import '../../domain/entities/cart_notice.dart';
@@ -54,12 +55,23 @@ class CartPage extends ConsumerWidget {
             ),
         ],
       ),
-      body: Column(
-        children: [
-          if (!isOnline) const OfflineBanner(),
-          if (state.hasPendingWrites) _PendingWritesBanner(state: state),
-          Expanded(child: _Body(state: state)),
-        ],
+      // Shake re-reads the bag from the server, which is also what flushes the
+      // reconciliation notices — the most useful thing a shopper standing in
+      // front of a changed price can do.
+      body: ShakeToRefresh(
+        onRefresh: () async {
+          await ref.read(cartProvider.notifier).refresh();
+          // The notifier already routes its own messages through the listener
+          // above, so only a clean refresh is confirmed here.
+          return ref.read(cartProvider).failure == null ? 'Bag updated' : null;
+        },
+        child: Column(
+          children: [
+            if (!isOnline) const OfflineBanner(),
+            if (state.hasPendingWrites) _PendingWritesBanner(state: state),
+            Expanded(child: _Body(state: state)),
+          ],
+        ),
       ),
       bottomNavigationBar: state.snapshot?.cart.hasActiveItems ?? false
           ? _CheckoutBar(state: state)

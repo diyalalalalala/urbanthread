@@ -32,18 +32,24 @@ part 'checkout_notifier.g.dart';
 class CheckoutNotifier extends _$CheckoutNotifier {
   @override
   CheckoutState build() {
-    unawaited(_load());
+    // Silent on this first run: `state` does not exist until `build` returns,
+    // so `_load` must reach its first `await` without touching it. Nothing is
+    // lost — `const CheckoutState()` is already the loading state that the
+    // skipped write would have produced.
+    unawaited(_load(silent: true));
     return const CheckoutState();
   }
 
   /// Loads the cart and the address book together, then works out whether
   /// anything blocks the order.
-  Future<void> _load() async {
-    state = state.copyWith(
-      isLoading: true,
-      clearFailure: true,
-      clearPlaceFailure: true,
-    );
+  Future<void> _load({bool silent = false}) async {
+    if (!silent) {
+      state = state.copyWith(
+        isLoading: true,
+        clearFailure: true,
+        clearPlaceFailure: true,
+      );
+    }
 
     // Started together and awaited separately, so the two requests overlap —
     // this is the screen's whole cold start — while each keeps its own type.

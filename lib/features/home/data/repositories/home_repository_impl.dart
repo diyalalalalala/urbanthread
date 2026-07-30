@@ -80,6 +80,10 @@ class HomeRepositoryImpl implements HomeRepository {
       failure is TimeoutFailure ||
       failure is ServerFailure;
 
-  static List<HomeProduct> _toEntities(List<HomeProductModel> models) =>
-      models.map((model) => model.toEntity()).toList(growable: false);
+  /// Rows the cards cannot draw are dropped rather than rendered as dead
+  /// tiles. See [HomeProductModel.isRenderable].
+  static List<HomeProduct> _toEntities(List<HomeProductModel> models) => models
+      .where((model) => model.isRenderable)
+      .map((model) => model.toEntity())
+      .toList(growable: false);
 }

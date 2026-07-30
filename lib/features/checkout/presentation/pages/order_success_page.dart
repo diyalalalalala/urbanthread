@@ -7,6 +7,7 @@ import '../../../../core/router/app_routes.dart';
 import '../../../../core/router/navigation_extensions.dart';
 import '../../../../core/theme/app_dimens.dart';
 import '../../../../core/utils/formatters.dart';
+import '../../../../core/widgets/privacy_guard.dart';
 import '../../../orders/domain/entities/order.dart';
 import '../../../orders/presentation/widgets/order_pricing_summary.dart';
 import '../../../orders/presentation/widgets/order_status_chip.dart';
@@ -38,135 +39,140 @@ class OrderSuccessPage extends ConsumerWidget {
       },
       child: Scaffold(
         backgroundColor: palette.canvas,
-        body: SafeArea(
-          child: ListView(
-            padding: const EdgeInsets.fromLTRB(
-              AppDimens.pageGutter,
-              AppDimens.space40,
-              AppDimens.pageGutter,
-              AppDimens.space32,
-            ),
-            children: [
-              Center(
-                child: Container(
-                  width: 64,
-                  height: 64,
+        // Order number, delivery address and what was paid — the confirmation
+        // screen is the densest concentration of order data in the app.
+        body: PrivacyGuard(
+          label: 'Order details hidden',
+          child: SafeArea(
+            child: ListView(
+              padding: const EdgeInsets.fromLTRB(
+                AppDimens.pageGutter,
+                AppDimens.space40,
+                AppDimens.pageGutter,
+                AppDimens.space32,
+              ),
+              children: [
+                Center(
+                  child: Container(
+                    width: 64,
+                    height: 64,
+                    decoration: BoxDecoration(
+                      color: palette.successSubtle,
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(
+                      Icons.check_rounded,
+                      size: 34,
+                      color: palette.success,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: AppDimens.space24),
+                Text(
+                  'Thank you',
+                  textAlign: TextAlign.center,
+                  style: context.text.displaySmall,
+                ),
+                const SizedBox(height: AppDimens.space8),
+                Text(
+                  isPaid
+                      ? 'Your payment went through and your order is confirmed.'
+                      : 'Your order is in. You will pay when it arrives.',
+                  textAlign: TextAlign.center,
+                  style: context.text.bodyLarge,
+                ),
+                const SizedBox(height: AppDimens.space24),
+
+                // The reference customers quote to support. Given its own
+                // treatment because it is the single most useful thing on the
+                // page.
+                Container(
+                  padding: const EdgeInsets.all(AppDimens.space16),
                   decoration: BoxDecoration(
-                    color: palette.successSubtle,
-                    shape: BoxShape.circle,
+                    color: palette.surface,
+                    border: Border.all(color: palette.line),
+                    borderRadius: AppDimens.borderRadius,
                   ),
-                  child: Icon(
-                    Icons.check_rounded,
-                    size: 34,
-                    color: palette.success,
+                  child: Column(
+                    children: [
+                      Text('ORDER NUMBER', style: context.text.labelSmall),
+                      const SizedBox(height: AppDimens.space4),
+                      Text(
+                        order.orderNumber,
+                        style: context.text.headlineSmall,
+                      ),
+                      const SizedBox(height: AppDimens.space12),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          OrderStatusChip(status: order.status, dense: true),
+                          const SizedBox(width: AppDimens.space8),
+                          PaymentStatusChip(payment: order.payment),
+                        ],
+                      ),
+                    ],
                   ),
                 ),
-              ),
-              const SizedBox(height: AppDimens.space24),
-              Text(
-                'Thank you',
-                textAlign: TextAlign.center,
-                style: context.text.displaySmall,
-              ),
-              const SizedBox(height: AppDimens.space8),
-              Text(
-                isPaid
-                    ? 'Your payment went through and your order is confirmed.'
-                    : 'Your order is in. You will pay when it arrives.',
-                textAlign: TextAlign.center,
-                style: context.text.bodyLarge,
-              ),
-              const SizedBox(height: AppDimens.space24),
 
-              // The reference customers quote to support. Given its own
-              // treatment because it is the single most useful thing on the
-              // page.
-              Container(
-                padding: const EdgeInsets.all(AppDimens.space16),
-                decoration: BoxDecoration(
-                  color: palette.surface,
-                  border: Border.all(color: palette.line),
-                  borderRadius: AppDimens.borderRadius,
-                ),
-                child: Column(
-                  children: [
-                    Text('ORDER NUMBER', style: context.text.labelSmall),
-                    const SizedBox(height: AppDimens.space4),
-                    Text(
-                      order.orderNumber,
-                      style: context.text.headlineSmall,
-                    ),
-                    const SizedBox(height: AppDimens.space12),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        OrderStatusChip(status: order.status, dense: true),
-                        const SizedBox(width: AppDimens.space8),
-                        PaymentStatusChip(payment: order.payment),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
+                const SizedBox(height: AppDimens.space24),
+                const OrderSectionHeader(title: 'What happens next'),
+                _NextSteps(order: order),
 
-              const SizedBox(height: AppDimens.space24),
-              const OrderSectionHeader(title: 'What happens next'),
-              _NextSteps(order: order),
+                const SizedBox(height: AppDimens.space24),
+                const OrderSectionHeader(title: 'Summary'),
+                Container(
+                  padding: const EdgeInsets.all(AppDimens.space16),
+                  decoration: BoxDecoration(
+                    color: palette.surface,
+                    border: Border.all(color: palette.line),
+                    borderRadius: AppDimens.borderRadius,
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        Formatters.items(order.totalItems),
+                        style: context.text.bodySmall,
+                      ),
+                      const SizedBox(height: AppDimens.space12),
+                      OrderPricingSummary.fromOrder(order),
+                    ],
+                  ),
+                ),
 
-              const SizedBox(height: AppDimens.space24),
-              const OrderSectionHeader(title: 'Summary'),
-              Container(
-                padding: const EdgeInsets.all(AppDimens.space16),
-                decoration: BoxDecoration(
-                  color: palette.surface,
-                  border: Border.all(color: palette.line),
-                  borderRadius: AppDimens.borderRadius,
+                const SizedBox(height: AppDimens.space24),
+                const OrderSectionHeader(title: 'Delivering to'),
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(AppDimens.space16),
+                  decoration: BoxDecoration(
+                    color: palette.surface,
+                    border: Border.all(color: palette.line),
+                    borderRadius: AppDimens.borderRadius,
+                  ),
+                  child: OrderAddressBlock(
+                    title: 'Shipping address',
+                    address: order.shippingAddress,
+                  ),
                 ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      Formatters.items(order.totalItems),
-                      style: context.text.bodySmall,
-                    ),
-                    const SizedBox(height: AppDimens.space12),
-                    OrderPricingSummary.fromOrder(order),
-                  ],
-                ),
-              ),
 
-              const SizedBox(height: AppDimens.space24),
-              const OrderSectionHeader(title: 'Delivering to'),
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.all(AppDimens.space16),
-                decoration: BoxDecoration(
-                  color: palette.surface,
-                  border: Border.all(color: palette.line),
-                  borderRadius: AppDimens.borderRadius,
+                const SizedBox(height: AppDimens.space32),
+                FilledButton(
+                  // Replaces the confirmation rather than stacking on it: an
+                  // order that has already been placed is not worth a second
+                  // screen of celebration on the way back out.
+                  onPressed: () => context.pushReplacement(
+                    AppRoutes.orderDetailPath(order.id),
+                  ),
+                  child: const Text('VIEW ORDER'),
                 ),
-                child: OrderAddressBlock(
-                  title: 'Shipping address',
-                  address: order.shippingAddress,
+                const SizedBox(height: AppDimens.space12),
+                OutlinedButton(
+                  onPressed: () => context.goHome(),
+                  child: const Text('CONTINUE SHOPPING'),
                 ),
-              ),
-
-              const SizedBox(height: AppDimens.space32),
-              FilledButton(
-                // Replaces the confirmation rather than stacking on it: an
-                // order that has already been placed is not worth a second
-                // screen of celebration on the way back out.
-                onPressed: () => context.pushReplacement(
-                  AppRoutes.orderDetailPath(order.id),
-                ),
-                child: const Text('VIEW ORDER'),
-              ),
-              const SizedBox(height: AppDimens.space12),
-              OutlinedButton(
-                onPressed: () => context.goHome(),
-                child: const Text('CONTINUE SHOPPING'),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),

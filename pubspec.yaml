@@ -66,6 +66,16 @@ dependencies:
   permission_handler: ^12.0.3
   intl: ^0.20.3
   connectivity_plus: ^7.3.0
+  # Accelerometer, for shake-to-refresh. Pure Dart on top of a federated
+  # plugin, so it carries no analyzer/meta constraint and stays out of the
+  # generator conflict described below.
+  sensors_plus: ^7.1.0
+  # Proximity sensor, for privacy mode. Held on 1.x deliberately: 2.0.0 raises
+  # its floor to Dart ^3.12, and this SDK ships 3.11.0. Note also that its Dart
+  # entrypoint imports `dart:io`, which does not compile for web — hence the
+  # conditional import in `core/sensors/proximity_sensor_service.dart` rather
+  # than a runtime platform check.
+  proximity_sensor: ^1.4.0
 
 dev_dependencies:
   flutter_test:

@@ -190,6 +190,13 @@ class ProductRepositoryImpl implements ProductRepository {
 
   // ── Internals ──────────────────────────────────────────────────────────
 
+  /// Rows the catalogue cannot open are dropped rather than listed as dead
+  /// tiles. See [ProductModel.isRenderable].
+  static List<Product> _toEntities(List<ProductModel> models) => models
+      .where((model) => model.isRenderable)
+      .map((model) => model.toEntity())
+      .toList(growable: false);
+
   /// Shared body for the bare-array endpoints: the collections and related
   /// products. They differ only in which request they make and where they are
   /// cached, so the offline policy lives here once.
@@ -197,10 +204,7 @@ class ProductRepositoryImpl implements ProductRepository {
     required String cacheName,
     required Future<ApiEnvelope<List<ProductModel>>> Function() request,
   }) async {
-    List<Product> cached() => _local
-        .readCollection(cacheName)
-        .map((model) => model.toEntity())
-        .toList(growable: false);
+    List<Product> cached() => _toEntities(_local.readCollection(cacheName));
 
     if (!await _networkInfo.isConnected) {
       final offline = cached();
@@ -212,9 +216,7 @@ class ProductRepositoryImpl implements ProductRepository {
     try {
       final envelope = await request();
       await _local.writeCollection(cacheName, envelope.data);
-      return Result.success(
-        envelope.data.map((model) => model.toEntity()).toList(growable: false),
-      );
+      return Result.success(_toEntities(envelope.data));
     } on Object catch (error) {
       final failure = ErrorMapper.toFailure(error);
       if (_isTransient(failure)) {
@@ -238,8 +240,7 @@ class ProductRepositoryImpl implements ProductRepository {
   /// complete page rather than as page 1 of an unknown number, so the
   /// infinite scroll stops instead of requesting page 2 forever.
   Paginated<Product> _toPage(List<ProductModel> items, PaginationMeta? meta) {
-    final products =
-        items.map((model) => model.toEntity()).toList(growable: false);
+    final products = _toEntities(items);
     if (meta == null) return Paginated<Product>.single(products);
 
     return Paginated<Product>(

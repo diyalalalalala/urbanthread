@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/extensions/context_extensions.dart';
 import '../../../../core/theme/app_dimens.dart';
+import '../../../../core/theme/app_theme.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../core/utils/formatters.dart';
 import '../../../../core/widgets/state_views.dart';
@@ -108,6 +109,7 @@ class _CouponSectionState extends ConsumerState<CouponSection> {
             ),
             const SizedBox(width: AppDimens.space8),
             OutlinedButton(
+              style: AppTheme.hugContent,
               onPressed: widget.isApplying
                   ? null
                   : () => widget.onApply(_controller.text),

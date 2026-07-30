@@ -53,7 +53,7 @@ final class OrdersNotifierProvider
   }
 }
 
-String _$ordersNotifierHash() => r'ed146a2f16357252b1d598fff2862679bf296631';
+String _$ordersNotifierHash() => r'c75000845c3047549efcb8e9aa5b47cd25e0216d';
 
 /// The paginated order history.
 ///

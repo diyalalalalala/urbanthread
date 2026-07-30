@@ -4,8 +4,70 @@ import '../../../../core/extensions/context_extensions.dart';
 import '../../../../core/theme/app_dimens.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../core/utils/formatters.dart';
+import '../../../../core/utils/text_metrics.dart';
 import '../../../../core/widgets/app_network_image.dart';
 import '../../domain/entities/wishlist.dart';
+
+/// Cell sizing for the wishlist grid.
+///
+/// The same job [ProductGridGeometry] does for the catalogue, and here for the
+/// same reason: a grid cell has to state its height before its contents are
+/// laid out, so the caption has to be measured up front. This replaces a
+/// hardcoded `childAspectRatio: 0.48`, which was very slightly too short — it
+/// fitted a tile without a price-drop line and overflowed by about fifteen
+/// pixels with one, and clipped at any raised text scale, since a fixed ratio
+/// cannot know what the reader's font size is.
+///
+/// The budget is the *tallest* the caption gets, price-drop line included.
+/// Every cell in a grid is one ratio, so a tile whose price has not moved
+/// simply leaves slack — which is what keeps the buttons on a row aligned.
+abstract final class WishlistTileGeometry {
+  const WishlistTileGeometry._();
+
+  static const crossAxisSpacing = AppDimens.space16;
+  static const mainAxisSpacing = AppDimens.space24;
+
+  /// Kept in step with the tile's own `maxLines`.
+  static const _nameLines = 2;
+  static const _priceDropLines = 2;
+
+  static double captionHeight(BuildContext context) {
+    final text = context.text;
+
+    final height = AppDimens.space8 +
+        // Brand eyebrow, then the name at both of the lines it may take.
+        textBlockHeight(context, AppTypography.eyebrow) +
+        textBlockHeight(context, text.bodyMedium, lines: _nameLines) +
+        AppDimens.space4 +
+        // One line, and reliably so: the price row ellipsises rather than
+        // wrapping, which is what makes this budget something other than a
+        // guess. The price is the tallest style in that row.
+        textBlockHeight(context, AppTypography.price.copyWith(fontSize: 14)) +
+        AppDimens.space4 +
+        textBlockHeight(context, text.bodySmall, lines: _priceDropLines) +
+        AppDimens.space12 +
+        AppDimens.controlHeightSm;
+
+    return height.ceilToDouble();
+  }
+
+  static SliverGridDelegate delegate(BuildContext context) {
+    final columns = context.productGridColumns;
+    final available = context.screenWidth -
+        (AppDimens.pageGutter * 2) -
+        (crossAxisSpacing * (columns - 1));
+    final cellWidth = available / columns;
+    final cellHeight =
+        (cellWidth / AppDimens.productAspectRatio) + captionHeight(context);
+
+    return SliverGridDelegateWithFixedCrossAxisCount(
+      crossAxisCount: columns,
+      crossAxisSpacing: crossAxisSpacing,
+      mainAxisSpacing: mainAxisSpacing,
+      childAspectRatio: cellWidth / cellHeight,
+    );
+  }
+}
 
 /// One saved product, as a grid card.
 ///
@@ -96,6 +158,12 @@ class WishlistTile extends StatelessWidget {
             const SizedBox(height: AppDimens.space4),
             Text(
               'Down ${Formatters.price(item.priceDropAmount)} since you saved it',
+              // Capped, and budgeted at the same two lines by
+              // [WishlistTileGeometry]: this is a whole sentence in a cell a
+              // third of a phone wide, so it always takes more than one line
+              // and used to take three when the amount was long.
+              maxLines: WishlistTileGeometry._priceDropLines,
+              overflow: TextOverflow.ellipsis,
               style: context.text.bodySmall?.copyWith(color: palette.success),
             ),
           ],
@@ -124,29 +192,55 @@ class _Price extends StatelessWidget {
     final palette = context.palette;
     final badge = Formatters.discountBadge(product.discountPercentage);
 
-    return Wrap(
-      spacing: AppDimens.space8,
-      crossAxisAlignment: WrapCrossAlignment.center,
+    // One line, always. A `Wrap` here — which is what this was — grows a run
+    // whenever the three parts do not fit side by side, and on a cell this
+    // narrow that is the common case with a discount; the caption then gets
+    // taller than the grid budgeted for it. `PriceLabel.singleLine` exists for
+    // the same reason and explains it at length.
+    //
+    // Every part is flexible and ellipsises rather than dropping the badge the
+    // way `PriceLabel` does: nothing else on this tile shows the discount, and
+    // a price cut is the whole reason a saved item is worth coming back to.
+    return Row(
       children: [
-        Text(
-          Formatters.price(product.effectivePrice),
-          style: AppTypography.price.copyWith(color: palette.ink, fontSize: 14),
+        Flexible(
+          child: Text(
+            Formatters.price(product.effectivePrice),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: AppTypography.price.copyWith(
+              color: palette.ink,
+              fontSize: 14,
+            ),
+          ),
         ),
         // `price` is the pre-discount figure; there is no `comparePrice` on
         // this API, so the strike-through is the original price itself.
-        if (product.discountPercentage > 0)
-          Text(
-            Formatters.price(product.price),
-            style: context.text.bodySmall?.copyWith(
-              color: palette.inkSubtle,
-              decoration: TextDecoration.lineThrough,
+        if (product.discountPercentage > 0) ...[
+          const SizedBox(width: AppDimens.space8),
+          Flexible(
+            child: Text(
+              Formatters.price(product.price),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: context.text.bodySmall?.copyWith(
+                color: palette.inkSubtle,
+                decoration: TextDecoration.lineThrough,
+              ),
             ),
           ),
-        if (badge != null)
-          Text(
-            badge.toUpperCase(),
-            style: AppTypography.eyebrow.copyWith(color: palette.danger),
+        ],
+        if (badge != null) ...[
+          const SizedBox(width: AppDimens.space8),
+          Flexible(
+            child: Text(
+              badge.toUpperCase(),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: AppTypography.eyebrow.copyWith(color: palette.danger),
+            ),
           ),
+        ],
       ],
     );
   }

@@ -6,6 +6,7 @@ import '../../../../core/domain/result.dart';
 import '../../../../core/extensions/context_extensions.dart';
 import '../../../../core/router/app_routes.dart';
 import '../../../../core/theme/app_dimens.dart';
+import '../../../../core/widgets/privacy_guard.dart';
 import '../../../../core/widgets/state_views.dart';
 import '../../../authentication/domain/entities/user.dart';
 import '../../../authentication/presentation/providers/auth_providers.dart';
@@ -48,24 +49,27 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
           ),
         ],
       ),
-      body: switch (profile) {
-        AsyncData(:final value) => RefreshIndicator(
-            onRefresh: () => ref.read(profileProvider.notifier).refresh(),
-            child: _ProfileBody(
-              user: value,
-              isAvatarBusy: _isAvatarBusy,
-              isResending: _isResending,
-              onChangeAvatar: _changeAvatar,
-              onRemoveAvatar: _removeAvatar,
-              onResendVerification: () => _resendVerification(value.email),
+      body: PrivacyGuard(
+        label: 'Account details hidden',
+        child: switch (profile) {
+          AsyncData(:final value) => RefreshIndicator(
+              onRefresh: () => ref.read(profileProvider.notifier).refresh(),
+              child: _ProfileBody(
+                user: value,
+                isAvatarBusy: _isAvatarBusy,
+                isResending: _isResending,
+                onChangeAvatar: _changeAvatar,
+                onRemoveAvatar: _removeAvatar,
+                onResendVerification: () => _resendVerification(value.email),
+              ),
             ),
-          ),
-        AsyncError(:final error) => FailureView(
-            failure: failureFrom(error),
-            onRetry: () => ref.invalidate(profileProvider),
-          ),
-        _ => const LoadingView(),
-      },
+          AsyncError(:final error) => FailureView(
+              failure: failureFrom(error),
+              onRetry: () => ref.invalidate(profileProvider),
+            ),
+          _ => const LoadingView(),
+        },
+      ),
     );
   }
 

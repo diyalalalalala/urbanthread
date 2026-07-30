@@ -8,10 +8,10 @@ part of 'home_product_model.dart';
 
 HomeProductModel _$HomeProductModelFromJson(Map<String, dynamic> json) =>
     HomeProductModel(
-      id: json['_id'] as String,
-      name: json['name'] as String,
-      slug: json['slug'] as String,
-      price: json['price'] as num,
+      id: json['_id'] as String? ?? '',
+      name: json['name'] as String? ?? '',
+      slug: json['slug'] as String? ?? '',
+      price: json['price'] as num? ?? 0,
       discountPercentage: json['discountPercentage'] as num? ?? 0,
       effectivePrice: json['effectivePrice'] as num?,
       images:
@@ -76,7 +76,7 @@ Map<String, dynamic> _$RatingModelToJson(RatingModel instance) =>
 
 ProductRefModel _$ProductRefModelFromJson(Map<String, dynamic> json) =>
     ProductRefModel(
-      id: json['_id'] as String,
+      id: json['_id'] as String? ?? '',
       name: json['name'] as String? ?? '',
       slug: json['slug'] as String? ?? '',
     );

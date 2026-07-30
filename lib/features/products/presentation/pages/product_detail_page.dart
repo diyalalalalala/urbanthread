@@ -37,7 +37,14 @@ typedef AddToCartCallback = void Function(
 /// product's ObjectId instead — the asymmetry is the API's, and it is why the
 /// id is only read after the product itself has loaded.
 class ProductDetailPage extends ConsumerWidget {
-  const ProductDetailPage({required this.slug, super.key, this.onAddToCart});
+  const ProductDetailPage({
+    required this.slug,
+    super.key,
+    this.onAddToCart,
+    this.showWishlistButton = false,
+    this.isWishlisted,
+    this.onWishlistTap,
+  });
 
   final String slug;
 
@@ -45,6 +52,18 @@ class ProductDetailPage extends ConsumerWidget {
   /// disabled rather than being hidden, so the page keeps the same layout
   /// however it was mounted.
   final AddToCartCallback? onAddToCart;
+
+  /// Opt-in for the same reason the cart is a callback: this page must not
+  /// acquire a dependency on the wishlist feature. The owner of the route
+  /// supplies the state and the action, exactly as it does for `ProductCard`.
+  final bool showWishlistButton;
+
+  /// A predicate rather than a bool because the page is addressed by slug and
+  /// only learns the product's id once it has loaded — the same shape
+  /// `ProductGrid` uses for its cards.
+  final bool Function(Product product)? isWishlisted;
+
+  final void Function(Product product)? onWishlistTap;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -71,7 +90,13 @@ class ProductDetailPage extends ConsumerWidget {
     return Scaffold(
       body: CustomScrollView(
         slivers: [
-          _GalleryAppBar(product: product),
+          _GalleryAppBar(
+            product: product,
+            showWishlistButton: showWishlistButton,
+            isWishlisted: isWishlisted?.call(product) ?? false,
+            onWishlistTap:
+                onWishlistTap == null ? null : () => onWishlistTap!(product),
+          ),
           SliverToBoxAdapter(
             child: Padding(
               padding: const EdgeInsets.fromLTRB(
@@ -152,9 +177,17 @@ class ProductDetailPage extends ConsumerWidget {
 
 /// Collapsing gallery. Swipeable, with a page indicator.
 class _GalleryAppBar extends StatefulWidget {
-  const _GalleryAppBar({required this.product});
+  const _GalleryAppBar({
+    required this.product,
+    this.showWishlistButton = false,
+    this.isWishlisted = false,
+    this.onWishlistTap,
+  });
 
   final Product product;
+  final bool showWishlistButton;
+  final bool isWishlisted;
+  final VoidCallback? onWishlistTap;
 
   @override
   State<_GalleryAppBar> createState() => _GalleryAppBarState();
@@ -180,6 +213,32 @@ class _GalleryAppBarState extends State<_GalleryAppBar> {
       // 3:4 portrait, matching how the catalogue is shot.
       expandedHeight: context.screenWidth / AppDimens.productAspectRatio,
       backgroundColor: palette.canvas,
+      actions: [
+        if (widget.showWishlistButton)
+          Padding(
+            padding: const EdgeInsets.only(right: AppDimens.space8),
+            child: Material(
+              // The bar is transparent while expanded, so the icon sits
+              // straight on the photograph. The disc is what keeps it legible
+              // against a light shot — the same treatment the grid card uses.
+              color: palette.surface.withValues(alpha: 0.9),
+              shape: const CircleBorder(),
+              child: IconButton(
+                onPressed: widget.onWishlistTap,
+                tooltip: widget.isWishlisted
+                    ? 'Remove from wishlist'
+                    : 'Save to wishlist',
+                icon: Icon(
+                  widget.isWishlisted
+                      ? Icons.favorite
+                      : Icons.favorite_border,
+                  color:
+                      widget.isWishlisted ? palette.accent : palette.ink,
+                ),
+              ),
+            ),
+          ),
+      ],
       flexibleSpace: FlexibleSpaceBar(
         background: Stack(
           fit: StackFit.expand,

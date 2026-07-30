@@ -8,6 +8,7 @@ import '../../../../core/router/app_routes.dart';
 import '../../../../core/theme/app_dimens.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../core/utils/formatters.dart';
+import '../../../../core/widgets/privacy_guard.dart';
 import '../../../../core/widgets/state_views.dart';
 import '../../domain/entities/order.dart';
 import '../providers/orders_notifier.dart';
@@ -58,20 +59,23 @@ class OrderDetailPage extends ConsumerWidget {
             ),
         ],
       ),
-      body: switch (state) {
-        OrderDetailState(isLoading: true, order: null) => const LoadingView(),
-        OrderDetailState(failure: final failure?, order: null) => FailureView(
-            failure: failure,
-            onRetry: notifier.refresh,
-          ),
-        _ when order != null => _Body(
-            order: order,
-            isOnline: isOnline,
-            isSubmitting: state.isSubmitting,
-            onRefresh: notifier.refresh,
-          ),
-        _ => const LoadingView(),
-      },
+      body: PrivacyGuard(
+        label: 'Order details hidden',
+        child: switch (state) {
+          OrderDetailState(isLoading: true, order: null) => const LoadingView(),
+          OrderDetailState(failure: final failure?, order: null) => FailureView(
+              failure: failure,
+              onRetry: notifier.refresh,
+            ),
+          _ when order != null => _Body(
+              order: order,
+              isOnline: isOnline,
+              isSubmitting: state.isSubmitting,
+              onRefresh: notifier.refresh,
+            ),
+          _ => const LoadingView(),
+        },
+      ),
       bottomNavigationBar: order == null
           ? null
           : _Actions(

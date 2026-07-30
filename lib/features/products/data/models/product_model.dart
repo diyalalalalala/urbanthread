@@ -59,10 +59,20 @@ class ProductModel {
   factory ProductModel.fromJson(Map<String, dynamic> json) =>
       _$ProductModelFromJson(json);
 
-  @JsonKey(name: '_id')
+  /// Defaulted rather than cast, so one short row cannot fail a whole page of
+  /// results. `slug` in particular is not `required` in the backend schema, so
+  /// a product without one is a legal payload — and since product detail is
+  /// slug-only, such a row is dropped by [isRenderable] rather than drawn as a
+  /// tile that cannot be opened.
+  @JsonKey(name: '_id', defaultValue: '')
   final String id;
+
+  @JsonKey(defaultValue: '')
   final String name;
+
+  @JsonKey(defaultValue: '')
   final String slug;
+
   final String description;
   final String shortDescription;
 
@@ -104,6 +114,11 @@ class ProductModel {
   final double? score;
 
   Map<String, dynamic> toJson() => _$ProductModelToJson(this);
+
+  /// Whether this row can be listed. Same contract as the home rail's:
+  /// no slug means no way to open the product, so the tile would be dead.
+  bool get isRenderable =>
+      id.isNotEmpty && name.isNotEmpty && slug.isNotEmpty;
 
   Product toEntity() => Product(
         id: id,

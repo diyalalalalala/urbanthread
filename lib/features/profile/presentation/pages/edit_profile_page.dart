@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/errors/failures.dart';
 import '../../../../core/extensions/context_extensions.dart';
 import '../../../../core/theme/app_dimens.dart';
+import '../../../../core/widgets/privacy_guard.dart';
 import '../../../../core/widgets/state_views.dart';
 import '../providers/profile_notifier.dart';
 import '../widgets/failure_from_error.dart';
@@ -54,70 +55,73 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
 
     return Scaffold(
       appBar: AppBar(title: const Text('Edit profile')),
-      body: switch (profile) {
-        AsyncData(:final value) => Form(
-            key: _formKey,
-            child: ListView(
-              padding: const EdgeInsets.all(AppDimens.pageGutter),
-              children: [
-                TextFormField(
-                  controller: _nameController,
-                  textInputAction: TextInputAction.next,
-                  textCapitalization: TextCapitalization.words,
-                  decoration: InputDecoration(
-                    labelText: 'Full name',
-                    errorText: _fieldErrors?.forField('name'),
+      body: PrivacyGuard(
+        label: 'Personal details hidden',
+        child: switch (profile) {
+          AsyncData(:final value) => Form(
+              key: _formKey,
+              child: ListView(
+                padding: const EdgeInsets.all(AppDimens.pageGutter),
+                children: [
+                  TextFormField(
+                    controller: _nameController,
+                    textInputAction: TextInputAction.next,
+                    textCapitalization: TextCapitalization.words,
+                    decoration: InputDecoration(
+                      labelText: 'Full name',
+                      errorText: _fieldErrors?.forField('name'),
+                    ),
+                    validator: (value) {
+                      final trimmed = value?.trim() ?? '';
+                      if (trimmed.length < 2 || trimmed.length > 80) {
+                        return 'Your name must be 2 to 80 characters.';
+                      }
+                      return null;
+                    },
                   ),
-                  validator: (value) {
-                    final trimmed = value?.trim() ?? '';
-                    if (trimmed.length < 2 || trimmed.length > 80) {
-                      return 'Your name must be 2 to 80 characters.';
-                    }
-                    return null;
-                  },
-                ),
-                const SizedBox(height: AppDimens.space20),
-                TextFormField(
-                  controller: _phoneController,
-                  keyboardType: TextInputType.phone,
-                  textInputAction: TextInputAction.done,
-                  decoration: InputDecoration(
-                    labelText: 'Phone number',
-                    helperText: 'Optional. Digits, spaces and + ( ) . -',
-                    errorText: _fieldErrors?.forField('phone'),
+                  const SizedBox(height: AppDimens.space20),
+                  TextFormField(
+                    controller: _phoneController,
+                    keyboardType: TextInputType.phone,
+                    textInputAction: TextInputAction.done,
+                    decoration: InputDecoration(
+                      labelText: 'Phone number',
+                      helperText: 'Optional. Digits, spaces and + ( ) . -',
+                      errorText: _fieldErrors?.forField('phone'),
+                    ),
+                    validator: (value) {
+                      final trimmed = value?.trim() ?? '';
+                      if (trimmed.isEmpty) return null;
+                      if (!_phonePattern.hasMatch(trimmed)) {
+                        return 'That does not look like a phone number.';
+                      }
+                      return null;
+                    },
                   ),
-                  validator: (value) {
-                    final trimmed = value?.trim() ?? '';
-                    if (trimmed.isEmpty) return null;
-                    if (!_phonePattern.hasMatch(trimmed)) {
-                      return 'That does not look like a phone number.';
-                    }
-                    return null;
-                  },
-                ),
-                const SizedBox(height: AppDimens.space24),
-                _ReadOnlyRow(label: 'Email', value: value.email),
-                const SizedBox(height: AppDimens.space8),
-                Text(
-                  'Your email address cannot be changed here.',
-                  style: context.text.bodySmall?.copyWith(
-                    color: context.palette.inkSubtle,
+                  const SizedBox(height: AppDimens.space24),
+                  _ReadOnlyRow(label: 'Email', value: value.email),
+                  const SizedBox(height: AppDimens.space8),
+                  Text(
+                    'Your email address cannot be changed here.',
+                    style: context.text.bodySmall?.copyWith(
+                      color: context.palette.inkSubtle,
+                    ),
                   ),
-                ),
-                const SizedBox(height: AppDimens.space32),
-                FilledButton(
-                  onPressed: _isSaving ? null : _save,
-                  child: Text(_isSaving ? 'SAVING…' : 'SAVE CHANGES'),
-                ),
-              ],
+                  const SizedBox(height: AppDimens.space32),
+                  FilledButton(
+                    onPressed: _isSaving ? null : _save,
+                    child: Text(_isSaving ? 'SAVING…' : 'SAVE CHANGES'),
+                  ),
+                ],
+              ),
             ),
-          ),
-        AsyncError(:final error) => FailureView(
-            failure: failureFrom(error),
-            onRetry: () => ref.invalidate(profileProvider),
-          ),
-        _ => const LoadingView(),
-      },
+          AsyncError(:final error) => FailureView(
+              failure: failureFrom(error),
+              onRetry: () => ref.invalidate(profileProvider),
+            ),
+          _ => const LoadingView(),
+        },
+      ),
     );
   }
 

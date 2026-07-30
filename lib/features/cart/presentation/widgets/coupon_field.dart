@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 
 import '../../../../core/extensions/context_extensions.dart';
 import '../../../../core/theme/app_dimens.dart';
+import '../../../../core/theme/app_theme.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../core/utils/formatters.dart';
 import '../../domain/entities/cart_summary.dart';
@@ -117,6 +118,7 @@ class _CouponFieldState extends State<CouponField> {
             SizedBox(
               height: AppDimens.controlHeight,
               child: OutlinedButton(
+                style: AppTheme.hugContent,
                 onPressed:
                     widget.enabled && !widget.isBusy ? _submit : null,
                 child: widget.isBusy

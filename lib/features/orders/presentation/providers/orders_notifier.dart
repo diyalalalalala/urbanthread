@@ -22,14 +22,15 @@ class OrdersNotifier extends _$OrdersNotifier {
   @override
   OrdersState build() {
     // Kick the first page off without blocking the first frame, so the list
-    // renders its skeleton immediately.
+    // renders its skeleton immediately. The filter is passed rather than read
+    // off `state`, which does not exist until this returns.
     unawaited(_load(page: 1));
     return const OrdersState.loading();
   }
 
   /// Re-reads the first page, keeping the current filter. Wired to pull-to-
   /// refresh.
-  Future<void> refresh() => _load(page: 1);
+  Future<void> refresh() => _load(page: 1, status: state.statusFilter);
 
   /// Narrows to a single status, or clears the filter when [status] is null.
   ///
@@ -39,7 +40,7 @@ class OrdersNotifier extends _$OrdersNotifier {
     if (status == state.statusFilter) return;
 
     state = OrdersState.loading(statusFilter: status);
-    await _load(page: 1);
+    await _load(page: 1, status: status);
   }
 
   /// Appends the next page. A no-op at the end of the list or while a load is
@@ -51,16 +52,18 @@ class OrdersNotifier extends _$OrdersNotifier {
     if (next == null) return;
 
     state = state.copyWith(isLoadingMore: true, clearFailure: true);
-    await _load(page: next, append: true);
+    await _load(page: next, append: true, status: state.statusFilter);
   }
 
-  Future<void> _load({required int page, bool append = false}) async {
+  /// [status] is taken as an argument rather than read from `state`, so that
+  /// this stays callable from `build` — where `state` is not yet there to read.
+  Future<void> _load({
+    required int page,
+    bool append = false,
+    OrderStatus? status,
+  }) async {
     final result = await ref.read(getMyOrdersUseCaseProvider)(
-      OrderFilter(
-        page: page,
-        limit: _pageSize,
-        status: state.statusFilter,
-      ),
+      OrderFilter(page: page, limit: _pageSize, status: status),
     );
 
     switch (result) {

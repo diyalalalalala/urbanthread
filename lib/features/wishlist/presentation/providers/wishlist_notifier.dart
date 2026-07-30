@@ -33,7 +33,10 @@ class WishlistNotifier extends _$WishlistNotifier {
     });
 
     final cached = repository.cachedWishlist;
-    unawaited(_load(silent: cached != null));
+    // Always silent here, cache or no cache: `state` does not exist until
+    // `build` returns, so `_load` must reach its first `await` without
+    // touching it. The `isLoading` below is the write it would have made.
+    unawaited(_load(silent: true));
 
     return WishlistState(
       wishlist: cached,

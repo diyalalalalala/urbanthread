@@ -59,7 +59,7 @@ final class CheckoutNotifierProvider
   }
 }
 
-String _$checkoutNotifierHash() => r'e5b30f6d76d790936c4d5bda5cd6b31ed68ccdf6';
+String _$checkoutNotifierHash() => r'6ff4180c16beba1e41b96c0fd6412b6121936f9e';
 
 /// The place-order flow.
 ///

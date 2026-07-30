@@ -5,6 +5,7 @@ import '../../../../core/extensions/context_extensions.dart';
 import '../../../../core/theme/app_dimens.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../core/utils/formatters.dart';
+import '../../../../core/widgets/privacy_guard.dart';
 import '../../../../core/widgets/state_views.dart';
 import '../../domain/entities/order.dart';
 import '../providers/orders_notifier.dart';
@@ -33,18 +34,21 @@ class OrderTrackingPage extends ConsumerWidget {
       appBar: AppBar(
         title: Text(state.tracking?.orderNumber ?? 'Tracking'),
       ),
-      body: switch (state) {
-        OrderTrackingState(isLoading: true) => const LoadingView(),
-        OrderTrackingState(failure: final failure?) => FailureView(
-            failure: failure,
-            onRetry: notifier.refresh,
-          ),
-        OrderTrackingState(tracking: final tracking?) => _Body(
-            tracking: tracking,
-            onRefresh: notifier.refresh,
-          ),
-        _ => const LoadingView(),
-      },
+      body: PrivacyGuard(
+        label: 'Tracking hidden',
+        child: switch (state) {
+          OrderTrackingState(isLoading: true) => const LoadingView(),
+          OrderTrackingState(failure: final failure?) => FailureView(
+              failure: failure,
+              onRetry: notifier.refresh,
+            ),
+          OrderTrackingState(tracking: final tracking?) => _Body(
+              tracking: tracking,
+              onRefresh: notifier.refresh,
+            ),
+          _ => const LoadingView(),
+        },
+      ),
     );
   }
 }

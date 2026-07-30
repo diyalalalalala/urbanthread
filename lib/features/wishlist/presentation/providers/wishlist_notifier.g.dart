@@ -59,7 +59,7 @@ final class WishlistNotifierProvider
   }
 }
 
-String _$wishlistNotifierHash() => r'ce4e1e7b5d5c23dc85664cc274a022275f9a660f';
+String _$wishlistNotifierHash() => r'e1cb71f2f6d19d964ed0da46c7cf5ee3328dfaba';
 
 /// The wishlist, and the only thing allowed to change it.
 ///

@@ -110,14 +110,9 @@ class _Body extends ConsumerWidget {
       onRefresh: notifier.refresh,
       child: GridView.builder(
         padding: const EdgeInsets.all(AppDimens.pageGutter),
-        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: context.productGridColumns,
-          crossAxisSpacing: AppDimens.space16,
-          mainAxisSpacing: AppDimens.space24,
-          // Tall enough for the 3:4 image plus brand, name, price, the
-          // price-drop line and the action button.
-          childAspectRatio: 0.48,
-        ),
+        // Measured from the tile's own styles rather than a fixed ratio, so
+        // the cell follows the theme and the reader's text scale.
+        gridDelegate: WishlistTileGeometry.delegate(context),
         itemCount: items.length,
         itemBuilder: (context, index) {
           final item = items[index];

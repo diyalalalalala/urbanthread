@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/errors/failures.dart';
 import '../../../../core/extensions/context_extensions.dart';
 import '../../../../core/theme/app_dimens.dart';
+import '../../../../core/widgets/privacy_guard.dart';
 import '../../../authentication/domain/usecases/change_password_usecase.dart';
 import '../../../authentication/presentation/providers/auth_notifier.dart';
 import '../../../authentication/presentation/providers/auth_providers.dart';
@@ -44,101 +45,104 @@ class _ChangePasswordPageState extends ConsumerState<ChangePasswordPage> {
   @override
   Widget build(BuildContext context) => Scaffold(
         appBar: AppBar(title: const Text('Change password')),
-        body: Form(
-          key: _formKey,
-          child: ListView(
-            padding: const EdgeInsets.all(AppDimens.pageGutter),
-            children: [
-              TextFormField(
-                controller: _currentController,
-                obscureText: _obscureCurrent,
-                textInputAction: TextInputAction.next,
-                decoration: InputDecoration(
-                  labelText: 'Current password',
-                  errorText: _fieldErrors?.forField('currentPassword'),
-                  suffixIcon: IconButton(
-                    onPressed: () =>
-                        setState(() => _obscureCurrent = !_obscureCurrent),
-                    icon: Icon(
-                      _obscureCurrent
-                          ? Icons.visibility_outlined
-                          : Icons.visibility_off_outlined,
-                    ),
-                  ),
-                ),
-                validator: (value) => (value == null || value.isEmpty)
-                    ? 'Enter your current password.'
-                    : null,
-              ),
-              const SizedBox(height: AppDimens.space20),
-              TextFormField(
-                controller: _newController,
-                obscureText: _obscureNew,
-                textInputAction: TextInputAction.next,
-                decoration: InputDecoration(
-                  labelText: 'New password',
-                  helperText:
-                      'At least 8 characters, with an upper case letter, a '
-                      'lower case letter and a digit.',
-                  helperMaxLines: 3,
-                  errorText: _fieldErrors?.forField('newPassword'),
-                  suffixIcon: IconButton(
-                    onPressed: () => setState(() => _obscureNew = !_obscureNew),
-                    icon: Icon(
-                      _obscureNew
-                          ? Icons.visibility_outlined
-                          : Icons.visibility_off_outlined,
-                    ),
-                  ),
-                ),
-                validator: _validateNewPassword,
-              ),
-              const SizedBox(height: AppDimens.space20),
-              TextFormField(
-                controller: _confirmController,
-                obscureText: _obscureNew,
-                textInputAction: TextInputAction.done,
-                decoration: const InputDecoration(
-                  labelText: 'Confirm new password',
-                ),
-                validator: (value) => value == _newController.text
-                    ? null
-                    : 'The two passwords do not match.',
-              ),
-              const SizedBox(height: AppDimens.space24),
-              Container(
-                padding: const EdgeInsets.all(AppDimens.space12),
-                decoration: BoxDecoration(
-                  color: context.palette.infoSubtle,
-                  borderRadius: AppDimens.borderRadius,
-                ),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Icon(
-                      Icons.info_outline,
-                      size: 18,
-                      color: context.palette.info,
-                    ),
-                    const SizedBox(width: AppDimens.space8),
-                    Expanded(
-                      child: Text(
-                        'Changing your password signs you out on every device, '
-                        'including this one.',
-                        style: context.text.bodySmall?.copyWith(
-                          color: context.palette.info,
-                        ),
+        body: PrivacyGuard(
+          label: 'Password form hidden',
+          child: Form(
+            key: _formKey,
+            child: ListView(
+              padding: const EdgeInsets.all(AppDimens.pageGutter),
+              children: [
+                TextFormField(
+                  controller: _currentController,
+                  obscureText: _obscureCurrent,
+                  textInputAction: TextInputAction.next,
+                  decoration: InputDecoration(
+                    labelText: 'Current password',
+                    errorText: _fieldErrors?.forField('currentPassword'),
+                    suffixIcon: IconButton(
+                      onPressed: () =>
+                          setState(() => _obscureCurrent = !_obscureCurrent),
+                      icon: Icon(
+                        _obscureCurrent
+                            ? Icons.visibility_outlined
+                            : Icons.visibility_off_outlined,
                       ),
                     ),
-                  ],
+                  ),
+                  validator: (value) => (value == null || value.isEmpty)
+                      ? 'Enter your current password.'
+                      : null,
                 ),
-              ),
-              const SizedBox(height: AppDimens.space32),
-              FilledButton(
-                onPressed: _isSaving ? null : _save,
-                child: Text(_isSaving ? 'UPDATING…' : 'UPDATE PASSWORD'),
-              ),
-            ],
+                const SizedBox(height: AppDimens.space20),
+                TextFormField(
+                  controller: _newController,
+                  obscureText: _obscureNew,
+                  textInputAction: TextInputAction.next,
+                  decoration: InputDecoration(
+                    labelText: 'New password',
+                    helperText:
+                        'At least 8 characters, with an upper case letter, a '
+                        'lower case letter and a digit.',
+                    helperMaxLines: 3,
+                    errorText: _fieldErrors?.forField('newPassword'),
+                    suffixIcon: IconButton(
+                      onPressed: () => setState(() => _obscureNew = !_obscureNew),
+                      icon: Icon(
+                        _obscureNew
+                            ? Icons.visibility_outlined
+                            : Icons.visibility_off_outlined,
+                      ),
+                    ),
+                  ),
+                  validator: _validateNewPassword,
+                ),
+                const SizedBox(height: AppDimens.space20),
+                TextFormField(
+                  controller: _confirmController,
+                  obscureText: _obscureNew,
+                  textInputAction: TextInputAction.done,
+                  decoration: const InputDecoration(
+                    labelText: 'Confirm new password',
+                  ),
+                  validator: (value) => value == _newController.text
+                      ? null
+                      : 'The two passwords do not match.',
+                ),
+                const SizedBox(height: AppDimens.space24),
+                Container(
+                  padding: const EdgeInsets.all(AppDimens.space12),
+                  decoration: BoxDecoration(
+                    color: context.palette.infoSubtle,
+                    borderRadius: AppDimens.borderRadius,
+                  ),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Icon(
+                        Icons.info_outline,
+                        size: 18,
+                        color: context.palette.info,
+                      ),
+                      const SizedBox(width: AppDimens.space8),
+                      Expanded(
+                        child: Text(
+                          'Changing your password signs you out on every device, '
+                          'including this one.',
+                          style: context.text.bodySmall?.copyWith(
+                            color: context.palette.info,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: AppDimens.space32),
+                FilledButton(
+                  onPressed: _isSaving ? null : _save,
+                  child: Text(_isSaving ? 'UPDATING…' : 'UPDATE PASSWORD'),
+                ),
+              ],
+            ),
           ),
         ),
       );

@@ -6,6 +6,7 @@ import '../../../../core/extensions/context_extensions.dart';
 import '../../../../core/providers/core_providers.dart';
 import '../../../../core/router/app_routes.dart';
 import '../../../../core/theme/app_dimens.dart';
+import '../../../../core/widgets/privacy_guard.dart';
 import '../../../../core/widgets/state_views.dart';
 import '../../domain/entities/order.dart';
 import '../providers/orders_notifier.dart';
@@ -57,16 +58,19 @@ class _OrdersPageState extends ConsumerState<OrdersPage> {
     return Scaffold(
       backgroundColor: context.palette.canvas,
       appBar: AppBar(title: const Text('My orders')),
-      body: Column(
-        children: [
-          if (!isOnline) const OfflineBanner(),
-          _StatusFilterBar(
-            selected: state.statusFilter,
-            onSelected: (status) =>
-                ref.read(ordersProvider.notifier).setStatusFilter(status),
-          ),
-          Expanded(child: _body(state)),
-        ],
+      body: PrivacyGuard(
+        label: 'Orders hidden',
+        child: Column(
+          children: [
+            if (!isOnline) const OfflineBanner(),
+            _StatusFilterBar(
+              selected: state.statusFilter,
+              onSelected: (status) =>
+                  ref.read(ordersProvider.notifier).setStatusFilter(status),
+            ),
+            Expanded(child: _body(state)),
+          ],
+        ),
       ),
     );
   }

@@ -7,8 +7,10 @@ import '../../../../core/extensions/context_extensions.dart';
 import '../../../../core/router/app_routes.dart';
 import '../../../../core/router/navigation_extensions.dart';
 import '../../../../core/theme/app_dimens.dart';
+import '../../../../core/theme/app_theme.dart';
 import '../../../../core/utils/formatters.dart';
 import '../../../../core/widgets/app_network_image.dart';
+import '../../../../core/widgets/privacy_guard.dart';
 import '../../../../core/widgets/state_views.dart';
 import '../../../authentication/presentation/providers/auth_notifier.dart';
 import '../../../orders/domain/entities/order.dart';
@@ -36,19 +38,25 @@ class CheckoutPage extends ConsumerWidget {
     final state = ref.watch(checkoutProvider);
     final notifier = ref.read(checkoutProvider.notifier);
 
-    return Scaffold(
-      backgroundColor: context.palette.canvas,
-      appBar: AppBar(title: const Text('Checkout')),
-      body: switch (state) {
-        CheckoutState(isLoading: true, cart: null) =>
-          const LoadingView(message: 'Checking your basket…'),
-        CheckoutState(failure: final failure?, cart: null) =>
-          _LoadFailure(failure: failure, onRetry: notifier.refresh),
-        _ => _Body(state: state),
-      },
-      bottomNavigationBar: state.cart == null
-          ? null
-          : _PlaceOrderBar(state: state),
+    // The whole scaffold, not just the body: the delivery address is in the
+    // body but the grand total is in the bottom bar, and both are things a
+    // shopper would rather not show the person beside them.
+    return PrivacyGuard(
+      label: 'Checkout hidden',
+      child: Scaffold(
+        backgroundColor: context.palette.canvas,
+        appBar: AppBar(title: const Text('Checkout')),
+        body: switch (state) {
+          CheckoutState(isLoading: true, cart: null) =>
+            const LoadingView(message: 'Checking your basket…'),
+          CheckoutState(failure: final failure?, cart: null) =>
+            _LoadFailure(failure: failure, onRetry: notifier.refresh),
+          _ => _Body(state: state),
+        },
+        bottomNavigationBar: state.cart == null
+            ? null
+            : _PlaceOrderBar(state: state),
+      ),
     );
   }
 }
@@ -104,6 +112,7 @@ class _LoadFailure extends StatelessWidget {
               Row(
                 children: [
                   OutlinedButton(
+                    style: AppTheme.hugContent,
                     // Checkout is always pushed from the basket, so popping
                     // returns to it with its state intact. The fallback only
                     // matters for a deep link straight here.
@@ -424,6 +433,7 @@ class _VerifyEmailCard extends ConsumerWidget {
           Row(
             children: [
               OutlinedButton(
+                style: AppTheme.hugContent,
                 onPressed: () async {
                   final message = await ref
                       .read(checkoutProvider.notifier)

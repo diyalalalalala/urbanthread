@@ -22,9 +22,11 @@ import '../../features/orders/domain/entities/order.dart';
 import '../../features/orders/presentation/pages/order_detail_page.dart';
 import '../../features/orders/presentation/pages/order_tracking_page.dart';
 import '../../features/orders/presentation/pages/orders_page.dart';
+import '../../features/products/domain/entities/product.dart';
 import '../../features/products/presentation/pages/product_detail_page.dart';
 import '../../features/products/presentation/pages/product_list_page.dart';
 import '../../features/products/domain/entities/product_query.dart';
+import '../../features/products/presentation/providers/product_detail_notifier.dart';
 import '../../features/profile/presentation/pages/change_password_page.dart';
 import '../../features/profile/presentation/pages/edit_profile_page.dart';
 import '../../features/profile/presentation/pages/my_reviews_page.dart';
@@ -33,6 +35,8 @@ import '../../features/profile/presentation/pages/recently_viewed_page.dart';
 import '../../features/search/presentation/pages/search_page.dart';
 import '../../features/settings/presentation/pages/settings_page.dart';
 import '../../features/wishlist/presentation/pages/wishlist_page.dart';
+import '../../features/wishlist/presentation/providers/pending_wishlist_save.dart';
+import '../../features/wishlist/presentation/providers/wishlist_notifier.dart';
 import 'app_routes.dart';
 import 'app_shell.dart';
 
@@ -361,27 +365,84 @@ class _AuthRefreshListenable extends ChangeNotifier {
   }
 }
 
-/// Supplies the product page's add-to-cart action.
+/// Supplies the product page's add-to-cart and wishlist actions.
 ///
-/// The products feature deliberately does not import the cart feature, so the
-/// two are joined here at the route — the one place that already knows about
-/// both.
-class _ProductDetailRoute extends ConsumerWidget {
+/// The products feature deliberately does not import the cart or the wishlist,
+/// so the three are joined here at the route — the one place that already
+/// knows about all of them.
+class _ProductDetailRoute extends ConsumerStatefulWidget {
   const _ProductDetailRoute({required this.slug});
 
   final String slug;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) => ProductDetailPage(
-        slug: slug,
-        onAddToCart: (product, variant, quantity) {
-          ref.read(cartProvider.notifier).addItem(
-                productId: product.id,
-                variantId: variant.id,
-                quantity: quantity,
-              );
-        },
-      );
+  ConsumerState<_ProductDetailRoute> createState() =>
+      _ProductDetailRouteState();
+}
+
+class _ProductDetailRouteState extends ConsumerState<_ProductDetailRoute> {
+  /// True when this page was reached by coming back from a sign-in that the
+  /// heart asked for, and the save still has to be replayed. It cannot be done
+  /// in `initState`: the intent is keyed by slug — all the heart knew before
+  /// leaving — while the request needs the product's ObjectId, which is not
+  /// available until the detail response lands.
+  bool _replayPendingSave = false;
+
+  @override
+  void initState() {
+    super.initState();
+    // Claimed once, here, rather than watched: coming back signed in is the
+    // only moment this can fire, and reading it later would re-save on every
+    // subsequent visit to the same product.
+    _replayPendingSave = ref.read(isAuthenticatedProvider) &&
+        ref.read(pendingWishlistSaveProvider.notifier).claim(widget.slug);
+  }
+
+  void _onWishlistTap(Product product) {
+    if (ref.read(isAuthenticatedProvider)) {
+      ref.read(wishlistProvider.notifier).toggle(productId: product.id);
+      return;
+    }
+
+    // Every `/wishlist` route sits behind `authenticate`, so a guest's tap has
+    // to become a sign-in. The intent is parked first because the login screen
+    // returns with `context.go`, which rebuilds this route from scratch.
+    ref.read(pendingWishlistSaveProvider.notifier).remember(widget.slug);
+    context.push(
+      '${AppRoutes.login}'
+      '?redirect=${Uri.encodeComponent(AppRoutes.productDetailPath(widget.slug))}',
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final product = ref.watch(productDetailProvider(widget.slug)).product;
+
+    if (_replayPendingSave && product != null) {
+      _replayPendingSave = false;
+      // After the frame: this runs during build, and the notifier's optimistic
+      // write would otherwise mutate a provider mid-build.
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
+        ref.read(wishlistProvider.notifier).add(productId: product.id);
+      });
+    }
+
+    return ProductDetailPage(
+      slug: widget.slug,
+      onAddToCart: (product, variant, quantity) {
+        ref.read(cartProvider.notifier).addItem(
+              productId: product.id,
+              variantId: variant.id,
+              quantity: quantity,
+            );
+      },
+      showWishlistButton: true,
+      // Watched, not read, so the heart fills the moment the save settles.
+      isWishlisted: (product) => ref.watch(isWishlistedProvider(product.id)),
+      onWishlistTap: _onWishlistTap,
+    );
+  }
 }
 
 class _RouteNotFound extends StatelessWidget {

@@ -71,7 +71,7 @@ final class CartNotifierProvider
   }
 }
 
-String _$cartNotifierHash() => r'0f4637c7df2c0193db5f718c2d7d360dcb175f96';
+String _$cartNotifierHash() => r'743d6ffe4fe659c0342aca726368b7076b57725c';
 
 /// The cart, and the only thing allowed to change it.
 ///
