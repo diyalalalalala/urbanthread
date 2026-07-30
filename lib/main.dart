@@ -15,10 +15,7 @@ import 'features/settings/presentation/providers/settings_providers.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Resolved before the first frame so the router can decide synchronously
-  // whether a session exists. Doing this lazily would mean rendering the
-  // login screen and then redirecting, which reads as a flicker on every
-  // cold start.
+
   final (preferences, tokenStorage) = await _bootstrap();
 
   runApp(
@@ -43,9 +40,7 @@ Future<(SharedPreferences, TokenStorage)> _bootstrap() async {
 
   final preferences = await SharedPreferences.getInstance();
 
-  // Warm the in-memory token copy so the auth interceptor can attach it
-  // synchronously — secure storage reads cross a platform channel and are
-  // far too slow to sit in the path of every request.
+
   final tokenStorage = TokenStorage(
     const FlutterSecureStorage(
       iOptions: IOSOptions(accessibility: KeychainAccessibility.first_unlock),
@@ -72,10 +67,6 @@ class UrbanThreadApp extends ConsumerWidget {
       themeMode: themeMode,
       routerConfig: router,
       builder: (context, child) => MediaQuery.withClampedTextScaling(
-        // The catalogue is image- and price-led, and past ~1.3 the two-column
-        // product grid stops fitting a name and a price without truncation.
-        // Clamping keeps large-text users on a layout that still works rather
-        // than one that silently drops information.
         maxScaleFactor: 1.3,
         child: child ?? const SizedBox.shrink(),
       ),
