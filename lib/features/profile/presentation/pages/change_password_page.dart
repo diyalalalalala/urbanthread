@@ -9,13 +9,6 @@ import '../../../authentication/domain/usecases/change_password_usecase.dart';
 import '../../../authentication/presentation/providers/auth_notifier.dart';
 import '../../../authentication/presentation/providers/auth_providers.dart';
 
-/// Changes the account password.
-///
-/// A successful change bumps the account's `tokenVersion` server-side, which
-/// revokes **every** existing token — including this device's. There is no
-/// refresh endpoint to recover with, so the only honest ending is to sign out
-/// locally and send the user back to login; leaving them on a dead token would
-/// surface as a confusing 401 on their next tap.
 class ChangePasswordPage extends ConsumerStatefulWidget {
   const ChangePasswordPage({super.key});
 
@@ -194,8 +187,6 @@ class _ChangePasswordPageState extends ConsumerState<ChangePasswordPage> {
       return;
     }
 
-    // The token this device holds is already dead. `logout()` clears it
-    // locally and tolerates the server call failing, which it will.
     await ref.read(authProvider.notifier).logout();
     if (!mounted) return;
 

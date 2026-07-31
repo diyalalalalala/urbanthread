@@ -5,13 +5,6 @@ import '../../../../core/theme/app_dimens.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../domain/entities/product.dart';
 
-/// Colour swatches and size chips for the product page.
-///
-/// The two axes are not independent: a size can exist for one colour and not
-/// another, because a variant is a *pair*. So the size row is derived from
-/// the selected colour rather than from the product's full size list, and a
-/// size that pair does not offer is shown disabled rather than hidden —
-/// hiding it makes the row jump as colours are tried, which reads as a bug.
 class VariantSelector extends StatelessWidget {
   const VariantSelector({
     required this.product,
@@ -50,9 +43,6 @@ class VariantSelector extends StatelessWidget {
                 _ColorSwatch(
                   color: color,
                   isSelected: color.name == selectedColor,
-                  // A colour with no stocked variant is still selectable: the
-                  // shopper should be able to inspect it and see which sizes
-                  // sold out, rather than find the swatch inert.
                   isSoldOut: !product.variants.any(
                     (variant) =>
                         variant.color.name == color.name &&
@@ -165,8 +155,6 @@ class _ColorSwatch extends StatelessWidget {
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
                   color: swatch,
-                  // A near-white swatch would vanish against the surface, so
-                  // every swatch carries a hairline of its own.
                   border: Border.all(color: palette.line),
                 ),
               ),

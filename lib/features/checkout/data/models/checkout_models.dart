@@ -6,9 +6,6 @@ import '../../domain/entities/coupon.dart';
 
 part 'checkout_models.g.dart';
 
-/// Reads an id whether the API sent a bare ObjectId or populated it into a
-/// document. Cart items arrive with `product` populated; the same field on an
-/// order does not. One reader covers both.
 String? _readId(Object? raw) => switch (raw) {
       String value when value.isNotEmpty => value,
       Map<String, dynamic> value => value['_id'] as String?,
@@ -17,7 +14,6 @@ String? _readId(Object? raw) => switch (raw) {
 
 String? _writeId(String? value) => value;
 
-/// Reads a list of ids that may be populated documents.
 List<String> _readIdList(Object? raw) {
   if (raw is! List) return const [];
   return raw
@@ -28,7 +24,6 @@ List<String> _readIdList(Object? raw) {
 
 List<String> _writeIdList(List<String> value) => value;
 
-/// Mongo stores whole-rupee amounts as ints, so `as double` throws on them.
 double _readNum(Object? raw) => switch (raw) {
       num value => value.toDouble(),
       String value => double.tryParse(value) ?? 0,
@@ -49,7 +44,6 @@ DateTime? _parseDate(String? raw) =>
 String? _nullIfBlank(String? value) =>
     (value == null || value.isEmpty) ? null : value;
 
-/// `GET /cart/summary`, and the `summary` block of `GET /cart/validate`.
 @JsonSerializable(createToJson: true)
 class CartSummaryModel {
   const CartSummaryModel({
@@ -92,8 +86,6 @@ class CartSummaryModel {
   @JsonKey(fromJson: _readNum)
   final double amountToFreeShipping;
 
-  /// Null when no coupon is attached. Present-but-invalid when one is
-  /// attached and the server has just re-checked it and found it dead.
   final AppliedCouponModel? coupon;
 
   Map<String, dynamic> toJson() => _$CartSummaryModelToJson(this);
@@ -143,11 +135,6 @@ class AppliedCouponModel {
       );
 }
 
-/// A cart line.
-///
-/// Note the `snapshot` nesting — the name, image and unit price live one
-/// level down. Order items are flat by contrast, and confusing the two is the
-/// commonest mistake when moving between cart and order code.
 @JsonSerializable(createToJson: true)
 class CartItemModel {
   const CartItemModel({
@@ -165,9 +152,6 @@ class CartItemModel {
   @JsonKey(name: '_id')
   final String id;
 
-  /// Populated into a full product document on this route, unlike on an
-  /// order. Only the id is taken — everything checkout renders comes from the
-  /// snapshot, which is what the customer was quoted.
   @JsonKey(fromJson: _readId, toJson: _writeId)
   final String? product;
 
@@ -177,7 +161,6 @@ class CartItemModel {
   final int quantity;
   final CartItemSnapshotModel snapshot;
 
-  /// Excluded from totals and from checkout entirely.
   final bool savedForLater;
 
   Map<String, dynamic> toJson() => _$CartItemModelToJson(this);
@@ -216,15 +199,12 @@ class CartItemSnapshotModel {
   final String color;
   final String size;
 
-  /// Price when the item was added, after product discount. Never trusted at
-  /// checkout — the order transaction re-reads the live price.
   @JsonKey(fromJson: _readNum)
   final double unitPrice;
 
   Map<String, dynamic> toJson() => _$CartItemSnapshotModelToJson(this);
 }
 
-/// The cart document, of which checkout only needs the lines.
 @JsonSerializable(createToJson: true)
 class CartModel {
   const CartModel({this.items = const []});
@@ -237,10 +217,6 @@ class CartModel {
   Map<String, dynamic> toJson() => _$CartModelToJson(this);
 }
 
-/// The 200 body of `GET /cart/validate`: `{cart, summary, coupon}`.
-///
-/// Only returned when the cart is actually orderable. Every failure mode is a
-/// 422 instead, so there is no "valid: false" branch to model here.
 @JsonSerializable(createToJson: true)
 class CartValidationModel {
   const CartValidationModel({
@@ -255,14 +231,11 @@ class CartValidationModel {
   final CartModel cart;
   final CartSummaryModel summary;
 
-  /// Flattened for the order service; null when no coupon is attached.
   final ValidatedCouponModel? coupon;
 
   Map<String, dynamic> toJson() => _$CartValidationModelToJson(this);
 
   CheckoutCart toEntity() => CheckoutCart(
-        // Saved-for-later lines stay in the cart document but are not part of
-        // the order, so the review step must not list them.
         lines: cart.items
             .where((item) => !item.savedForLater)
             .map((item) => item.toEntity())
@@ -272,8 +245,6 @@ class CartValidationModel {
       );
 }
 
-/// The `coupon` block of a validation response — the re-checked discount,
-/// flattened out of the cart document.
 @JsonSerializable(createToJson: true)
 class ValidatedCouponModel {
   const ValidatedCouponModel({
@@ -295,13 +266,10 @@ class ValidatedCouponModel {
 
   Map<String, dynamic> toJson() => _$ValidatedCouponModelToJson(this);
 
-  /// Always valid — an invalid coupon blocks validation with a 422 rather
-  /// than reaching this shape.
   AppliedCoupon toEntity() =>
       AppliedCoupon(code: code, discountAmount: discountAmount);
 }
 
-/// One entry of `GET /coupons/available`.
 @JsonSerializable(createToJson: true)
 class AvailableCouponModel {
   const AvailableCouponModel({
@@ -329,7 +297,6 @@ class AvailableCouponModel {
   final String code;
   final String description;
 
-  /// The discriminator is `type`. There is no `discountType` field.
   final String type;
 
   @JsonKey(fromJson: _readNum)
@@ -376,7 +343,6 @@ class AvailableCouponModel {
       );
 }
 
-/// `POST /coupons/validate` — a deliberately narrow answer.
 @JsonSerializable(createToJson: true)
 class CouponPreviewModel {
   const CouponPreviewModel({
@@ -421,11 +387,6 @@ class ValidateCouponRequest {
   Map<String, dynamic> toJson() => _$ValidateCouponRequestToJson(this);
 }
 
-/// The create/update body for `/addresses`.
-///
-/// `includeIfNull: false` so a PATCH sends only what changed — the update
-/// validator makes every field optional precisely so one line can be edited
-/// without resending the whole address.
 @JsonSerializable(createFactory: false, includeIfNull: false)
 class AddressRequest {
   const AddressRequest({
@@ -447,7 +408,6 @@ class AddressRequest {
   final String? fullName;
   final String? phone;
 
-  /// The street line. Not `line1` — that field does not exist here.
   final String? street;
 
   final String? city;

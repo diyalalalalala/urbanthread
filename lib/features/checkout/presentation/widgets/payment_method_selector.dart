@@ -4,14 +4,6 @@ import '../../../../core/extensions/context_extensions.dart';
 import '../../../../core/theme/app_dimens.dart';
 import '../../../orders/domain/entities/order.dart';
 
-/// How the customer will pay.
-///
-/// There are exactly two options and there will not be a third without a
-/// backend change: no payment gateway is integrated. `mock_gateway` settles
-/// **in-process**, inside the same transaction that creates the order — there
-/// is no redirect to a hosted page, no WebView, no return URL, no webhook and
-/// nothing to poll afterwards. The response to `POST /orders` is the final
-/// word on whether the money moved.
 class PaymentMethodSelector extends StatelessWidget {
   const PaymentMethodSelector({
     required this.selected,
@@ -23,7 +15,6 @@ class PaymentMethodSelector extends StatelessWidget {
   final PaymentMethod selected;
   final ValueChanged<PaymentMethod> onSelected;
 
-  /// True when the mock gateway is expected to refuse this total.
   final bool declineWarning;
 
   @override
@@ -107,9 +98,6 @@ class _MethodTile extends StatelessWidget {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // A glyph rather than a Radio: the whole tile is the tap target,
-            // so the control is purely an affordance and a real Radio would
-            // drag in a RadioGroup ancestor for nothing.
             Icon(
               isSelected
                   ? Icons.radio_button_checked

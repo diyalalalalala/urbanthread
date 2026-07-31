@@ -5,7 +5,6 @@ import '../entities/product.dart';
 import '../entities/product_query.dart';
 import '../repositories/product_repository.dart';
 
-/// Fetches one page of the catalogue for the given query.
 class GetProductsUseCase extends UseCase<Paginated<Product>, ProductQuery> {
   const GetProductsUseCase(this._repository);
 

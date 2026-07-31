@@ -1,10 +1,5 @@
 import 'package:equatable/equatable.dart';
 
-/// How far along an order is.
-///
-/// All eight states the backend's `ORDER_STATUS` enum can hold. The wire form
-/// of [outForDelivery] is snake_case (`out_for_delivery`) while every other
-/// value is its own name, so [wireValue] cannot simply be `name`.
 enum OrderStatus {
   pending,
   confirmed,
@@ -40,7 +35,6 @@ enum OrderStatus {
         OrderStatus.returned => 'Returned',
       };
 
-  /// One line of reassurance for the customer, shown under the status chip.
   String get description => switch (this) {
         OrderStatus.pending => 'We have received your order.',
         OrderStatus.confirmed => 'Your order is confirmed and being prepared.',
@@ -52,17 +46,9 @@ enum OrderStatus {
         OrderStatus.returned => 'This order was returned.',
       };
 
-  /// Nothing further will happen to the order.
-  ///
-  /// Mirrors the backend's `isTerminal` virtual, which is derived from an
-  /// empty transition list in `ORDER_STATUS_FLOW`.
   bool get isTerminal =>
       this == OrderStatus.cancelled || this == OrderStatus.returned;
 
-  /// The happy-path sequence, for the tracking stepper. Cancelled and
-  /// returned are deliberately absent — they are exits from this path, not
-  /// steps along it, and drawing them as future steps would imply every order
-  /// ends up cancelled.
   static const progression = [
     OrderStatus.pending,
     OrderStatus.confirmed,
@@ -72,20 +58,12 @@ enum OrderStatus {
     OrderStatus.delivered,
   ];
 
-  /// Statuses a customer may cancel from themselves. The backend enforces the
-  /// same pair in `CUSTOMER_CANCELLABLE_STATUSES`; checking it client-side
-  /// hides the button rather than letting the tap earn a 422.
   static const customerCancellable = [
     OrderStatus.pending,
     OrderStatus.confirmed,
   ];
 }
 
-/// How the order was paid for.
-///
-/// There are only these two. No payment gateway exists in this system —
-/// [mockGateway] settles in-process inside the `POST /orders` transaction, so
-/// there is no redirect, no WebView and nothing to poll.
 enum PaymentMethod {
   cod,
   mockGateway;
@@ -132,10 +110,6 @@ enum PaymentStatus {
       };
 }
 
-/// Return state, held both on the order as a whole and per item.
-///
-/// Null — not a member of this enum — means "no return has been asked for",
-/// which is the overwhelmingly common case.
 enum ReturnStatus {
   requested,
   approved,
@@ -158,14 +132,6 @@ enum ReturnStatus {
       };
 }
 
-/// The address as it was at the moment of purchase.
-///
-/// Deliberately *not* the address-book [Address] entity from the
-/// authentication feature. The backend embeds this snapshot with
-/// `{_id: false}`, so it has no id, no `type` and no `isDefault` — an order
-/// records where the parcel went, not which book entry it came from. Editing
-/// the address book later must not rewrite a delivered order's history, and
-/// giving this its own type is what makes that impossible to get wrong.
 class OrderAddress extends Equatable {
   const OrderAddress({
     required this.fullName,
@@ -201,12 +167,6 @@ class OrderAddress extends Equatable {
       [fullName, phone, street, city, state, postalCode, country, landmark];
 }
 
-/// One purchased line.
-///
-/// Flat, unlike a cart item: the cart nests its copied fields under
-/// `snapshot`, an order does not. Reading `item.name` here and
-/// `item.snapshot.name` there is the single most common mix-up between the
-/// two shapes.
 class OrderItem extends Equatable {
   const OrderItem({
     required this.id,
@@ -228,13 +188,8 @@ class OrderItem extends Equatable {
     this.returnAdminNote = '',
   });
 
-  /// The order-item subdocument id. This — not [productId] — is what
-  /// `POST /orders/{id}/return` expects in its `itemIds` array.
   final String id;
 
-  /// A raw ObjectId string. The backend never populates it on an order, so
-  /// there is no product document here to read a current price or slug from;
-  /// it exists for "buy this again" links and analytics only.
   final String productId;
 
   final String variantId;
@@ -254,7 +209,6 @@ class OrderItem extends Equatable {
   final DateTime? returnResolvedAt;
   final String returnAdminNote;
 
-  /// `Charcoal · M`, or null when the variant has neither axis.
   String? get variantLabel {
     final parts = [
       if (color.isNotEmpty) color,
@@ -263,11 +217,6 @@ class OrderItem extends Equatable {
     return parts.isEmpty ? null : parts.join(' · ');
   }
 
-  /// Whether this line may still be included in a return request.
-  ///
-  /// A rejected return may be re-requested; anything requested, approved or
-  /// already refunded may not, or the customer would be credited twice for
-  /// one garment.
   bool get isReturnable =>
       returnStatus == null || returnStatus == ReturnStatus.rejected;
 
@@ -293,10 +242,6 @@ class OrderItem extends Equatable {
       ];
 }
 
-/// Every money component of the order, stored rather than recomputed.
-///
-/// The total is **`grandTotal`**. There is no `total` key anywhere in this
-/// API, and reading one would silently yield zero.
 class OrderPricing extends Equatable {
   const OrderPricing({
     required this.subtotal,
@@ -315,15 +260,12 @@ class OrderPricing extends Equatable {
   final double grandTotal;
   final String currency;
 
-  /// The rate actually applied, retained so an old order's tax line stays
-  /// reproducible after a VAT change.
   final double taxRate;
 
   bool get hasDiscount => discount > 0;
 
   bool get isFreeShipping => shipping <= 0;
 
-  /// `13% VAT`, for the tax row's label.
   String get taxLabel =>
       taxRate <= 0 ? 'Tax' : '${(taxRate * 100).toStringAsFixed(0)}% VAT';
 
@@ -332,7 +274,6 @@ class OrderPricing extends Equatable {
       [subtotal, discount, tax, shipping, grandTotal, currency, taxRate];
 }
 
-/// The coupon redeemed against this order, if any.
 class OrderCoupon extends Equatable {
   const OrderCoupon({this.code, this.couponId, this.discountAmount = 0});
 
@@ -346,9 +287,6 @@ class OrderCoupon extends Equatable {
   List<Object?> get props => [code, couponId, discountAmount];
 }
 
-/// Payment state. For [PaymentMethod.cod] this stays pending until the courier
-/// collects; for [PaymentMethod.mockGateway] it is already settled by the time
-/// the client sees the order.
 class OrderPayment extends Equatable {
   const OrderPayment({
     required this.method,
@@ -372,7 +310,6 @@ class OrderPayment extends Equatable {
 
   bool get isRefunded => status == PaymentStatus.refunded;
 
-  /// True when money is still owed at the door.
   bool get isCollectedOnDelivery =>
       method == PaymentMethod.cod && status == PaymentStatus.pending;
 
@@ -388,11 +325,6 @@ class OrderPayment extends Equatable {
       ];
 }
 
-/// One status change, in the order's history.
-///
-/// The array is called **`timeline`**, not `statusHistory`, and its entries
-/// carry no `_id` — the subdocument schema sets `{_id: false}`. Equality
-/// therefore has to come from the contents, which Equatable gives us anyway.
 class OrderTimelineEntry extends Equatable {
   const OrderTimelineEntry({
     required this.status,
@@ -404,7 +336,6 @@ class OrderTimelineEntry extends Equatable {
   final OrderStatus status;
   final String note;
 
-  /// The admin who made the change; null for system transitions.
   final String? changedBy;
   final DateTime? occurredAt;
 
@@ -412,7 +343,6 @@ class OrderTimelineEntry extends Equatable {
   List<Object?> get props => [status, note, changedBy, occurredAt];
 }
 
-/// A placed order.
 class Order extends Equatable {
   const Order({
     required this.id,
@@ -444,7 +374,6 @@ class Order extends Equatable {
 
   final String id;
 
-  /// `UT-YYYYMMDD-NNNN`, the reference a customer quotes to support.
   final String orderNumber;
 
   final String customerEmail;
@@ -458,7 +387,6 @@ class Order extends Equatable {
   final OrderStatus status;
   final List<OrderTimelineEntry> timeline;
 
-  /// Order-level return state, distinct from the per-item states.
   final ReturnStatus? returnStatus;
 
   final String customerNote;
@@ -471,38 +399,21 @@ class Order extends Equatable {
   final DateTime? createdAt;
   final DateTime? updatedAt;
 
-  // ── Server virtuals ────────────────────────────────────────────────────
-  // `totalItems`, `isCancellable` and `isTerminal` are Mongoose virtuals, so
-  // they are present on hydrated responses (POST /orders, the detail route,
-  // cancel, return) and **absent from `GET /orders/my-orders`**, which reads
-  // lean. Rather than let a list row silently report zero items, each is held
-  // nullable and read through a getter that falls back to a client-side
-  // computation over the stored fields.
-
   final int? totalItemsOrNull;
   final bool? isCancellableOrNull;
   final bool? isTerminalOrNull;
 
-  /// Total units across every line.
   int get totalItems =>
       totalItemsOrNull ??
       items.fold(0, (sum, item) => sum + item.quantity);
 
-  /// Whether the customer may still cancel this themselves.
   bool get isCancellable =>
       isCancellableOrNull ?? OrderStatus.customerCancellable.contains(status);
 
   bool get isTerminal => isTerminalOrNull ?? status.isTerminal;
 
-  /// How long after delivery a return may be requested. Mirrors the
-  /// backend's `business.returnWindowDays`.
   static const returnWindow = Duration(days: 7);
 
-  /// Whether the *order* is eligible for a return request right now.
-  ///
-  /// Three conditions, all enforced server-side as well: it must be
-  /// delivered, inside the window measured from [deliveredAt], and not
-  /// already have a request under review.
   bool get canRequestReturn {
     if (status != OrderStatus.delivered || deliveredAt == null) return false;
     if (returnStatus == ReturnStatus.requested) return false;
@@ -510,7 +421,6 @@ class Order extends Equatable {
     return items.any((item) => item.isReturnable);
   }
 
-  /// Days left to start a return, or null when the window does not apply.
   int? get returnWindowDaysRemaining {
     if (status != OrderStatus.delivered || deliveredAt == null) return null;
     final closesAt = deliveredAt!.add(returnWindow);
@@ -518,15 +428,11 @@ class Order extends Equatable {
     return remaining < 0 ? 0 : remaining;
   }
 
-  /// Items a return request may include.
   List<OrderItem> get returnableItems =>
       items.where((item) => item.isReturnable).toList(growable: false);
 
   bool get hasSeparateBillingAddress => billingAddress != shippingAddress;
 
-  /// Timeline oldest-first, which is the order a stepper reads in. The API
-  /// appends chronologically, but sorting defensively costs nothing and
-  /// protects the stepper from an out-of-order entry.
   List<OrderTimelineEntry> get chronologicalTimeline {
     final sorted = [...timeline];
     sorted.sort((a, b) {
@@ -568,11 +474,6 @@ class Order extends Equatable {
       ];
 }
 
-/// The narrow projection `GET /orders/{id}/track` answers with.
-///
-/// Hand-assembled by the backend rather than a subset of the order document,
-/// which is why it carries no prices or address, and why the placement time
-/// arrives as **`placedAt`** — it is `createdAt` renamed.
 class OrderTracking extends Equatable {
   const OrderTracking({
     required this.orderNumber,
@@ -595,12 +496,9 @@ class OrderTracking extends Equatable {
   final DateTime? deliveredAt;
   final DateTime? cancelledAt;
 
-  /// Present here even though the list route drops it — this route reads a
-  /// hydrated document, so the virtuals survive.
   final int totalItems;
   final bool isCancellable;
 
-  /// `createdAt` under another name.
   final DateTime? placedAt;
 
   bool get hasTrackingNumber =>
@@ -617,8 +515,6 @@ class OrderTracking extends Equatable {
     return sorted;
   }
 
-  /// The furthest step reached along [OrderStatus.progression], or -1 when the
-  /// order left the happy path (cancelled/returned).
   int get progressIndex => OrderStatus.progression.indexOf(status);
 
   @override

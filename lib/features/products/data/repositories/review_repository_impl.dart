@@ -7,13 +7,6 @@ import '../../domain/entities/review.dart';
 import '../../domain/repositories/review_repository.dart';
 import '../datasource/review_remote_datasource.dart';
 
-/// The read side of reviews.
-///
-/// Deliberately not cached, unlike the catalogue. Reviews are secondary
-/// content on a page whose primary content *is* cached, they turn over
-/// constantly, and a stale review count next to a fresh product would read as
-/// a bug. Offline, the product page simply hides the section — the entity it
-/// needs is already on screen from the cached detail response.
 class ReviewRepositoryImpl implements ReviewRepository {
   ReviewRepositoryImpl({
     required ReviewRemoteDataSource remote,

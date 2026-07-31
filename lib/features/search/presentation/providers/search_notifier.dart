@@ -13,12 +13,6 @@ import 'search_providers.dart';
 
 part 'search_notifier.g.dart';
 
-/// Where the search screen stands.
-///
-/// [hasSearched] is what separates "nothing typed yet" from "no results",
-/// which need completely different screens — the first shows recent searches,
-/// the second an apology. A results list that happens to be empty cannot tell
-/// them apart on its own.
 class SearchState extends Equatable {
   const SearchState({
     this.term = '',
@@ -36,13 +30,11 @@ class SearchState extends Equatable {
   final String term;
   final List<Product> results;
 
-  /// Recent terms, most-recent first.
   final List<String> history;
 
   final bool isSearching;
   final bool isLoadingMore;
 
-  /// True once a request for the current term has come back.
   final bool hasSearched;
 
   final bool hasNextPage;
@@ -50,8 +42,6 @@ class SearchState extends Equatable {
   final int page;
   final Failure? failure;
 
-  /// The term is long enough to be worth sending. Anything shorter than two
-  /// characters matches most of the catalogue and is not a useful search.
   bool get isQueryable => term.trim().length >= 2;
 
   bool get showsHistory => !isQueryable && !isSearching;
@@ -100,15 +90,6 @@ class SearchState extends Equatable {
       ];
 }
 
-/// The search screen's state, debounced.
-///
-/// Two mechanisms guard against a fast typist, and both are needed. The
-/// [_debounce] timer stops a request being sent per keystroke; the
-/// [_requestId] generation counter discards a response that arrives *after* a
-/// later one, which the timer cannot prevent — an early short query can take
-/// longer to run than the longer query that superseded it, and without the
-/// counter the screen would settle on results for a term the user has already
-/// finished typing over.
 @riverpod
 class SearchNotifier extends _$SearchNotifier {
   static const debounceDuration = Duration(milliseconds: 350);
@@ -132,15 +113,11 @@ class SearchNotifier extends _$SearchNotifier {
     }
   }
 
-  /// Called on every keystroke. Only the last one in a 350ms window reaches
-  /// the network.
   void onTermChanged(String term) {
     _debounce?.cancel();
     state = state.copyWith(term: term, clearFailure: true);
 
     if (!state.isQueryable) {
-      // Below the threshold the screen goes back to showing history, so any
-      // in-flight response must also be discarded.
       _requestId++;
       state = state.copyWith(
         results: const [],
@@ -157,8 +134,6 @@ class SearchNotifier extends _$SearchNotifier {
     _debounce = Timer(debounceDuration, () => unawaited(_search(term)));
   }
 
-  /// Runs the search immediately, skipping the debounce — for the keyboard's
-  /// submit key and for tapping a history entry, where the intent is explicit.
   Future<void> submit([String? term]) async {
     _debounce?.cancel();
     final value = (term ?? state.term).trim();
@@ -175,7 +150,6 @@ class SearchNotifier extends _$SearchNotifier {
       ProductQuery(search: term),
     );
 
-    // A newer keystroke has already superseded this request.
     if (requestId != _requestId) return;
 
     switch (result) {
@@ -189,8 +163,6 @@ class SearchNotifier extends _$SearchNotifier {
           hasSearched: true,
           clearFailure: true,
         );
-        // Only remembered once it produced something. A term that matched
-        // nothing is not worth offering back to the shopper.
         if (recordInHistory && value.items.isNotEmpty) {
           await _record(term);
         }
@@ -254,7 +226,6 @@ class SearchNotifier extends _$SearchNotifier {
     }
   }
 
-  /// Empties the field and returns the screen to its resting state.
   void clear() {
     _debounce?.cancel();
     _requestId++;

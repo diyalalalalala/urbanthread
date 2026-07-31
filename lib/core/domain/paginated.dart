@@ -1,10 +1,5 @@
 import 'package:equatable/equatable.dart';
 
-/// A page of results plus the cursor needed to ask for the next one.
-///
-/// Domain-side mirror of the API's `meta` block, deliberately narrower: the
-/// UI only ever needs "what did I get" and "is there more", so `prevPage` and
-/// `limit` are dropped rather than carried around unused.
 class Paginated<T> extends Equatable {
   const Paginated({
     required this.items,
@@ -14,8 +9,6 @@ class Paginated<T> extends Equatable {
     required this.hasNextPage,
   });
 
-  /// A complete, single-page result — what the non-paginated list endpoints
-  /// (`/products/featured`, `/categories/tree`) effectively return.
   const Paginated.single(this.items)
       : page = 1,
         totalPages = 1,
@@ -38,13 +31,8 @@ class Paginated<T> extends Equatable {
   bool get isEmpty => items.isEmpty;
   bool get isNotEmpty => items.isNotEmpty;
 
-  /// The page to request next, or null at the end of the list.
   int? get nextPage => hasNextPage ? page + 1 : null;
 
-  /// Appends [next] onto this page, as an infinite scroll does.
-  ///
-  /// Paging metadata is taken from [next] because it is the more recent
-  /// truth — the total can shift between requests as stock changes.
   Paginated<T> append(Paginated<T> next) => Paginated<T>(
         items: [...items, ...next.items],
         page: next.page,

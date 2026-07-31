@@ -8,12 +8,6 @@ import '../../../../core/widgets/app_network_image.dart';
 import '../../domain/entities/order.dart';
 import 'order_status_chip.dart';
 
-/// One row of the order history.
-///
-/// Built to survive a lean payload: `GET /orders/my-orders` drops the
-/// `totalItems` virtual, so the count shown here comes from the entity's
-/// fallback rather than the wire. Nothing on this card may assume a virtual
-/// is present.
 class OrderCard extends StatelessWidget {
   const OrderCard({required this.order, super.key, this.onTap});
 
@@ -117,13 +111,11 @@ class OrderCard extends StatelessWidget {
   }
 }
 
-/// A single purchased line, as shown on the detail screen.
 class OrderItemTile extends StatelessWidget {
   const OrderItemTile({required this.item, super.key, this.trailing});
 
   final OrderItem item;
 
-  /// A checkbox on the return screen; nothing elsewhere.
   final Widget? trailing;
 
   @override

@@ -9,12 +9,6 @@ import '../providers/orders_notifier.dart';
 import '../widgets/order_card.dart';
 import '../widgets/order_pricing_summary.dart';
 
-/// Pick the items to send back and say why.
-///
-/// Returns are per line, not per order — the API takes an array of
-/// **order-item** ids, so a customer can keep three of four garments. Items
-/// already requested, approved or refunded are not offered again; only a
-/// previously rejected one may be re-submitted.
 class ReturnRequestPage extends ConsumerStatefulWidget {
   const ReturnRequestPage({required this.order, super.key});
 
@@ -34,12 +28,9 @@ class _ReturnRequestPageState extends ConsumerState<ReturnRequestPage> {
   @override
   void initState() {
     super.initState();
-    // Re-validate the submit button as the reason is typed.
     _reasonController.addListener(_onReasonChanged);
 
     final returnable = widget.order.returnableItems;
-    // With a single eligible item there is no choice to make, so pre-select
-    // it rather than making the customer tick a list of one.
     if (returnable.length == 1) _selected.add(returnable.first.id);
   }
 
@@ -109,8 +100,6 @@ class _ReturnRequestPageState extends ConsumerState<ReturnRequestPage> {
             ),
           ),
 
-          // Lines that cannot be re-requested are still listed, greyed, so the
-          // customer can see the app has not simply lost them.
           if (returnable.length != order.items.length) ...[
             const SizedBox(height: AppDimens.space24),
             const OrderSectionHeader(title: 'Not eligible'),
@@ -127,8 +116,6 @@ class _ReturnRequestPageState extends ConsumerState<ReturnRequestPage> {
             textCapitalization: TextCapitalization.sentences,
             decoration: InputDecoration(
               hintText: 'Too small, arrived damaged, not as described…',
-              // The backend requires 5–300 characters: a return is judged by a
-              // person, and an unexplained request cannot be assessed.
               errorText: _reason.isNotEmpty && _reason.length < _minReasonLength
                   ? 'Please give us a little more detail.'
                   : null,
@@ -171,14 +158,9 @@ class _ReturnRequestPageState extends ConsumerState<ReturnRequestPage> {
     if (!mounted) return;
 
     if (ok) {
-      // Popping back to the detail screen, which the notifier has already
-      // updated with the server's copy of the order — its per-item return
-      // badges are live the moment this page leaves.
       Navigator.of(context).pop();
       context.showSnack('Return requested. We will be in touch.');
     }
-    // A refusal surfaces through the detail page's own listener, so nothing
-    // more to do here — and the page stays open with the selection intact.
   }
 }
 

@@ -8,30 +8,12 @@ part of 'wishlist_notifier.dart';
 
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, type=warning
-/// The wishlist, and the only thing allowed to change it.
-///
-/// Kept alive so the saved-items badge and every heart button in the app read
-/// one source of truth. Removals are optimistic — the card leaves the grid on
-/// tap and comes back if the server refuses — because a heart that waits on a
-/// round trip before filling is the single most obvious lag in a storefront.
 
 @ProviderFor(WishlistNotifier)
 final wishlistProvider = WishlistNotifierProvider._();
 
-/// The wishlist, and the only thing allowed to change it.
-///
-/// Kept alive so the saved-items badge and every heart button in the app read
-/// one source of truth. Removals are optimistic — the card leaves the grid on
-/// tap and comes back if the server refuses — because a heart that waits on a
-/// round trip before filling is the single most obvious lag in a storefront.
 final class WishlistNotifierProvider
     extends $NotifierProvider<WishlistNotifier, WishlistState> {
-  /// The wishlist, and the only thing allowed to change it.
-  ///
-  /// Kept alive so the saved-items badge and every heart button in the app read
-  /// one source of truth. Removals are optimistic — the card leaves the grid on
-  /// tap and comes back if the server refuses — because a heart that waits on a
-  /// round trip before filling is the single most obvious lag in a storefront.
   WishlistNotifierProvider._()
     : super(
         from: null,
@@ -61,13 +43,6 @@ final class WishlistNotifierProvider
 
 String _$wishlistNotifierHash() => r'e1cb71f2f6d19d964ed0da46c7cf5ee3328dfaba';
 
-/// The wishlist, and the only thing allowed to change it.
-///
-/// Kept alive so the saved-items badge and every heart button in the app read
-/// one source of truth. Removals are optimistic — the card leaves the grid on
-/// tap and comes back if the server refuses — because a heart that waits on a
-/// round trip before filling is the single most obvious lag in a storefront.
-
 abstract class _$WishlistNotifier extends $Notifier<WishlistState> {
   WishlistState build();
   @$mustCallSuper
@@ -86,28 +61,11 @@ abstract class _$WishlistNotifier extends $Notifier<WishlistState> {
   }
 }
 
-/// Saved-item count, for the bottom-nav badge.
-///
-/// Derived rather than `.select`-ed — `.select` is unavailable on a generated
-/// notifier provider in Riverpod 3, and this only re-emits when the number
-/// itself changes.
-
 @ProviderFor(wishlistCount)
 final wishlistCountProvider = WishlistCountProvider._();
 
-/// Saved-item count, for the bottom-nav badge.
-///
-/// Derived rather than `.select`-ed — `.select` is unavailable on a generated
-/// notifier provider in Riverpod 3, and this only re-emits when the number
-/// itself changes.
-
 final class WishlistCountProvider extends $FunctionalProvider<int, int, int>
     with $Provider<int> {
-  /// Saved-item count, for the bottom-nav badge.
-  ///
-  /// Derived rather than `.select`-ed — `.select` is unavailable on a generated
-  /// notifier provider in Riverpod 3, and this only re-emits when the number
-  /// itself changes.
   WishlistCountProvider._()
     : super(
         from: null,
@@ -143,25 +101,11 @@ final class WishlistCountProvider extends $FunctionalProvider<int, int, int>
 
 String _$wishlistCountHash() => r'02d034f42058a3a88e247427a7a5231c93bff2e8';
 
-/// Whether a product is saved, for a heart button anywhere in the app.
-///
-/// Answers from the loaded wishlist, which is kept alive and cached — so a
-/// product card does not pay a `/wishlist/{id}/check` round trip per tile.
-
 @ProviderFor(isWishlisted)
 final isWishlistedProvider = IsWishlistedFamily._();
 
-/// Whether a product is saved, for a heart button anywhere in the app.
-///
-/// Answers from the loaded wishlist, which is kept alive and cached — so a
-/// product card does not pay a `/wishlist/{id}/check` round trip per tile.
-
 final class IsWishlistedProvider extends $FunctionalProvider<bool, bool, bool>
     with $Provider<bool> {
-  /// Whether a product is saved, for a heart button anywhere in the app.
-  ///
-  /// Answers from the loaded wishlist, which is kept alive and cached — so a
-  /// product card does not pay a `/wishlist/{id}/check` round trip per tile.
   IsWishlistedProvider._({
     required IsWishlistedFamily super.from,
     required String super.argument,
@@ -215,11 +159,6 @@ final class IsWishlistedProvider extends $FunctionalProvider<bool, bool, bool>
 
 String _$isWishlistedHash() => r'a54c460e392c5a5a4334a62f725e4fc8ab3395ad';
 
-/// Whether a product is saved, for a heart button anywhere in the app.
-///
-/// Answers from the loaded wishlist, which is kept alive and cached — so a
-/// product card does not pay a `/wishlist/{id}/check` round trip per tile.
-
 final class IsWishlistedFamily extends $Family
     with $FunctionalFamilyOverride<bool, String> {
   IsWishlistedFamily._()
@@ -230,11 +169,6 @@ final class IsWishlistedFamily extends $Family
         $allTransitiveDependencies: null,
         isAutoDispose: true,
       );
-
-  /// Whether a product is saved, for a heart button anywhere in the app.
-  ///
-  /// Answers from the loaded wishlist, which is kept alive and cached — so a
-  /// product card does not pay a `/wishlist/{id}/check` round trip per tile.
 
   IsWishlistedProvider call(String productId) =>
       IsWishlistedProvider._(argument: productId, from: this);

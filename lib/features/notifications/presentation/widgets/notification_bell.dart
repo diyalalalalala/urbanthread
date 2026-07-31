@@ -7,11 +7,6 @@ import '../../../../core/router/app_routes.dart';
 import '../../../../core/theme/app_dimens.dart';
 import '../providers/unread_notification_count.dart';
 
-/// App-bar bell with an unread badge, backed by
-/// `unreadNotificationCountProvider`.
-///
-/// The count never enters an error state — a failed fetch shows a plain bell,
-/// because a broken badge is worse than no badge.
 class NotificationBell extends ConsumerWidget {
   const NotificationBell({super.key});
 
@@ -42,7 +37,6 @@ class NotificationBell extends ConsumerWidget {
                 ),
                 alignment: Alignment.center,
                 child: Text(
-                  // Anything past 99 is noise in a 16px badge.
                   unread > 99 ? '99+' : '$unread',
                   style: context.text.labelSmall?.copyWith(
                     color: context.palette.accentInk,

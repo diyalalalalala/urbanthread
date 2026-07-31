@@ -14,12 +14,6 @@ import 'wishlist_state.dart';
 
 part 'wishlist_notifier.g.dart';
 
-/// The wishlist, and the only thing allowed to change it.
-///
-/// Kept alive so the saved-items badge and every heart button in the app read
-/// one source of truth. Removals are optimistic — the card leaves the grid on
-/// tap and comes back if the server refuses — because a heart that waits on a
-/// round trip before filling is the single most obvious lag in a storefront.
 @Riverpod(keepAlive: true)
 class WishlistNotifier extends _$WishlistNotifier {
   @override
@@ -33,9 +27,6 @@ class WishlistNotifier extends _$WishlistNotifier {
     });
 
     final cached = repository.cachedWishlist;
-    // Always silent here, cache or no cache: `state` does not exist until
-    // `build` returns, so `_load` must reach its first `await` without
-    // touching it. The `isLoading` below is the write it would have made.
     unawaited(_load(silent: true));
 
     return WishlistState(
@@ -85,8 +76,6 @@ class WishlistNotifier extends _$WishlistNotifier {
           pendingWrites: _pendingWrites,
         );
       case FailureResult():
-        // Still unreachable; the queue is intact and the offline banner is
-        // already saying everything there is to say.
         state = state.copyWith(
           isSyncing: false,
           pendingWrites: _pendingWrites,
@@ -94,9 +83,6 @@ class WishlistNotifier extends _$WishlistNotifier {
     }
   }
 
-  // ── Mutations ──────────────────────────────────────────────────────────
-
-  /// Saves a product. Idempotent server-side, so a double-tap is harmless.
   Future<bool> add({required String productId, String? variantId}) async {
     if (state.isBusy(productId)) return false;
     _markBusy(productId);
@@ -108,7 +94,6 @@ class WishlistNotifier extends _$WishlistNotifier {
     return _settle(result, productId, successMessage: 'Saved to your wishlist.');
   }
 
-  /// Removes a product, optimistically.
   Future<bool> remove(String productId) async {
     final current = state.wishlist;
     if (current == null || state.isBusy(productId)) return false;
@@ -129,12 +114,6 @@ class WishlistNotifier extends _$WishlistNotifier {
     );
   }
 
-  /// The heart button's action: saves if not saved, removes if it is.
-  ///
-  /// Decided from local state rather than by asking `/wishlist/{id}/check`
-  /// first — a tap must act immediately, and both directions are safe to get
-  /// wrong: adding twice is a no-op, and removing something already gone is a
-  /// 404 the queue discards.
   Future<bool> toggle({required String productId, String? variantId}) {
     final saved = state.wishlist?.contains(productId) ?? false;
     return saved
@@ -142,7 +121,6 @@ class WishlistNotifier extends _$WishlistNotifier {
         : add(productId: productId, variantId: variantId);
   }
 
-  /// Empties the wishlist.
   Future<void> clear() async {
     final current = state.wishlist;
     if (current == null || current.isEmpty) return;
@@ -173,11 +151,6 @@ class WishlistNotifier extends _$WishlistNotifier {
     }
   }
 
-  /// Buys one of a saved product and unsaves it.
-  ///
-  /// The response carries the cart as well, so the cart's state is updated
-  /// from it directly — the badge and the cart page are correct the instant
-  /// this returns, with no second request.
   Future<bool> moveToCart({
     required String productId,
     String? variantId,
@@ -185,9 +158,6 @@ class WishlistNotifier extends _$WishlistNotifier {
     final current = state.wishlist;
     if (current == null || state.isBusy(productId)) return false;
 
-    // Not optimistic. Move-to-cart can fail on stock, and the server adds to
-    // the cart *before* unsaving precisely so a failure leaves the item
-    // saved — removing the card first would contradict that guarantee.
     _markBusy(productId);
 
     final result = await ref.read(moveWishlistItemToCartUseCaseProvider)(
@@ -218,10 +188,7 @@ class WishlistNotifier extends _$WishlistNotifier {
     }
   }
 
-  /// Drops the one-shot snack-bar line once it has been shown.
   void consumeMessage() => state = state.copyWith(clearMessage: true);
-
-  // ── Plumbing ───────────────────────────────────────────────────────────
 
   int get _pendingWrites =>
       ref.read(wishlistRepositoryProvider).pendingWriteCount;
@@ -249,8 +216,6 @@ class WishlistNotifier extends _$WishlistNotifier {
           wishlist: value,
           busyProductIds: _released(productId),
           pendingWrites: _pendingWrites,
-          // An offline write is recorded rather than applied, so say so
-          // instead of claiming it reached the server.
           message: _pendingWrites > 0
               ? 'Saved on this device — it will sync when you are online.'
               : successMessage,
@@ -269,18 +234,9 @@ class WishlistNotifier extends _$WishlistNotifier {
   }
 }
 
-/// Saved-item count, for the bottom-nav badge.
-///
-/// Derived rather than `.select`-ed — `.select` is unavailable on a generated
-/// notifier provider in Riverpod 3, and this only re-emits when the number
-/// itself changes.
 @Riverpod(keepAlive: true)
 int wishlistCount(Ref ref) => ref.watch(wishlistProvider).itemCount;
 
-/// Whether a product is saved, for a heart button anywhere in the app.
-///
-/// Answers from the loaded wishlist, which is kept alive and cached — so a
-/// product card does not pay a `/wishlist/{id}/check` round trip per tile.
 @riverpod
 bool isWishlisted(Ref ref, String productId) =>
     ref.watch(wishlistProvider).wishlist?.contains(productId) ?? false;

@@ -5,14 +5,6 @@ import '../extensions/context_extensions.dart';
 import '../theme/app_dimens.dart';
 import '../utils/media_url.dart';
 
-/// Every remote image in the app goes through here.
-///
-/// Centralising it buys three things a bare [CachedNetworkImage] would not:
-/// the URL is re-based so `localhost` links from the backend resolve on a
-/// device, "no image" (which the API spells as an empty string) renders a
-/// placeholder instead of an error, and the on-disk cache makes the catalogue
-/// browsable offline — which is the whole point of the offline-first
-/// requirement.
 class AppNetworkImage extends StatelessWidget {
   const AppNetworkImage({
     required this.url,
@@ -55,9 +47,6 @@ class AppNetworkImage extends StatelessWidget {
         width: width,
         height: height,
         fadeInDuration: AppDimens.durationFast,
-        // No fade on the way out: when an image is already in the memory
-        // cache it resolves synchronously, and cross-fading from a
-        // placeholder that was never visible reads as a flicker.
         fadeOutDuration: Duration.zero,
         placeholder: (context, _) => _Shimmer(width: width, height: height),
         errorWidget: (context, _, _) => _Placeholder(
@@ -87,7 +76,6 @@ class _Placeholder extends StatelessWidget {
       );
 }
 
-/// The web client's `shimmer 1.6s` loading treatment.
 class _Shimmer extends StatefulWidget {
   const _Shimmer({this.width, this.height});
 

@@ -8,11 +8,9 @@ class ProductCollectionParams {
 
   final ProductCollection collection;
 
-  /// The API clamps this to 1–50 and 422s outside that range.
   final int limit;
 }
 
-/// Loads one of the curated home-page collections.
 class GetProductCollectionUseCase
     extends UseCase<List<Product>, ProductCollectionParams> {
   const GetProductCollectionUseCase(this._repository);

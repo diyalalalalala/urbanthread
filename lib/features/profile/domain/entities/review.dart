@@ -2,12 +2,6 @@ import 'package:equatable/equatable.dart';
 
 import 'product_ref.dart';
 
-/// Moderation state of a review.
-///
-/// The backend defaults new reviews to `approved`, so a review the customer
-/// just wrote is live immediately — [pending] and [rejected] only appear when
-/// an admin has intervened, and the UI should explain them rather than hide
-/// them.
 enum ReviewStatus {
   pending,
   approved,
@@ -28,7 +22,6 @@ enum ReviewStatus {
   bool get isVisibleToOthers => this == ReviewStatus.approved;
 }
 
-/// A review written by the signed-in customer.
 class Review extends Equatable {
   const Review({
     required this.id,
@@ -51,32 +44,23 @@ class Review extends Equatable {
 
   final String id;
 
-  /// Always present. `product` on the wire is polymorphic — a bare ObjectId on
-  /// some routes, a populated projection on `/reviews/my-reviews` — so the id
-  /// is lifted out separately and [product] is whatever detail came with it.
   final String productId;
 
   final ProductRef? product;
 
   final String userName;
 
-  /// A plain string URL, unlike `User.avatar`, which is an object. The review
-  /// document denormalises the avatar at write time rather than referencing
-  /// the user's, so the two fields genuinely have different shapes.
   final String? userAvatarUrl;
 
-  /// 1..5, enforced by the backend validator.
   final int rating;
 
   final String title;
 
-  /// 10..2000 characters.
   final String comment;
 
   final bool isVerifiedPurchase;
   final ReviewStatus status;
 
-  /// Why a moderator rejected it. Empty unless [status] is rejected.
   final String moderationNote;
 
   final int helpfulCount;
@@ -85,14 +69,8 @@ class Review extends Equatable {
   final DateTime? createdAt;
   final DateTime? updatedAt;
 
-  /// The timestamp worth showing: the edit if there was one, else the write.
   DateTime? get displayedAt => isEdited ? (editedAt ?? createdAt) : createdAt;
 
-  /// Applies the fields a `PATCH /reviews/{id}` response can change.
-  ///
-  /// [product] and [productId] are deliberately absent: the PATCH response
-  /// carries `product` as a bare id, so merging it would replace the
-  /// populated projection the list was built from with nothing.
   Review copyWith({
     int? rating,
     String? title,

@@ -5,13 +5,6 @@ import 'app_colors.dart';
 import 'app_dimens.dart';
 import 'app_typography.dart';
 
-/// Assembles the light and dark [ThemeData].
-///
-/// Material 3 is enabled but its defaults are overridden fairly aggressively:
-/// the brand is flat, square and low-contrast-chrome, whereas M3 out of the
-/// box is rounded, tinted and elevated. Rather than fight that per widget,
-/// the component themes below neutralise it once — elevation to zero, radii
-/// to 4px, surface tint off — so an un-styled widget already looks correct.
 abstract final class AppTheme {
   const AppTheme._();
 
@@ -19,14 +12,6 @@ abstract final class AppTheme {
 
   static ThemeData get dark => _build(AppPalette.dark, Brightness.dark);
 
-  /// For a button that should hug its label rather than fill the line.
-  ///
-  /// The button themes below set `minimumSize` with [Size.fromHeight], and
-  /// that size's *width* is infinite — which is exactly what makes a stacked
-  /// CTA span its column. A [Row], though, hands its non-flexible children an
-  /// unbounded width, so there is nothing for the infinite minimum to be
-  /// clamped against and layout dies with "BoxConstraints forces an infinite
-  /// width". Any button placed directly in a row needs this.
   static const ButtonStyle hugContent = ButtonStyle(
     minimumSize: WidgetStatePropertyAll(Size(0, AppDimens.controlHeight)),
   );
@@ -34,8 +19,6 @@ abstract final class AppTheme {
   static ThemeData _build(AppPalette palette, Brightness brightness) {
     final scheme = ColorScheme(
       brightness: brightness,
-      // `ink` is the brand's primary action colour — the web's primary button
-      // is ink-on-canvas, with clay reserved as an accent.
       primary: palette.ink,
       onPrimary: palette.canvas,
       primaryContainer: palette.surfaceSunken,
@@ -79,8 +62,6 @@ abstract final class AppTheme {
       textTheme: textTheme,
       extensions: [palette],
 
-      // M3 tints surfaces with the primary colour as they rise. The brand's
-      // neutrals are warm and the tint muddies them, so it is disabled.
       applyElevationOverlayColor: false,
 
       splashFactory: InkSparkle.splashFactory,
@@ -123,8 +104,6 @@ abstract final class AppTheme {
         ),
       ),
 
-      // Primary = ink on canvas, uppercase, square. Matches the web `primary`
-      // button variant, which shifts colour on press rather than lifting.
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
           backgroundColor: palette.ink,

@@ -18,24 +18,12 @@ import '../widgets/rating_stars.dart';
 import '../widgets/review_views.dart';
 import '../widgets/variant_selector.dart';
 
-/// Signature for handing a chosen variant to the cart.
-///
-/// The page does not import the cart feature — it reports the selection and
-/// lets the owner of the route decide what to do with it. That keeps the
-/// catalogue independent of the basket, which is what stops the two features
-/// becoming one.
 typedef AddToCartCallback = void Function(
   Product product,
   ProductVariant variant,
   int quantity,
 );
 
-/// The product page.
-///
-/// Addressed by **slug**, because the backend registers no `/products/:id`
-/// route. Note that the two recommendation strips at the bottom take the
-/// product's ObjectId instead — the asymmetry is the API's, and it is why the
-/// id is only read after the product itself has loaded.
 class ProductDetailPage extends ConsumerWidget {
   const ProductDetailPage({
     required this.slug,
@@ -48,19 +36,10 @@ class ProductDetailPage extends ConsumerWidget {
 
   final String slug;
 
-  /// Wired up by whoever owns the route. When null the buy button renders
-  /// disabled rather than being hidden, so the page keeps the same layout
-  /// however it was mounted.
   final AddToCartCallback? onAddToCart;
 
-  /// Opt-in for the same reason the cart is a callback: this page must not
-  /// acquire a dependency on the wishlist feature. The owner of the route
-  /// supplies the state and the action, exactly as it does for `ProductCard`.
   final bool showWishlistButton;
 
-  /// A predicate rather than a bool because the page is addressed by slug and
-  /// only learns the product's id once it has loaded — the same shape
-  /// `ProductGrid` uses for its cards.
   final bool Function(Product product)? isWishlisted;
 
   final void Function(Product product)? onWishlistTap;
@@ -175,7 +154,6 @@ class ProductDetailPage extends ConsumerWidget {
   }
 }
 
-/// Collapsing gallery. Swipeable, with a page indicator.
 class _GalleryAppBar extends StatefulWidget {
   const _GalleryAppBar({
     required this.product,
@@ -210,7 +188,6 @@ class _GalleryAppBarState extends State<_GalleryAppBar> {
 
     return SliverAppBar(
       pinned: true,
-      // 3:4 portrait, matching how the catalogue is shot.
       expandedHeight: context.screenWidth / AppDimens.productAspectRatio,
       backgroundColor: palette.canvas,
       actions: [
@@ -218,9 +195,6 @@ class _GalleryAppBarState extends State<_GalleryAppBar> {
           Padding(
             padding: const EdgeInsets.only(right: AppDimens.space8),
             child: Material(
-              // The bar is transparent while expanded, so the icon sits
-              // straight on the photograph. The disc is what keeps it legible
-              // against a light shot — the same treatment the grid card uses.
               color: palette.surface.withValues(alpha: 0.9),
               shape: const CircleBorder(),
               child: IconButton(
@@ -298,8 +272,6 @@ class _Heading extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Populated on detail, but the entity tolerates a bare id elsewhere —
-        // so the label is guarded rather than assumed.
         if (product.brand?.isResolved ?? false)
           Text(
             product.brand!.name.toUpperCase(),
@@ -336,9 +308,6 @@ class _StockState extends StatelessWidget {
     final palette = context.palette;
     final variant = state.selectedVariant;
 
-    // Variant-level stock is the honest number once a pair is chosen: the
-    // product may have plenty in total while this exact colour and size has
-    // two left.
     final (label, color) = switch (variant) {
       null when product.isOutOfStock => ('Sold out', palette.danger),
       null => ('In stock', palette.success),
@@ -411,8 +380,6 @@ class _QuantityStepper extends StatelessWidget {
                 ),
               ),
               IconButton(
-                // Capped at the variant's stock: the server re-checks it at
-                // checkout, and a 422 there is a much worse place to find out.
                 onPressed: quantity < max ? onIncrement : null,
                 icon: const Icon(Icons.add, size: 18),
                 visualDensity: VisualDensity.compact,
@@ -442,8 +409,6 @@ class _DescriptionState extends State<_Description> {
     final description = widget.product.description;
     if (description.isEmpty) return const SizedBox.shrink();
 
-    // Descriptions run to 5000 characters; collapsing keeps the variant
-    // selector and the reviews within reach.
     final isLong = description.length > 240;
 
     return Column(
@@ -533,7 +498,6 @@ class _Tags extends StatelessWidget {
       );
 }
 
-/// Rating summary plus the paged review list.
 class _ReviewsSection extends ConsumerWidget {
   const _ReviewsSection({required this.product});
 
@@ -576,8 +540,6 @@ class _ReviewsSection extends ConsumerWidget {
           ),
           const SizedBox(height: AppDimens.space16),
 
-          // Reviews are the one part of this page that is not cached, so an
-          // offline visit shows a quiet note instead of an error card.
           stats.when(
             loading: () => const Padding(
               padding: EdgeInsets.symmetric(vertical: AppDimens.space24),
@@ -675,8 +637,6 @@ class _ReviewList extends StatelessWidget {
   }
 }
 
-/// Market-basket companions. Rendered as a dense strip because it is
-/// supporting evidence, not a primary browse surface.
 class _FrequentlyBoughtTogether extends ConsumerWidget {
   const _FrequentlyBoughtTogether({required this.productId});
 
@@ -693,17 +653,12 @@ class _FrequentlyBoughtTogether extends ConsumerWidget {
               padding: const EdgeInsets.only(top: AppDimens.space32),
               child: ProductCarousel(
                 title: 'Often bought together',
-                // Category and brand arrive as bare ObjectIds on this route,
-                // so the dense card — which skips the brand eyebrow — is the
-                // right one here rather than a stylistic choice.
                 dense: true,
                 products: value
                     .map((entry) => entry.product)
                     .toList(growable: false),
               ),
             ),
-      // A recommendation strip is never worth an error card: if it cannot
-      // load, the page simply does not show it.
       orElse: () => const SizedBox.shrink(),
     );
   }
@@ -733,7 +688,6 @@ class _RelatedProducts extends ConsumerWidget {
   }
 }
 
-/// The pinned price and add-to-cart bar.
 class _BuyBar extends StatelessWidget {
   const _BuyBar({required this.state, this.onAddToCart});
 

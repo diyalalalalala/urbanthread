@@ -17,12 +17,6 @@ import '../widgets/product_grid.dart';
 import '../widgets/sort_sheet.dart';
 import 'product_filter_sheet.dart';
 
-/// The browsable catalogue: an infinite grid with sort and filter entry
-/// points.
-///
-/// Parameterised by its starting query so the same page serves "shop all", a
-/// category landing and a brand landing — the only difference between them is
-/// one filter, and three near-identical screens would drift apart.
 class ProductListPage extends ConsumerStatefulWidget {
   const ProductListPage({
     super.key,
@@ -30,7 +24,6 @@ class ProductListPage extends ConsumerStatefulWidget {
     this.title = 'Shop all',
   });
 
-  /// Convenience for the category route.
   ProductListPage.forCategory({
     required String categorySlug,
     Key? key,
@@ -41,8 +34,6 @@ class ProductListPage extends ConsumerStatefulWidget {
           title: title ?? 'Category',
         );
 
-  /// Convenience for the brand route. Brand is multi-valued on the wire even
-  /// when only one is applied.
   ProductListPage.forBrand({
     required String brandSlug,
     Key? key,
@@ -63,8 +54,6 @@ class ProductListPage extends ConsumerStatefulWidget {
 class _ProductListPageState extends ConsumerState<ProductListPage> {
   final _scrollController = ScrollController();
 
-  /// How close to the bottom the next page is requested. Roughly two rows of
-  /// tiles, which is enough for the request to land before the user arrives.
   static const _loadMoreThreshold = 600.0;
 
   @override
@@ -85,8 +74,6 @@ class _ProductListPageState extends ConsumerState<ProductListPage> {
     if (!_scrollController.hasClients) return;
     final position = _scrollController.position;
     if (position.pixels >= position.maxScrollExtent - _loadMoreThreshold) {
-      // The notifier is the one that de-duplicates: this fires on every
-      // frame of a fling, and guarding here as well would still leak.
       ref.read(productListProvider(widget.initialQuery).notifier).loadMore();
     }
   }
@@ -102,11 +89,8 @@ class _ProductListPageState extends ConsumerState<ProductListPage> {
   Future<void> _openFilterSheet(ProductQuery current) async {
     final ProductFilters facets;
     try {
-      // Facets may not have loaded yet. Awaiting the provider's future opens
-      // the sheet as soon as they land rather than showing an empty one.
       facets = await ref.read(productFilterFacetsProvider.future);
     } on Failure catch (failure) {
-      // The provider rethrows the domain Failure, so it arrives here intact.
       if (!mounted) return;
       context.showSnack(failure.message, isError: true);
       return;
@@ -136,8 +120,6 @@ class _ProductListPageState extends ConsumerState<ProductListPage> {
           ),
         ],
       ),
-      // Shake re-runs the current query, filters and sort included — the same
-      // call pull-to-refresh makes.
       body: ShakeToRefresh(
         onRefresh: () async {
           await _notifier.refresh();
@@ -220,8 +202,6 @@ class _ProductListPageState extends ConsumerState<ProductListPage> {
     );
   }
 
-  /// Wraps a centred state view in a scroll view so pull-to-refresh still
-  /// works when there is nothing to scroll.
   Widget _scrollable(Widget child) => LayoutBuilder(
         builder: (context, constraints) => SingleChildScrollView(
           physics: const AlwaysScrollableScrollPhysics(),
@@ -311,7 +291,6 @@ class _Toolbar extends StatelessWidget {
   }
 }
 
-/// The bottom of the grid: a spinner, a retry, or the end of the catalogue.
 class _ListFooter extends StatelessWidget {
   const _ListFooter({
     required this.isLoadingMore,
@@ -356,8 +335,6 @@ class _ListFooter extends StatelessWidget {
       );
     }
 
-    // Only worth announcing the end once there is enough behind it that the
-    // shopper actually scrolled.
     if (!hasNextPage && itemCount > 6) {
       return Padding(
         padding: const EdgeInsets.symmetric(vertical: AppDimens.space32),

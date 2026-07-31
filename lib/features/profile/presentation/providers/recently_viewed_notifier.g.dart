@@ -8,28 +8,16 @@ part of 'recently_viewed_notifier.dart';
 
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, type=warning
-/// The last 20 products the customer opened.
-///
-/// There is no pagination to manage: the endpoint returns a bare, server-
-/// capped array, so the whole list is one load.
 
 @ProviderFor(RecentlyViewedNotifier)
 final recentlyViewedProvider = RecentlyViewedNotifierProvider._();
 
-/// The last 20 products the customer opened.
-///
-/// There is no pagination to manage: the endpoint returns a bare, server-
-/// capped array, so the whole list is one load.
 final class RecentlyViewedNotifierProvider
     extends
         $AsyncNotifierProvider<
           RecentlyViewedNotifier,
           List<RecentlyViewedItem>
         > {
-  /// The last 20 products the customer opened.
-  ///
-  /// There is no pagination to manage: the endpoint returns a bare, server-
-  /// capped array, so the whole list is one load.
   RecentlyViewedNotifierProvider._()
     : super(
         from: null,
@@ -51,11 +39,6 @@ final class RecentlyViewedNotifierProvider
 
 String _$recentlyViewedNotifierHash() =>
     r'99b9ac347749a07f8f48a528fe2ffd50f1082c55';
-
-/// The last 20 products the customer opened.
-///
-/// There is no pagination to manage: the endpoint returns a bare, server-
-/// capped array, so the whole list is one load.
 
 abstract class _$RecentlyViewedNotifier
     extends $AsyncNotifier<List<RecentlyViewedItem>> {

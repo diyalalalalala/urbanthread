@@ -4,12 +4,6 @@ import '../../../../core/extensions/context_extensions.dart';
 import '../../../../core/theme/app_dimens.dart';
 import '../../../../core/widgets/app_network_image.dart';
 
-/// A circular avatar that falls back to the user's initials.
-///
-/// The API's "no avatar" is an empty `avatar.url` inside an always-present
-/// object, already flattened to a null `User.avatarUrl` by the model — so a
-/// null here genuinely means "never set one", and initials are the right
-/// answer rather than a broken-image icon.
 class ProfileAvatar extends StatelessWidget {
   const ProfileAvatar({
     required this.initials,

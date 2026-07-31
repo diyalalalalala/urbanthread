@@ -12,11 +12,6 @@ import 'profile_providers.dart';
 
 part 'my_reviews_notifier.g.dart';
 
-/// An infinite-scroll page of the customer's reviews.
-///
-/// [isLoadingMore] is kept beside the data rather than folded into the
-/// surrounding `AsyncValue`: a failed *next* page must not blank the pages
-/// already on screen, so appending has its own progress and its own error.
 class MyReviewsState extends Equatable {
   const MyReviewsState({
     required this.reviews,
@@ -61,7 +56,6 @@ class MyReviewsNotifier extends _$MyReviewsNotifier {
     );
   }
 
-  /// Appends the next page, if there is one.
   Future<void> loadMore() async {
     final current = state.value;
     if (current == null || !current.canLoadMore) return;
@@ -86,10 +80,6 @@ class MyReviewsNotifier extends _$MyReviewsNotifier {
     );
   }
 
-  /// Removes a review and drops it from the list without a re-fetch — the
-  /// endpoint answers 204, so there is nothing to adopt from the response.
-  ///
-  /// The product becomes reviewable again, so that list is invalidated too.
   Future<Failure?> deleteReview(String reviewId) async {
     final result = await ref.read(deleteReviewUseCaseProvider)(reviewId);
 
@@ -119,7 +109,6 @@ class MyReviewsNotifier extends _$MyReviewsNotifier {
     );
   }
 
-  /// Applies an edit in place. Returns the failure, or null on success.
   Future<Failure?> editReview({
     required String reviewId,
     int? rating,
@@ -141,9 +130,6 @@ class MyReviewsNotifier extends _$MyReviewsNotifier {
         if (current != null) {
           state = AsyncData(
             current.copyWith(
-              // Only the edited fields are merged. The PATCH response returns
-              // `product` as a bare id, so adopting the whole object would
-              // lose the populated projection this list was built from.
               reviews: current.reviews.map(
                 (review) => review.id == reviewId
                     ? review.copyWith(
@@ -177,10 +163,6 @@ class MyReviewsNotifier extends _$MyReviewsNotifier {
   }
 }
 
-/// Delivered items the customer has not reviewed yet — the entry point to
-/// `WriteReviewPage`.
-///
-/// Never paginated: the endpoint caps at 50 and returns a bare array.
 @riverpod
 class ReviewableProductsNotifier extends _$ReviewableProductsNotifier {
   @override

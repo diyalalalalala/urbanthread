@@ -3,13 +3,6 @@ import 'package:flutter/material.dart';
 import '../../../../core/extensions/context_extensions.dart';
 import '../../../../core/theme/app_dimens.dart';
 
-/// The search box.
-///
-/// The [TextEditingController] is supplied by the page rather than created
-/// here, because tapping a recent search has to *write* into the field. The
-/// alternative — driving `TextField.text` from provider state — resets the
-/// cursor to the start on every keystroke, which makes editing a term
-/// mid-string impossible.
 class SearchField extends StatelessWidget {
   const SearchField({
     required this.controller,

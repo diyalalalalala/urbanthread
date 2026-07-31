@@ -9,12 +9,6 @@ import '../datasource/home_local_datasource.dart';
 import '../datasource/home_remote_datasource.dart';
 import '../models/home_product_model.dart';
 
-/// Offline-first implementation of the storefront rails.
-///
-/// The policy is the catalogue's: never attempt a request while offline,
-/// write through on success, and fall back to cache only for transport
-/// failures. A 4xx here means the endpoint told us something true and cached
-/// rows would misrepresent it.
 class HomeRepositoryImpl implements HomeRepository {
   const HomeRepositoryImpl({
     required HomeRemoteDataSource remote,
@@ -73,15 +67,11 @@ class HomeRepositoryImpl implements HomeRepository {
         HomeCollection.newArrivals => _remote.getNewArrivals(limit: limit),
       };
 
-  /// Transport trouble rather than an answer. A 5xx counts: the backend being
-  /// unwell is not evidence that the rail is empty.
   static bool _isTransient(Failure failure) =>
       failure is NetworkFailure ||
       failure is TimeoutFailure ||
       failure is ServerFailure;
 
-  /// Rows the cards cannot draw are dropped rather than rendered as dead
-  /// tiles. See [HomeProductModel.isRenderable].
   static List<HomeProduct> _toEntities(List<HomeProductModel> models) => models
       .where((model) => model.isRenderable)
       .map((model) => model.toEntity())

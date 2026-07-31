@@ -8,39 +8,12 @@ part of 'search_notifier.dart';
 
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, type=warning
-/// The search screen's state, debounced.
-///
-/// Two mechanisms guard against a fast typist, and both are needed. The
-/// [_debounce] timer stops a request being sent per keystroke; the
-/// [_requestId] generation counter discards a response that arrives *after* a
-/// later one, which the timer cannot prevent — an early short query can take
-/// longer to run than the longer query that superseded it, and without the
-/// counter the screen would settle on results for a term the user has already
-/// finished typing over.
 
 @ProviderFor(SearchNotifier)
 final searchProvider = SearchNotifierProvider._();
 
-/// The search screen's state, debounced.
-///
-/// Two mechanisms guard against a fast typist, and both are needed. The
-/// [_debounce] timer stops a request being sent per keystroke; the
-/// [_requestId] generation counter discards a response that arrives *after* a
-/// later one, which the timer cannot prevent — an early short query can take
-/// longer to run than the longer query that superseded it, and without the
-/// counter the screen would settle on results for a term the user has already
-/// finished typing over.
 final class SearchNotifierProvider
     extends $NotifierProvider<SearchNotifier, SearchState> {
-  /// The search screen's state, debounced.
-  ///
-  /// Two mechanisms guard against a fast typist, and both are needed. The
-  /// [_debounce] timer stops a request being sent per keystroke; the
-  /// [_requestId] generation counter discards a response that arrives *after* a
-  /// later one, which the timer cannot prevent — an early short query can take
-  /// longer to run than the longer query that superseded it, and without the
-  /// counter the screen would settle on results for a term the user has already
-  /// finished typing over.
   SearchNotifierProvider._()
     : super(
         from: null,
@@ -69,16 +42,6 @@ final class SearchNotifierProvider
 }
 
 String _$searchNotifierHash() => r'f054d75a2d4c2c333102adb1b20bef66c7ebcfa3';
-
-/// The search screen's state, debounced.
-///
-/// Two mechanisms guard against a fast typist, and both are needed. The
-/// [_debounce] timer stops a request being sent per keystroke; the
-/// [_requestId] generation counter discards a response that arrives *after* a
-/// later one, which the timer cannot prevent — an early short query can take
-/// longer to run than the longer query that superseded it, and without the
-/// counter the screen would settle on results for a term the user has already
-/// finished typing over.
 
 abstract class _$SearchNotifier extends $Notifier<SearchState> {
   SearchState build();

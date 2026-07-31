@@ -14,11 +14,6 @@ import '../widgets/order_pricing_summary.dart';
 import '../widgets/order_status_chip.dart';
 import '../widgets/order_timeline.dart';
 
-/// Where the parcel is.
-///
-/// Backed by `GET /orders/{id}/track`, a projection the backend assembles by
-/// hand — it carries no prices and no address, which is why this page cannot
-/// show a total or a delivery address however convenient that would be.
 class OrderTrackingPage extends ConsumerWidget {
   const OrderTrackingPage({required this.orderId, super.key});
 
@@ -101,8 +96,6 @@ class _Body extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // `placedAt` is the order's `createdAt` under another name —
-                // the tracking route renames it on the way out.
                 _Fact(
                   label: 'Placed',
                   value: Formatters.dateTime(tracking.placedAt),

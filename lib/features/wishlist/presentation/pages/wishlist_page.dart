@@ -12,10 +12,6 @@ import '../providers/wishlist_notifier.dart';
 import '../providers/wishlist_state.dart';
 import '../widgets/wishlist_tile.dart';
 
-/// Saved items.
-///
-/// A grid rather than a list: a wishlist is browsed visually — the customer is
-/// reminding themselves what they liked, not reviewing an order.
 class WishlistPage extends ConsumerWidget {
   const WishlistPage({super.key});
 
@@ -110,8 +106,6 @@ class _Body extends ConsumerWidget {
       onRefresh: notifier.refresh,
       child: GridView.builder(
         padding: const EdgeInsets.all(AppDimens.pageGutter),
-        // Measured from the tile's own styles rather than a fixed ratio, so
-        // the cell follows the theme and the reader's text scale.
         gridDelegate: WishlistTileGeometry.delegate(context),
         itemCount: items.length,
         itemBuilder: (context, index) {
@@ -122,17 +116,12 @@ class _Body extends ConsumerWidget {
             isBusy: state.isBusy(item.product.id),
             onTap: item.product.slug.isEmpty
                 ? null
-                // Product detail is slug-only on this API.
                 : () => context.push(
                       AppRoutes.productDetailPath(item.product.slug),
                     ),
             onRemove: () => notifier.remove(item.product.id),
             onMoveToCart: () => notifier.moveToCart(
               productId: item.product.id,
-              // The server falls back to the saved variant, but sending an
-              // explicit one covers items saved without a preference — the
-              // cart tracks stock per variant and cannot accept a bare
-              // product.
               variantId: item.variantForCart?.id,
             ),
           );

@@ -8,14 +8,9 @@ part of 'profile_providers.dart';
 
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, type=warning
-/// Wiring for the profile feature, kept apart from the notifiers so the whole
-/// object graph reads in one place and a test can override a single edge.
 
 @ProviderFor(profileRemoteDataSource)
 final profileRemoteDataSourceProvider = ProfileRemoteDataSourceProvider._();
-
-/// Wiring for the profile feature, kept apart from the notifiers so the whole
-/// object graph reads in one place and a test can override a single edge.
 
 final class ProfileRemoteDataSourceProvider
     extends
@@ -25,8 +20,6 @@ final class ProfileRemoteDataSourceProvider
           ProfileRemoteDataSource
         >
     with $Provider<ProfileRemoteDataSource> {
-  /// Wiring for the profile feature, kept apart from the notifiers so the whole
-  /// object graph reads in one place and a test can override a single edge.
   ProfileRemoteDataSourceProvider._()
     : super(
         from: null,

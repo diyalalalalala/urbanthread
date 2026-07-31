@@ -10,7 +10,6 @@ import '../datasource/order_local_datasource.dart';
 import '../datasource/order_remote_datasource.dart';
 import '../models/order_model.dart';
 
-/// The order history, with a read-only offline mirror.
 class OrderRepositoryImpl implements OrderRepository {
   OrderRepositoryImpl({
     required OrderRemoteDataSource remote,
@@ -24,18 +23,12 @@ class OrderRepositoryImpl implements OrderRepository {
   final OrderLocalDataSource _local;
   final NetworkInfo _networkInfo;
 
-  /// Refused when the device is offline, in the caller's own words.
   static const _offlineWrite = NetworkFailure(
     'You need to be online to do this. Reconnect and try again.',
   );
 
   @override
   Future<Result<Order>> placeOrder(PlaceOrderDraft draft) async {
-    // Checkout is never queued. The server re-reads live prices, reserves
-    // stock atomically and settles payment inside one transaction; none of
-    // that can be simulated on the device, and replaying the request later
-    // could take stock the customer no longer wants at a price they never
-    // saw. Better to refuse up front and say why.
     if (!await _networkInfo.isConnected) {
       return const Result.failure(
         NetworkFailure(
@@ -53,24 +46,16 @@ class OrderRepositoryImpl implements OrderRepository {
           paymentMethod: draft.paymentMethod.wireValue,
           couponCode: draft.couponCode,
           customerNote: draft.customerNote,
-          // Sent only when set, so a normal checkout carries no trace of the
-          // demo flag.
           simulateFailure: draft.simulateFailure ? true : null,
         ),
       );
 
       final order = envelope.data;
       await _local.writeOrder(order);
-      // The new order belongs at the top of every list, and none of the
-      // cached pages know about it.
       await _local.clearOrderPages();
 
       return Result.success(order.toEntity());
     } on Object catch (error) {
-      // A declined mock payment arrives here as a 422. It means the server
-      // rolled the whole transaction back — there is no order to look up, no
-      // partial state to reconcile, and stock has already been released.
-      // Callers must not treat this as "order created, payment pending".
       return Result.failure(ErrorMapper.toFailure(error));
     }
   }
@@ -92,9 +77,6 @@ class OrderRepositoryImpl implements OrderRepository {
     } on Object catch (error) {
       final failure = ErrorMapper.toFailure(error);
 
-      // A dropped connection falls back to what is on disk; a 4xx does not —
-      // an unauthorised or malformed request is not fixed by showing stale
-      // rows as though they were current.
       if (failure is NetworkFailure || failure is TimeoutFailure) {
         final cached = _cachedPage(key);
         if (cached.isSuccess) return cached;
@@ -172,9 +154,6 @@ class OrderRepositoryImpl implements OrderRepository {
       final trimmed = reason?.trim();
       final envelope = await _remote.cancelOrder(
         id,
-        // An empty reason is omitted, not sent as '' — the validator treats a
-        // falsy value as absent, but an explicit empty string would still be
-        // stored as the cancellation reason.
         CancelOrderRequest(
           reason: (trimmed == null || trimmed.isEmpty) ? null : trimmed,
         ),
@@ -213,14 +192,6 @@ class OrderRepositoryImpl implements OrderRepository {
     }
   }
 
-  // ── Helpers ──────────────────────────────────────────────────────────
-
-  /// Builds the query map, omitting every unset filter.
-  ///
-  /// Omission matters: the backend's validator only knows these keys, and a
-  /// key it does not recognise is dropped silently rather than rejected. A
-  /// null slipping through as the string "null" would therefore not error —
-  /// it would quietly return the wrong page.
   Map<String, dynamic> _queryOf(OrderFilter filter) => {
         'page': filter.page,
         'limit': filter.limit,
@@ -260,9 +231,6 @@ class OrderRepositoryImpl implements OrderRepository {
     final cached = _local.readTracking(id);
     if (cached != null) return Result.success(cached.toEntity());
 
-    // Nothing tracked, but the order itself may be cached — its status and
-    // timeline are the same data the tracking route projects, so rebuild the
-    // view from it rather than showing an empty screen.
     final order = _local.readOrder(id);
     if (order == null) return const Result.failure(EmptyCacheFailure());
 

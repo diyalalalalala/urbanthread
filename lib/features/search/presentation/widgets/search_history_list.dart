@@ -4,11 +4,6 @@ import '../../../../core/extensions/context_extensions.dart';
 import '../../../../core/theme/app_dimens.dart';
 import '../../../../core/theme/app_typography.dart';
 
-/// Recent searches, shown while the box is empty or too short to query.
-///
-/// Nothing is rendered when the history is empty rather than showing an
-/// "empty history" placeholder — a first-time shopper does not need to be
-/// told they have not searched before.
 class SearchHistoryList extends StatelessWidget {
   const SearchHistoryList({
     required this.terms,

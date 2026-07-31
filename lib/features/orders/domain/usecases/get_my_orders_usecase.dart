@@ -4,7 +4,6 @@ import '../../../../core/domain/usecase.dart';
 import '../entities/order.dart';
 import '../repositories/order_repository.dart';
 
-/// One page of the customer's order history.
 class GetMyOrdersUseCase extends UseCase<Paginated<Order>, OrderFilter> {
   const GetMyOrdersUseCase(this._repository);
 

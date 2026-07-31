@@ -1,37 +1,26 @@
 import 'package:flutter/material.dart';
 
-/// Type scale, ported from the web client.
-///
-/// Two families with a strict division of labour, which is what gives the
-/// brand its editorial feel: Playfair Display sets headings and prices,
-/// Inter does everything else. Both are bundled rather than fetched at
-/// runtime — this app has to render correctly offline, and a font that
-/// arrives on second launch would reflow the catalogue under the user.
 abstract final class AppTypography {
   const AppTypography._();
 
   static const sans = 'Inter';
   static const display = 'PlayfairDisplay';
 
-  /// The retail-nav signature: tiny, spaced, uppercase. Used for section
-  /// eyebrows, badges and button labels.
   static const TextStyle eyebrow = TextStyle(
     fontFamily: sans,
     fontSize: 11,
     fontWeight: FontWeight.w500,
-    letterSpacing: 1.32, // 0.12em at 11px
+    letterSpacing: 1.32,
     height: 1,
   );
 
-  /// Wordmark treatment — heavy tracking, uppercase Playfair.
   static const TextStyle wordmark = TextStyle(
     fontFamily: display,
     fontSize: 20,
     fontWeight: FontWeight.w500,
-    letterSpacing: 6, // 0.3em at 20px
+    letterSpacing: 6,
   );
 
-  /// Button labels: uppercase with 0.08em tracking, per the web `Button`.
   static const TextStyle button = TextStyle(
     fontFamily: sans,
     fontSize: 13,
@@ -39,8 +28,6 @@ abstract final class AppTypography {
     letterSpacing: 1.04,
   );
 
-  /// Prices use display type with tabular figures so digits stay aligned
-  /// down a column of cart rows.
   static const TextStyle price = TextStyle(
     fontFamily: display,
     fontSize: 20,
@@ -49,7 +36,6 @@ abstract final class AppTypography {
   );
 
   static TextTheme textTheme(Color ink, Color inkMuted) => TextTheme(
-        // Display + headline are Playfair — headings only.
         displayLarge: TextStyle(
           fontFamily: display,
           fontSize: 44,
@@ -93,7 +79,6 @@ abstract final class AppTypography {
           color: ink,
         ),
 
-        // Title downwards is Inter — UI, not editorial.
         titleLarge: TextStyle(
           fontFamily: sans,
           fontSize: 17,

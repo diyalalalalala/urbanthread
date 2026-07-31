@@ -8,14 +8,6 @@ import '../../domain/repositories/checkout_repository.dart';
 import '../datasource/checkout_remote_datasource.dart';
 import '../models/checkout_models.dart';
 
-/// Checkout's read side.
-///
-/// Nothing here is cached, which is a departure from the rest of the app's
-/// offline-first posture and is deliberate. Every value these endpoints
-/// return is a live claim about the world: whether stock is on the shelf,
-/// whether a coupon is still redeemable, what the basket costs right now.
-/// Serving a stale copy would let a customer start a checkout the server is
-/// certain to reject — worse than telling them plainly that they are offline.
 class CheckoutRepositoryImpl implements CheckoutRepository {
   CheckoutRepositoryImpl({
     required CheckoutRemoteDataSource remote,
@@ -41,9 +33,6 @@ class CheckoutRepositoryImpl implements CheckoutRepository {
       final envelope = await _remote.validateCart();
       return Result.success(envelope.data.toEntity());
     } on Object catch (error) {
-      // A 422 here is the useful case, not an anomaly: it carries the full
-      // list of blockers in `errors[]`. It reaches the caller as a
-      // ValidationFailure with those entries intact.
       return Result.failure(ErrorMapper.toFailure(error));
     }
   }
@@ -94,8 +83,6 @@ class CheckoutRepositoryImpl implements CheckoutRepository {
     try {
       final envelope = await _remote.validateCoupon(
         ValidateCouponRequest(
-          // Codes are stored and compared uppercase server-side; normalising
-          // here means a lowercase entry is not reported as unknown.
           code: code.trim().toUpperCase(),
           subtotal: subtotal,
         ),

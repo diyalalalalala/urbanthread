@@ -15,11 +15,6 @@ import '../widgets/failure_from_error.dart';
 import '../widgets/review_card.dart';
 import 'write_review_page.dart';
 
-/// The customer's reviews, and the products still waiting for one.
-///
-/// Two tabs rather than two screens: "what have I said" and "what could I say"
-/// are the same task from the customer's side, and keeping them adjacent makes
-/// the empty state of one an invitation into the other.
 class MyReviewsPage extends ConsumerWidget {
   const MyReviewsPage({super.key});
 
@@ -67,8 +62,6 @@ class _WrittenTabState extends ConsumerState<_WrittenTab> {
     super.dispose();
   }
 
-  /// Fetches the next page a screen's-worth before the end, so the list never
-  /// visibly stalls at the bottom.
   void _onScroll() {
     if (!_scrollController.hasClients) return;
     final position = _scrollController.position;
@@ -221,8 +214,6 @@ class _ToReviewTab extends ConsumerWidget {
     await Navigator.of(context).push<bool>(
       MaterialPageRoute(
         builder: (_) => WriteReviewPage(
-          // `product` is the identity here — the aggregate projects `_id` out
-          // entirely, so there is no other id to pass.
           productId: item.productId,
           productName: item.productName,
           imageUrl: item.imageUrl,

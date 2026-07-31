@@ -255,9 +255,9 @@ void main() {
       );
     });
 
-    test('an unverified email is refused, not rejected as invalid', () async {
+    test('a server refusal surfaces as forbidden, not as invalid input', () async {
       when(() => remote.createReview(any())).thenThrow(
-        httpError(403, message: 'Verify your email address to post a review.'),
+        httpError(403, message: 'You do not have permission to do that.'),
       );
 
       final result = await repository.createReview(

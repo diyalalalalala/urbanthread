@@ -15,7 +15,6 @@ import 'features/settings/presentation/providers/settings_providers.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-
   final (preferences, tokenStorage) = await _bootstrap();
 
   runApp(
@@ -39,7 +38,6 @@ Future<(SharedPreferences, TokenStorage)> _bootstrap() async {
   ]);
 
   final preferences = await SharedPreferences.getInstance();
-
 
   final tokenStorage = TokenStorage(
     const FlutterSecureStorage(

@@ -5,13 +5,6 @@ import '../../domain/entities/order.dart';
 
 part 'order_model.g.dart';
 
-/// Reads an id that the API sometimes populates into a whole document.
-///
-/// `order.user` is a bare ObjectId string on the lean list route but a
-/// populated `{_id, name, email}` object on the detail route, and
-/// `timeline[].changedBy` is either an id or null. One tolerant reader keeps
-/// that asymmetry from becoming a parse failure on whichever route was not
-/// tested.
 String? _readId(Object? raw) => switch (raw) {
       String value when value.isNotEmpty => value,
       Map<String, dynamic> value => value['_id'] as String?,
@@ -20,17 +13,12 @@ String? _readId(Object? raw) => switch (raw) {
 
 String? _writeId(String? value) => value;
 
-/// The API's null sentinel for a string is `''`, not null — `image`,
-/// `trackingNumber`, `sku` and friends all default to an empty string. This
-/// turns that back into a real Dart null at the entity boundary.
 String? _nullIfBlank(String? value) =>
     (value == null || value.isEmpty) ? null : value;
 
 DateTime? _parseDate(String? raw) =>
     (raw == null || raw.isEmpty) ? null : DateTime.tryParse(raw);
 
-/// Tolerates an integer where a double is expected — Mongo stores a whole
-/// rupee amount as an int, and `as double` on that throws.
 double _readNum(Object? raw) => switch (raw) {
       num value => value.toDouble(),
       String value => double.tryParse(value) ?? 0,
@@ -81,15 +69,12 @@ class OrderModel {
   final OrderAddressModel billingAddress;
   final OrderPricingModel pricing;
 
-  /// Always present as an object, but every field inside it is nullable when
-  /// no coupon was used.
   final OrderCouponModel? coupon;
 
   final OrderPaymentModel payment;
   final String status;
   final List<OrderTimelineEntryModel> timeline;
 
-  /// Null unless a return has been asked for.
   final String? returnStatus;
 
   final String customerNote;
@@ -101,12 +86,6 @@ class OrderModel {
   final String trackingNumber;
   final String? createdAt;
   final String? updatedAt;
-
-  // ── Virtuals ───────────────────────────────────────────────────────────
-  // Mongoose virtuals, so they ride along on hydrated responses and vanish
-  // from `GET /orders/my-orders`, which reads `.lean()`. Nullable here and
-  // recomputed in the entity — defaulting them to 0/false would make every
-  // list row claim it holds nothing and cannot be cancelled.
 
   final int? totalItems;
   final bool? isCancellable;
@@ -147,10 +126,6 @@ class OrderModel {
   }
 }
 
-/// A purchased line.
-///
-/// Flat: `name`, `unitPrice` and the rest sit directly on the item. Cart
-/// items nest the same fields under `snapshot`; orders do not.
 @JsonSerializable(createToJson: true)
 class OrderItemModel {
   const OrderItemModel({
@@ -176,13 +151,9 @@ class OrderItemModel {
   factory OrderItemModel.fromJson(Map<String, dynamic> json) =>
       _$OrderItemModelFromJson(json);
 
-  /// The subdocument id, and the only id `POST /orders/{id}/return` accepts.
   @JsonKey(name: '_id')
   final String id;
 
-  /// Never populated on an order — the record is a snapshot by design, so
-  /// this stays a raw ObjectId string. Read through the tolerant reader
-  /// anyway, so a future populate would not break parsing.
   @JsonKey(fromJson: _readId, toJson: _writeId)
   final String? product;
 
@@ -232,10 +203,6 @@ class OrderItemModel {
       );
 }
 
-/// The embedded address snapshot.
-///
-/// Declared with `{_id: false}` server-side, so unlike an address-book entry
-/// it has no `_id`, no `type` and no `isDefault`. Do not try to read them.
 @JsonSerializable(createToJson: true)
 class OrderAddressModel {
   const OrderAddressModel({
@@ -302,8 +269,6 @@ class OrderPricingModel {
   @JsonKey(fromJson: _readNum)
   final double shipping;
 
-  /// The total. There is no `total` key on this object — reading one would
-  /// quietly yield nothing.
   @JsonKey(fromJson: _readNum)
   final double grandTotal;
 
@@ -387,8 +352,6 @@ class OrderPaymentModel {
       );
 }
 
-/// One `timeline` entry. Note the array's name — it is `timeline`, never
-/// `statusHistory` — and that entries carry no `_id`.
 @JsonSerializable(createToJson: true)
 class OrderTimelineEntryModel {
   const OrderTimelineEntryModel({
@@ -404,8 +367,6 @@ class OrderTimelineEntryModel {
   final String status;
   final String note;
 
-  /// Null for system-generated transitions; an admin's id otherwise, which
-  /// the API may populate into an object.
   @JsonKey(fromJson: _readId, toJson: _writeId)
   final String? changedBy;
 
@@ -421,9 +382,6 @@ class OrderTimelineEntryModel {
       );
 }
 
-/// `GET /orders/{id}/track` — a hand-built projection, not a slice of the
-/// order document. Its `placedAt` is the order's `createdAt` renamed, and its
-/// virtuals are present because the route reads a hydrated document.
 @JsonSerializable(createToJson: true)
 class OrderTrackingModel {
   const OrderTrackingModel({
@@ -470,18 +428,6 @@ class OrderTrackingModel {
       );
 }
 
-// ── Request bodies ───────────────────────────────────────────────────────
-
-/// The `POST /orders` body.
-///
-/// `includeIfNull: false` is load-bearing. `billingAddressId` absent means
-/// "same as shipping"; sending it as an explicit null would still satisfy the
-/// optional-with-null validator, but omitting the other optionals matters —
-/// `couponCode` and `customerNote` are validated as non-empty strings when
-/// present, so a null would be rejected where an absent key is fine.
-///
-/// Note what is *not* here: no items, no pricing, no status. All of those are
-/// on the backend's explicit reject list and turn the request into a 422.
 @JsonSerializable(createFactory: false, includeIfNull: false)
 class PlaceOrderRequest {
   const PlaceOrderRequest({
@@ -499,8 +445,6 @@ class PlaceOrderRequest {
   final String? couponCode;
   final String? customerNote;
 
-  /// Omitted unless explicitly requested, so an ordinary checkout sends no
-  /// trace of the demo affordance.
   final bool? simulateFailure;
 
   Map<String, dynamic> toJson() => _$PlaceOrderRequestToJson(this);
@@ -519,8 +463,6 @@ class CancelOrderRequest {
 class ReturnRequestBody {
   const ReturnRequestBody({required this.itemIds, required this.reason});
 
-  /// Order-item ids. Sending product ids here earns a 422 naming the unknown
-  /// item.
   final List<String> itemIds;
 
   final String reason;

@@ -1,9 +1,5 @@
 import 'package:equatable/equatable.dart';
 
-/// A facet value with the number of products that carry it.
-///
-/// `/products/filters` returns counts for every facet so the sheet can grey
-/// out or hide values that would produce an empty result set.
 class FacetValue extends Equatable {
   const FacetValue({required this.name, required this.count});
 
@@ -14,7 +10,6 @@ class FacetValue extends Equatable {
   List<Object?> get props => [name, count];
 }
 
-/// A colour facet — like [FacetValue] but carrying the swatch.
 class ColorFacet extends Equatable {
   const ColorFacet({
     required this.name,
@@ -42,8 +37,6 @@ class ColorFacet extends Equatable {
   List<Object?> get props => [name, hex, count];
 }
 
-/// A brand or category facet. Filtering is by [slug]; [id] is kept because
-/// the `category` query parameter accepts either.
 class ReferenceFacet extends Equatable {
   const ReferenceFacet({
     required this.id,
@@ -61,26 +54,18 @@ class ReferenceFacet extends Equatable {
   List<Object?> get props => [id, name, slug, count];
 }
 
-/// The catalogue-wide price bounds, used to seed the range slider.
 class PriceRange extends Equatable {
   const PriceRange({required this.min, required this.max});
 
   final double min;
   final double max;
 
-  /// A degenerate range (everything costs the same, or the catalogue is
-  /// empty) would give the slider a zero-width track. Callers check this and
-  /// hide the control rather than dividing by zero.
   bool get isCollapsed => max <= min;
 
   @override
   List<Object?> get props => [min, max];
 }
 
-/// The facets `/products/filters` offers, driving [ProductFilterSheet].
-///
-/// All six keys are always present in the response, so no field is nullable —
-/// an empty list means "no values", not "not returned".
 class ProductFilters extends Equatable {
   const ProductFilters({
     this.colors = const [],

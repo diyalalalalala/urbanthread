@@ -9,10 +9,8 @@ class UpdateCartItemQuantityParams {
     required this.quantity,
   });
 
-  /// The cart *line* id (`item._id`), not the product id.
   final String itemId;
 
-  /// Absolute, not a delta — the endpoint sets the quantity to this value.
   final int quantity;
 }
 

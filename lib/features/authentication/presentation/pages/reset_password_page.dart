@@ -10,7 +10,6 @@ import '../../../../core/utils/validators.dart';
 import '../providers/auth_notifier.dart';
 import '../widgets/auth_scaffold.dart';
 
-/// Reached from the emailed link, `/reset-password/<token>`.
 class ResetPasswordPage extends ConsumerStatefulWidget {
   const ResetPasswordPage({required this.token, super.key});
 
@@ -53,9 +52,6 @@ class _ResetPasswordPageState extends ConsumerState<ResetPasswordPage> {
 
     switch (result) {
       case Success():
-        // The reset bumped `tokenVersion` server-side, so every session for
-        // this account — including any this device still held — is now dead.
-        // Going anywhere but login would just bounce off a 401.
         context.showSnack('Password updated. Please sign in.');
         context.go(AppRoutes.login);
       case FailureResult(:final failure):
@@ -76,7 +72,6 @@ class _ResetPasswordPageState extends ConsumerState<ResetPasswordPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            // A used or expired token fails here, not on the previous screen.
             if (_error != null) AuthErrorBanner(message: _error!),
 
             TextFormField(

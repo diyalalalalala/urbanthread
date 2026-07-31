@@ -4,11 +4,6 @@ import '../../../../core/errors/failures.dart';
 import '../../domain/entities/brand.dart';
 import '../../domain/entities/category.dart';
 
-/// What the categories screen renders.
-///
-/// The tree and the brand list carry their own failures rather than sharing
-/// one screen-level error, because they come from independent endpoints: a
-/// dead `/brands` must not take the taxonomy down with it, and vice versa.
 class CategoriesState extends Equatable {
   const CategoriesState({
     this.tree = const [],
@@ -20,8 +15,6 @@ class CategoriesState extends Equatable {
     this.isFromCache = false,
   });
 
-  /// The state to start from when the cache already holds something: paint it
-  /// straight away and mark a refresh as in flight.
   const CategoriesState.fromCache({
     required this.tree,
     required this.brands,
@@ -45,13 +38,10 @@ class CategoriesState extends Equatable {
   final Failure? treeFailure;
   final Failure? brandsFailure;
 
-  /// A first load with nothing cached to show underneath it.
   final bool isLoading;
 
-  /// A refresh happening behind content that is already on screen.
   final bool isRefreshing;
 
-  /// True while what is displayed came off disk rather than the network.
   final bool isFromCache;
 
   bool get hasTree => tree.isNotEmpty;
@@ -60,16 +50,9 @@ class CategoriesState extends Equatable {
 
   bool get hasAnyContent => hasTree || hasBrands;
 
-  /// The failure worth putting on an otherwise empty screen.
-  ///
-  /// Null whenever *anything* is renderable — a partial screen with one quiet
-  /// gap beats replacing a working taxonomy with an error page because the
-  /// brand strip happened to 500.
   Failure? get blockingFailure =>
       hasAnyContent ? null : (treeFailure ?? brandsFailure);
 
-  /// Every category in the tree, depth-first. Cheap enough to recompute and
-  /// used for the flat search over an otherwise hierarchical screen.
   List<Category> get allCategories =>
       [for (final node in tree) ...node.flattened];
 

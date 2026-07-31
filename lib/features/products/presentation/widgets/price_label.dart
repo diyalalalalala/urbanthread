@@ -8,14 +8,6 @@ import '../../domain/entities/product.dart';
 
 enum PriceLabelSize { small, medium, large }
 
-/// Price, struck-through original and discount badge as one unit.
-///
-/// Kept together deliberately: the three parts have to agree, and the field
-/// names invite a mistake — `price` on the API is the *pre*-discount amount
-/// and `effectivePrice` is what the customer pays, so a widget that took a
-/// single "price" would show the wrong number half the time. This one takes
-/// the paid price and the compare-at price separately, and
-/// [PriceLabel.forProduct] wires an entity up correctly.
 class PriceLabel extends StatelessWidget {
   const PriceLabel({
     required this.price,
@@ -27,7 +19,6 @@ class PriceLabel extends StatelessWidget {
     this.singleLine = false,
   });
 
-  /// Reads the paid price, the strike-through and the badge off an entity.
   PriceLabel.forProduct(
     Product product, {
     Key? key,
@@ -44,24 +35,14 @@ class PriceLabel extends StatelessWidget {
           singleLine: singleLine,
         );
 
-  /// What the customer pays.
   final double price;
 
-  /// The pre-discount price, or null when nothing is on offer.
   final double? compareAtPrice;
 
   final double discountPercentage;
   final PriceLabelSize size;
   final MainAxisAlignment alignment;
 
-  /// Keeps the label to one line, for a caller whose height is fixed.
-  ///
-  /// The default [Wrap] grows a run whenever the three parts do not fit side
-  /// by side, which on a narrow tile is most of the time — and a caption that
-  /// silently gets taller is what overflows a grid cell. In single-line mode
-  /// the strike-through ellipsises instead and the badge is dropped, which
-  /// costs a card nothing: the tiles that use this already paint the discount
-  /// over the photograph.
   final bool singleLine;
 
   @override

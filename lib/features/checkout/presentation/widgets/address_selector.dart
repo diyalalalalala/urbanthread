@@ -5,13 +5,6 @@ import '../../../../core/theme/app_dimens.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../authentication/domain/entities/user.dart';
 
-/// The address book as a radio list.
-///
-/// What is selected here is an **id**, which is the whole point: `POST
-/// /orders` takes `shippingAddressId` and looks the address up on the user
-/// document itself. There is no way to pass a one-off address, so an empty
-/// book has to be filled before an order can be placed — hence the "add"
-/// affordance living inside checkout rather than only in account settings.
 class AddressSelector extends StatelessWidget {
   const AddressSelector({
     required this.addresses,
@@ -118,9 +111,6 @@ class _AddressTile extends StatelessWidget {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // A glyph rather than a Radio: the whole tile is the tap target,
-            // so the control is purely an affordance and a real Radio would
-            // drag in a RadioGroup ancestor for nothing.
             Icon(
               isSelected
                   ? Icons.radio_button_checked

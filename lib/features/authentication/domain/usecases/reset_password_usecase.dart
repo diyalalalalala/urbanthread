@@ -9,10 +9,6 @@ class ResetPasswordParams {
   final String password;
 }
 
-/// Sets a new password from an emailed reset token.
-///
-/// Succeeding here invalidates every token for the account, so the caller
-/// must route back to login rather than assume the current session survived.
 class ResetPasswordUseCase extends UseCase<String, ResetPasswordParams> {
   const ResetPasswordUseCase(this._repository);
 

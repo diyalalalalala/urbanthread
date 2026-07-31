@@ -8,22 +8,9 @@ part of 'checkout_providers.dart';
 
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, type=warning
-/// Wiring for the checkout feature.
-///
-/// One datasource serves three route families — cart reads, coupons and the
-/// address book — because checkout is the only screen that needs all three at
-/// once, and splitting them would mean three Dio-backed objects for six
-/// endpoints.
 
 @ProviderFor(checkoutRemoteDataSource)
 final checkoutRemoteDataSourceProvider = CheckoutRemoteDataSourceProvider._();
-
-/// Wiring for the checkout feature.
-///
-/// One datasource serves three route families — cart reads, coupons and the
-/// address book — because checkout is the only screen that needs all three at
-/// once, and splitting them would mean three Dio-backed objects for six
-/// endpoints.
 
 final class CheckoutRemoteDataSourceProvider
     extends
@@ -33,12 +20,6 @@ final class CheckoutRemoteDataSourceProvider
           CheckoutRemoteDataSource
         >
     with $Provider<CheckoutRemoteDataSource> {
-  /// Wiring for the checkout feature.
-  ///
-  /// One datasource serves three route families — cart reads, coupons and the
-  /// address book — because checkout is the only screen that needs all three at
-  /// once, and splitting them would mean three Dio-backed objects for six
-  /// endpoints.
   CheckoutRemoteDataSourceProvider._()
     : super(
         from: null,

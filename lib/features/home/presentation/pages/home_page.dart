@@ -19,16 +19,6 @@ import '../widgets/featured_categories_strip.dart';
 import '../widgets/home_hero.dart';
 import '../widgets/product_rail.dart';
 
-/// The storefront landing screen.
-///
-/// Composed entirely from [homeFeedProvider], which loads all six sections
-/// concurrently and hands back a feed where each section carries its own
-/// outcome. That is what lets this build method stay declarative: every
-/// section decides for itself whether to render, retry or disappear, so there
-/// is no per-section branching here.
-///
-/// Navigation is by path string only — this screen owns no routing. The paths
-/// come from [AppRoutes], and go_router resolves them.
 class HomePage extends ConsumerWidget {
   const HomePage({super.key});
 
@@ -49,29 +39,21 @@ class HomePage extends ConsumerWidget {
             tooltip: 'Search',
           ),
           IconButton(
-            // The basket is a tab, so this switches branches rather than
-            // stacking a second copy of it over the home one.
             onPressed: () => context.go(AppRoutes.cart),
             icon: const Icon(Icons.shopping_bag_outlined),
             tooltip: 'Bag',
           ),
         ],
       ),
-      // Shake reloads every rail — the same call pull-to-refresh makes, so
-      // there is one refresh path and the gesture is just another way in.
       body: ShakeToRefresh(
         onRefresh: () async {
           await ref.read(homeFeedProvider.notifier).refresh();
-          // Silent on failure: a section that could not reload keeps its own
-          // inline retry, and a "refreshed" toast over it would contradict it.
           return ref.read(homeFeedProvider).blockingFailure == null
               ? 'Storefront updated'
               : null;
         },
         child: Column(
           children: [
-            // Informs rather than interrupts: everything below is cached and
-            // fully browsable without a connection.
             if (isOffline) const OfflineBanner(),
             Expanded(
               child: RefreshIndicator(
@@ -93,9 +75,6 @@ class HomePage extends ConsumerWidget {
   ) {
     final blocking = state.blockingFailure;
 
-    // Only a genuinely cold start with a dead network reaches here: any cached
-    // content at all suppresses `blockingFailure`, which is the offline-first
-    // requirement expressed as a single condition.
     if (blocking != null && !state.hasContent) {
       return ListView(
         physics: const AlwaysScrollableScrollPhysics(),
@@ -126,9 +105,6 @@ class HomePage extends ConsumerWidget {
           onSeeAll: () => context.go(AppRoutes.categories),
           onOpenCategory: (category) => _openCategory(context, category),
         ),
-        // The rails are driven off the feed's own ordering rather than a list
-        // literal here, so adding a collection is a one-line change in the
-        // entity instead of an edit in two files that must agree.
         for (final entry in feed.rails.entries)
           ProductRail(
             collection: entry.key,
@@ -149,12 +125,6 @@ class HomePage extends ConsumerWidget {
     );
   }
 
-  /// Product detail is slug-only — there is no `/products/:id` route on the
-  /// backend, which is why every card carries its slug.
-  ///
-  /// Pushed, not `go`: these open *over* the tabs, so back returns to the feed
-  /// at the scroll position the shopper left it at. `go` would replace the
-  /// shell outright and leave back with nothing beneath it but the app itself.
   void _openProduct(BuildContext context, HomeProduct product) =>
       context.push(AppRoutes.productDetailPath(product.slug));
 

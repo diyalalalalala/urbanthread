@@ -5,8 +5,6 @@ import '../../../../core/theme/app_dimens.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../domain/entities/product_query.dart';
 
-/// Opens the sort picker and resolves to the chosen order, or null if the
-/// sheet was dismissed.
 Future<ProductSort?> showSortSheet(
   BuildContext context, {
   required ProductSort current,
@@ -22,11 +20,6 @@ Future<ProductSort?> showSortSheet(
       builder: (context) => SortSheet(current: current),
     );
 
-/// The eight sort orders the catalogue endpoint accepts.
-///
-/// Enumerating [ProductSort.values] rather than hardcoding a list means the
-/// sheet can never offer an order the API would answer with a 422 — the enum
-/// is the same closed set the validator checks against.
 class SortSheet extends StatelessWidget {
   const SortSheet({required this.current, super.key});
 

@@ -12,17 +12,11 @@ class AddToCartParams {
 
   final String productId;
 
-  /// Required: the API has no notion of adding a product without picking a
-  /// colour/size combination, because stock is tracked per variant.
   final String variantId;
 
   final int quantity;
 }
 
-/// Adds a variant to the cart.
-///
-/// This is the entry point other features (product detail, product cards,
-/// search results) should call — never the repository directly.
 class AddToCartUseCase extends UseCase<CartSnapshot, AddToCartParams> {
   const AddToCartUseCase(this._repository);
 

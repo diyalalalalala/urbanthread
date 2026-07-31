@@ -5,11 +5,6 @@ import '../../../../core/theme/app_dimens.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../domain/entities/order.dart';
 
-/// Colour pairing for a status, drawn from the brand palette.
-///
-/// Kept as one function rather than scattered `switch`es so the tracking
-/// stepper, the list row and the detail header cannot drift apart on what
-/// "shipped" looks like.
 ({Color foreground, Color background}) orderStatusColors(
   BuildContext context,
   OrderStatus status,
@@ -28,8 +23,6 @@ import '../../domain/entities/order.dart';
       (foreground: palette.success, background: palette.successSubtle),
     OrderStatus.cancelled =>
       (foreground: palette.danger, background: palette.dangerSubtle),
-    // Returned is not a failure — it is a completed, if unhappy, outcome. A
-    // neutral treatment says "closed" without the alarm of red.
     OrderStatus.returned =>
       (foreground: palette.inkMuted, background: palette.surfaceSunken),
   };
@@ -46,7 +39,6 @@ IconData orderStatusIcon(OrderStatus status) => switch (status) {
       OrderStatus.returned => Icons.assignment_return_outlined,
     };
 
-/// The small uppercase status badge, used everywhere an order is listed.
 class OrderStatusChip extends StatelessWidget {
   const OrderStatusChip({required this.status, super.key, this.dense = false});
 
@@ -74,7 +66,6 @@ class OrderStatusChip extends StatelessWidget {
   }
 }
 
-/// The payment state badge, shown beside the status on the detail screen.
 class PaymentStatusChip extends StatelessWidget {
   const PaymentStatusChip({required this.payment, super.key});
 
@@ -86,9 +77,6 @@ class PaymentStatusChip extends StatelessWidget {
 
     final (Color foreground, Color background, String label) = switch (
         payment.status) {
-      // Pending on a cash order is the normal, expected state rather than a
-      // problem — the courier has simply not collected yet — so it is worded
-      // as the plan, not as an outstanding debt.
       PaymentStatus.pending when payment.method == PaymentMethod.cod => (
           palette.inkMuted,
           palette.surfaceSunken,
@@ -125,7 +113,6 @@ class PaymentStatusChip extends StatelessWidget {
   }
 }
 
-/// Badge for a line whose return is in progress.
 class ReturnStatusChip extends StatelessWidget {
   const ReturnStatusChip({required this.status, super.key});
 

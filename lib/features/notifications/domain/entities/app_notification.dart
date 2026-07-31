@@ -1,11 +1,5 @@
 import 'package:equatable/equatable.dart';
 
-/// Every value the backend's `type` enum can take.
-///
-/// [unknown] is not a server value — it is the landing pad for one. The enum
-/// is shared between the customer and admin apps and gains entries as features
-/// land, so parsing must degrade to a neutral bell icon rather than throwing
-/// and blanking the whole list because of one unfamiliar row.
 enum NotificationType {
   orderPlaced('order_placed'),
   orderStatusChanged('order_status_changed'),
@@ -21,7 +15,6 @@ enum NotificationType {
 
   const NotificationType(this.wireValue);
 
-  /// The string the API sends. Empty for [unknown], which is never sent.
   final String wireValue;
 
   static NotificationType parse(String? raw) {
@@ -32,10 +25,6 @@ enum NotificationType {
     return NotificationType.unknown;
   }
 
-  /// Types the customer app can filter by. The admin-audience ones
-  /// (`low_stock`, `new_user`, `new_order`, `review_posted`) are never
-  /// delivered to a customer, so offering them as filters would produce
-  /// permanently empty results.
   static const customerFacing = [
     orderPlaced,
     orderStatusChanged,
@@ -60,11 +49,6 @@ enum NotificationType {
       };
 }
 
-/// One row of `GET /notifications`.
-///
-/// Named `AppNotification` rather than `Notification` because Flutter already
-/// exports a `Notification` class, and a screen importing both would not
-/// compile.
 class AppNotification extends Equatable {
   const AppNotification({
     required this.id,
@@ -83,15 +67,10 @@ class AppNotification extends Equatable {
   final String id;
   final NotificationType type;
 
-  /// ≤ 140 characters.
   final String title;
 
-  /// ≤ 500 characters.
   final String message;
 
-  /// A **web** path such as `/orders/UT-20260718-0042`, defaulting to `""`.
-  /// Resolving it to an in-app route is a presentation concern — see
-  /// `notification_link.dart`.
   final String link;
 
   final String entityType;

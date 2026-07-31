@@ -19,8 +19,6 @@ import '../widgets/order_status_chip.dart';
 import '../widgets/order_timeline.dart';
 import 'return_request_page.dart';
 
-/// Everything about one order: what was bought, where it is going, what it
-/// cost, and the two actions a customer can still take.
 class OrderDetailPage extends ConsumerWidget {
   const OrderDetailPage({required this.orderId, super.key});
 
@@ -32,9 +30,6 @@ class OrderDetailPage extends ConsumerWidget {
     final notifier = ref.read(orderDetailProvider(orderId).notifier);
     final isOnline = ref.watch(isOnlineProvider);
 
-    // A refused cancel or return is transient — the order itself is still
-    // valid and on screen, so it belongs in a snack bar rather than replacing
-    // the page with an error.
     ref.listen(orderDetailProvider(orderId), (previous, next) {
       final failure = next.actionFailure;
       if (failure != null && failure != previous?.actionFailure) {
@@ -121,7 +116,6 @@ class _Body extends StatelessWidget {
             const SizedBox(height: AppDimens.space16),
           ],
 
-          // ── Status ────────────────────────────────────────────────
           Container(
             padding: const EdgeInsets.all(AppDimens.space16),
             decoration: BoxDecoration(
@@ -174,7 +168,6 @@ class _Body extends StatelessWidget {
           ),
           const SizedBox(height: AppDimens.space24),
 
-          // ── Items ─────────────────────────────────────────────────
           OrderSectionHeader(
             title: 'Items',
             trailing: Text(
@@ -202,7 +195,6 @@ class _Body extends StatelessWidget {
           ),
           const SizedBox(height: AppDimens.space24),
 
-          // ── Money ─────────────────────────────────────────────────
           const OrderSectionHeader(title: 'Payment'),
           Container(
             padding: const EdgeInsets.all(AppDimens.space16),
@@ -224,7 +216,6 @@ class _Body extends StatelessWidget {
           ),
           const SizedBox(height: AppDimens.space24),
 
-          // ── Addresses ─────────────────────────────────────────────
           const OrderSectionHeader(title: 'Delivery'),
           Container(
             padding: const EdgeInsets.all(AppDimens.space16),
@@ -240,8 +231,6 @@ class _Body extends StatelessWidget {
                   title: 'Shipping address',
                   address: order.shippingAddress,
                 ),
-                // Only shown when it differs — repeating an identical address
-                // under a second heading just makes the screen longer.
                 if (order.hasSeparateBillingAddress) ...[
                   const SizedBox(height: AppDimens.space20),
                   Divider(height: 1, color: palette.line),
@@ -269,7 +258,6 @@ class _Body extends StatelessWidget {
           ),
           const SizedBox(height: AppDimens.space24),
 
-          // ── History ───────────────────────────────────────────────
           const OrderSectionHeader(title: 'History'),
           OrderTimeline(
             entries: order.chronologicalTimeline,
@@ -354,8 +342,6 @@ class _PaymentDetails extends StatelessWidget {
       );
 }
 
-/// The action bar. Renders nothing when neither action applies, which is the
-/// case for most orders most of the time.
 class _Actions extends ConsumerWidget {
   const _Actions({
     required this.order,
@@ -403,8 +389,6 @@ class _Actions extends ConsumerWidget {
             SizedBox(
               width: double.infinity,
               child: OutlinedButton(
-                // Both actions move stock server-side, so neither is offered
-                // offline — a queued cancellation could not be honoured.
                 onPressed: isSubmitting || !isOnline
                     ? null
                     : () => _confirmCancel(context, ref),
@@ -493,8 +477,6 @@ class _Actions extends ConsumerWidget {
         .read(orderDetailProvider(orderId).notifier)
         .cancel(reason: reason);
 
-    // The failure path already surfaces through the page's listener, so only
-    // the success needs saying here.
     if (ok && context.mounted) {
       context.showSnack('Your order has been cancelled.');
     }

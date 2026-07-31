@@ -10,15 +10,9 @@ import '../providers/search_notifier.dart';
 import '../widgets/search_field.dart';
 import '../widgets/search_history_list.dart';
 
-/// The search screen.
-///
-/// Reuses the catalogue's `ProductCard` through [SliverProductGrid], so a
-/// result tile is identical to one in the browse grid — a shopper should not
-/// have to re-learn the card because they arrived at it a different way.
 class SearchPage extends ConsumerStatefulWidget {
   const SearchPage({super.key, this.initialTerm});
 
-  /// Prefills the box, for arriving from a "search for X" link.
   final String? initialTerm;
 
   @override
@@ -39,8 +33,6 @@ class _SearchPageState extends ConsumerState<SearchPage> {
 
     final initial = widget.initialTerm?.trim();
     if (initial != null && initial.isNotEmpty) {
-      // After the first frame: the notifier is not safe to mutate while the
-      // widget tree is still being built.
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (mounted) ref.read(searchProvider.notifier).submit(initial);
       });
@@ -71,8 +63,6 @@ class _SearchPageState extends ConsumerState<SearchPage> {
       ..text = term
       ..selection = TextSelection.collapsed(offset: term.length);
     _notifier.submit(term);
-    // The shopper picked a term rather than typing one, so get the keyboard
-    // out of the way of the results.
     FocusScope.of(context).unfocus();
   }
 
@@ -136,7 +126,6 @@ class _SearchPageState extends ConsumerState<SearchPage> {
 
     return CustomScrollView(
       controller: _scrollController,
-      // Dismiss the keyboard as soon as the shopper starts browsing results.
       keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
       slivers: [
         SliverToBoxAdapter(

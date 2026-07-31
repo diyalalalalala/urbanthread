@@ -12,9 +12,6 @@ import '../datasource/auth_remote_datasource.dart';
 import '../models/auth_models.dart';
 import '../models/user_model.dart';
 
-/// Turns the auth API into [Result]s, and owns the side effects of a session
-/// starting or ending: the token in secure storage, the cached profile in
-/// preferences.
 class AuthRepositoryImpl implements AuthRepository {
   AuthRepositoryImpl({
     required AuthRemoteDataSource remote,
@@ -44,8 +41,6 @@ class AuthRepositoryImpl implements AuthRepository {
     try {
       return UserModel.fromJson(json).toEntity();
     } on Object {
-      // Written by an older build whose shape no longer parses. Not worth
-      // surfacing — `getCurrentUser` will replace it on the next request.
       return null;
     }
   }
@@ -82,11 +77,6 @@ class AuthRepositoryImpl implements AuthRepository {
         ),
       );
 
-  /// Shared tail of register and login: persist the token, cache the profile.
-  ///
-  /// The token is stored *before* the profile so a crash between the two
-  /// leaves a usable session rather than an orphaned profile with no way to
-  /// authenticate.
   Future<Result<User>> _authenticate(
     Future<dynamic> Function() request,
   ) async {
@@ -107,14 +97,9 @@ class AuthRepositoryImpl implements AuthRepository {
 
   @override
   Future<Result<void>> logout() async {
-    // Tell the server first so the request still carries the token, but do
-    // not let its failure block the local sign-out — an offline user must
-    // still be able to leave.
     try {
       await _remote.logout();
-    } on Object {
-      // Intentionally ignored; the local clear below is what matters.
-    }
+    } on Object catch (_) {}
     await _clearSession();
     return const Result.success(null);
   }
@@ -126,9 +111,6 @@ class AuthRepositoryImpl implements AuthRepository {
       await _clearSession();
       return const Result.success(null);
     } on Object catch (error) {
-      // Unlike `logout`, this one must reach the server to mean anything —
-      // its whole purpose is revoking tokens held on other devices. Report
-      // the failure rather than pretending it worked.
       return Result.failure(ErrorMapper.toFailure(error));
     }
   }
@@ -148,24 +130,11 @@ class AuthRepositoryImpl implements AuthRepository {
     } on Object catch (error) {
       final failure = ErrorMapper.toFailure(error);
 
-      // Offline is not a reason to sign someone out. Fall back to the cached
-      // profile and let the UI carry on read-only.
       if (failure is NetworkFailure || failure is TimeoutFailure) {
         final cached = cachedUser;
         if (cached != null) return Result.success(cached);
       }
       return Result.failure(failure);
-    }
-  }
-
-  @override
-  Future<Result<User>> verifyEmail(String token) async {
-    try {
-      final envelope = await _remote.verifyEmail(token);
-      await _preferences.saveUser(envelope.data.toJson());
-      return Result.success(envelope.data.toEntity());
-    } on Object catch (error) {
-      return Result.failure(ErrorMapper.toFailure(error));
     }
   }
 
@@ -188,13 +157,6 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
-  Future<Result<String>> resendVerification(String email) => _messageOnly(
-        () => _remote.resendVerification(
-          EmailRequest(email: email.trim().toLowerCase()),
-        ),
-      );
-
-  @override
   Future<Result<String>> forgotPassword(String email) => _messageOnly(
         () => _remote.forgotPassword(
           EmailRequest(email: email.trim().toLowerCase()),
@@ -209,15 +171,10 @@ class AuthRepositoryImpl implements AuthRepository {
     final result = await _messageOnly(
       () => _remote.resetPassword(token, ResetPasswordRequest(password: password)),
     );
-    // The reset bumped `tokenVersion`, so any token this device still holds
-    // is already dead. Clear it so the app does not keep sending it.
     if (result.isSuccess) await _clearSession();
     return result;
   }
 
-  /// For endpoints whose entire payload is the message — the backend
-  /// deliberately returns `data: null` and a vague string that must not be
-  /// replaced with a guess ("If an account exists for that address…").
   Future<Result<String>> _messageOnly(Future<dynamic> Function() request) async {
     try {
       final envelope = await request();

@@ -13,9 +13,6 @@ import '../../domain/usecases/review_usecases.dart';
 
 part 'profile_providers.g.dart';
 
-/// Wiring for the profile feature, kept apart from the notifiers so the whole
-/// object graph reads in one place and a test can override a single edge.
-
 @Riverpod(keepAlive: true)
 ProfileRemoteDataSource profileRemoteDataSource(Ref ref) =>
     ProfileRemoteDataSource(ref.watch(dioProvider));
@@ -40,8 +37,6 @@ ReviewRemoteDataSource reviewRemoteDataSource(Ref ref) =>
 ReviewRepository reviewRepository(Ref ref) =>
     ReviewRepositoryImpl(ref.watch(reviewRemoteDataSourceProvider));
 
-// ── Profile use cases ──────────────────────────────────────────────────────
-
 @riverpod
 GetProfileUseCase getProfileUseCase(Ref ref) =>
     GetProfileUseCase(ref.watch(profileRepositoryProvider));
@@ -65,8 +60,6 @@ GetRecentlyViewedUseCase getRecentlyViewedUseCase(Ref ref) =>
 @riverpod
 ClearRecentlyViewedUseCase clearRecentlyViewedUseCase(Ref ref) =>
     ClearRecentlyViewedUseCase(ref.watch(profileRepositoryProvider));
-
-// ── Review use cases ───────────────────────────────────────────────────────
 
 @riverpod
 GetMyReviewsUseCase getMyReviewsUseCase(Ref ref) =>

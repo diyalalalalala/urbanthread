@@ -10,13 +10,6 @@ import '../../../../core/widgets/state_views.dart';
 import '../../domain/entities/coupon.dart';
 import '../providers/checkout_notifier.dart';
 
-/// Enter a code, or pick one from what the account can use.
-///
-/// The discount shown before the order is placed is always an **estimate**,
-/// and is labelled as one. `POST /coupons/validate` scores the code against
-/// the subtotal it is handed; the binding figure is recomputed server-side
-/// inside the order transaction, where a category-restricted coupon is
-/// applied only to the lines it may touch.
 class CouponSection extends ConsumerStatefulWidget {
   const CouponSection({
     required this.appliedCoupon,
@@ -141,7 +134,6 @@ class _CouponSectionState extends ConsumerState<CouponSection> {
   }
 }
 
-/// The offers this account could still use, scored against the basket.
 class _AvailableCouponsSheet extends ConsumerWidget {
   const _AvailableCouponsSheet();
 
@@ -178,9 +170,6 @@ class _AvailableCouponsSheet extends ConsumerWidget {
                 for (final coupon in list)
                   _CouponTile(
                     coupon: coupon,
-                    // A coupon below its minimum spend is shown but not
-                    // selectable — hiding it would lose the "spend Rs 400
-                    // more" nudge, which is the more useful message.
                     onTap: coupon.isApplicable
                         ? () => Navigator.of(context).pop(coupon.code)
                         : null,

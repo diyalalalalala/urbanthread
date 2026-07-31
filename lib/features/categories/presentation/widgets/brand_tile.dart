@@ -6,12 +6,6 @@ import '../../../../core/theme/app_typography.dart';
 import '../../../../core/widgets/app_network_image.dart';
 import '../../domain/entities/brand.dart';
 
-/// A brand, as a bordered card with its logo.
-///
-/// Brand logos are wildly inconsistent in aspect ratio, so the image is
-/// contained rather than cropped — a cover fit would slice the wordmark off
-/// half the catalogue. When there is no logo at all the initials stand in,
-/// which reads better than a generic image placeholder for a name-led brand.
 class BrandTile extends StatelessWidget {
   const BrandTile({
     required this.brand,

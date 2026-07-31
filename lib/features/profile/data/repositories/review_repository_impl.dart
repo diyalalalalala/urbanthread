@@ -8,11 +8,6 @@ import '../../domain/repositories/review_repository.dart';
 import '../datasource/review_remote_datasource.dart';
 import '../models/review_model.dart';
 
-/// The customer's reviews as [Result]s.
-///
-/// Nothing here is cached: reviews are written far less often than they are
-/// read, and a stale local copy of "what have I already reviewed" would
-/// invite the 409 that `POST /reviews` throws for a duplicate.
 class ReviewRepositoryImpl implements ReviewRepository {
   const ReviewRepositoryImpl(this._remote);
 
@@ -97,8 +92,6 @@ class ReviewRepositoryImpl implements ReviewRepository {
     );
 
     if (rating == null && title == null && comment == null) {
-      // An empty PATCH body is a 400. Say so precisely instead of relaying
-      // the generic validator message.
       return const Result.failure(
         ValidationFailure('Change something before saving.'),
       );
@@ -115,7 +108,6 @@ class ReviewRepositoryImpl implements ReviewRepository {
   @override
   Future<Result<void>> deleteReview(String reviewId) async {
     try {
-      // 204, no body.
       await _remote.deleteReview(reviewId);
       return const Result.success(null);
     } on Object catch (error) {

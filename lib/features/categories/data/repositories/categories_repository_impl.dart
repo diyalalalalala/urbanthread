@@ -12,16 +12,6 @@ import '../datasource/categories_remote_datasource.dart';
 import '../models/brand_model.dart';
 import '../models/category_model.dart';
 
-/// Offline-first implementation of the taxonomy contract.
-///
-/// Every read follows the same three-branch policy:
-///
-/// * **Offline** — answer from cache, or [EmptyCacheFailure] if there is
-///   nothing stored. No request is attempted; it would only burn a timeout.
-/// * **Online and successful** — write through to cache, return fresh data.
-/// * **Online and failed** — fall back to cache *only* for transport errors.
-///   A 404 means the category genuinely no longer exists, and serving a
-///   cached copy of a deleted category would be worse than an honest error.
 class CategoriesRepositoryImpl implements CategoriesRepository {
   const CategoriesRepositoryImpl({
     required CategoriesRemoteDataSource remote,
@@ -58,9 +48,6 @@ class CategoriesRepositoryImpl implements CategoriesRepository {
       request: () => _remote.getCategories(
         page: page,
         limit: limit,
-        // An empty search string is not the same as no search: the validator
-        // accepts it and the backend then matches an empty regex, so send
-        // null rather than "".
         search: (search?.trim().isEmpty ?? true) ? null : search!.trim(),
         parent: parent,
         isFeatured: isFeatured,
@@ -124,8 +111,6 @@ class CategoriesRepositoryImpl implements CategoriesRepository {
     }
 
     try {
-      // Featured categories come off the paginated list route with the
-      // `isFeatured` filter; there is no dedicated `/categories/featured`.
       final envelope = await _remote.getCategories(
         page: 1,
         limit: limit,
@@ -229,12 +214,6 @@ class CategoriesRepositoryImpl implements CategoriesRepository {
   @override
   List<Brand> cachedBrands() => _toBrandEntities(_local.readFirstBrandPage());
 
-  // ── Shared plumbing ──────────────────────────────────────────────────────
-
-  /// The offline-first policy for a paginated endpoint, in one place.
-  ///
-  /// Generic over both the wire model and the entity so categories and brands
-  /// share it: the two differ only in which datasource methods they call.
   Future<Result<Paginated<E>>> _page<M, E>({
     required String cacheKey,
     required CachedPage<M>? Function(String key) readCache,
@@ -260,8 +239,6 @@ class CategoriesRepositoryImpl implements CategoriesRepository {
 
     try {
       final envelope = await request();
-      // `meta` is only sent by the paginated routes. Falling back to a
-      // synthesised single page keeps one code path for both shapes.
       final meta = envelope.meta ?? PaginationMeta.single(envelope.data.length);
       await writeCache(cacheKey, envelope.data, meta);
       return Result.success(
@@ -285,8 +262,6 @@ class CategoriesRepositoryImpl implements CategoriesRepository {
     }
   }
 
-  /// Turns a failed request into cached data when the failure was transport,
-  /// and into a [Failure] otherwise.
   Result<List<E>> _fallbackToCache<M, E>(
     Object error,
     List<M> Function() readCache,
@@ -300,11 +275,6 @@ class CategoriesRepositoryImpl implements CategoriesRepository {
     return Result.failure(failure);
   }
 
-  /// Transport trouble, as opposed to the server telling us something true.
-  ///
-  /// `ServerFailure` is included: a 5xx or an unparseable body says the
-  /// backend is unwell, not that the taxonomy changed, so last-known-good is
-  /// the better answer.
   static bool _isTransient(Failure failure) =>
       failure is NetworkFailure ||
       failure is TimeoutFailure ||

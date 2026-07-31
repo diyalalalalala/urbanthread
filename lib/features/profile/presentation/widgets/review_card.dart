@@ -7,7 +7,6 @@ import '../../../../core/widgets/app_network_image.dart';
 import '../../domain/entities/review.dart';
 import 'rating_stars.dart';
 
-/// One of the customer's own reviews, with the product it is about.
 class ReviewCard extends StatelessWidget {
   const ReviewCard({
     required this.review,
@@ -56,8 +55,6 @@ class ReviewCard extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          // `my-reviews` populates the product, but a review
-                          // fetched any other way carries only the id.
                           product?.name ?? 'Product',
                           style: context.text.bodyMedium,
                           maxLines: 2,
@@ -149,10 +146,6 @@ class ReviewCard extends StatelessWidget {
   }
 }
 
-/// Explains a non-approved review.
-///
-/// New reviews default to `approved`, so seeing this at all means a moderator
-/// acted — worth surfacing plainly rather than silently hiding the row.
 class _StatusNotice extends StatelessWidget {
   const _StatusNotice({required this.review});
 

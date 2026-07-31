@@ -5,11 +5,6 @@ import 'category_model.dart';
 
 part 'brand_model.g.dart';
 
-/// Wire format for a brand.
-///
-/// Near-identical to [CategoryModel] with one difference that costs an hour if
-/// missed: the image object is keyed **`logo`**, not `image`. Same
-/// `{url, publicId}` payload, different field name.
 @JsonSerializable()
 class BrandModel {
   const BrandModel({
@@ -36,10 +31,8 @@ class BrandModel {
   final String slug;
   final String description;
 
-  /// Note the key: `logo`, where a category uses `image`.
   final ImageRefModel? logo;
 
-  /// Empty string when unset, like every other optional string in this API.
   final String website;
 
   final String country;

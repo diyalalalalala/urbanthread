@@ -11,7 +11,6 @@ import '../datasource/wishlist_local_datasource.dart';
 import '../datasource/wishlist_remote_datasource.dart';
 import '../models/wishlist_models.dart';
 
-/// Kinds used in the wishlist's slice of the outbox.
 abstract final class WishlistOutboxKinds {
   const WishlistOutboxKinds._();
 
@@ -22,14 +21,6 @@ abstract final class WishlistOutboxKinds {
   static const clear = 'wishlist.clear';
 }
 
-/// The wishlist repository.
-///
-/// Same offline contract as the cart — cached reads, queued writes, replay on
-/// reconnect — with one asymmetry worth knowing about: an offline *add* cannot
-/// be shown in the list, because a save carries only ids and a card needs the
-/// name, image and price only the server has. The queue still records it, and
-/// [isSaved] consults the queue, so the heart on a product page stays filled
-/// even though the wishlist page cannot yet draw the row.
 class WishlistRepositoryImpl implements WishlistRepository {
   WishlistRepositoryImpl({
     required WishlistRemoteDataSource remote,
@@ -46,10 +37,6 @@ class WishlistRepositoryImpl implements WishlistRepository {
   final WishlistRemoteDataSource _remote;
   final WishlistLocalDataSource _local;
 
-  /// Move-to-cart returns both halves in one response. Writing the cart half
-  /// straight to the cart's own cache keeps disk consistent with what the
-  /// screens are about to show, so a kill right after the move cannot leave a
-  /// cached cart that is one item behind.
   final CartLocalDataSource _cartLocal;
   final OutboxQueue _outbox;
   final NetworkInfo _networkInfo;
@@ -59,8 +46,6 @@ class WishlistRepositoryImpl implements WishlistRepository {
 
   @override
   Wishlist? get cachedWishlist => _local.read()?.toEntity();
-
-  // ── Reads ──────────────────────────────────────────────────────────────
 
   @override
   Future<Result<Wishlist>> getWishlist() async {
@@ -78,8 +63,6 @@ class WishlistRepositoryImpl implements WishlistRepository {
 
   @override
   Future<Result<bool>> isSaved(String productId) async {
-    // A queued write is more recent than anything the server or the cache can
-    // say, so it wins outright.
     final pending = _pendingVerdict(productId);
 
     if (!await _networkInfo.isConnected) {
@@ -102,8 +85,6 @@ class WishlistRepositoryImpl implements WishlistRepository {
     }
   }
 
-  // ── Mutations ──────────────────────────────────────────────────────────
-
   @override
   Future<Result<Wishlist>> addItem({
     required String productId,
@@ -116,8 +97,6 @@ class WishlistRepositoryImpl implements WishlistRepository {
           'productId': productId,
           'variantId': ?variantId,
         },
-        // The last thing the customer did to this product is the only one
-        // that matters — a save after an unsave is just a save.
         replaceMatching: (entry) => entry.productId == productId,
       );
     }
@@ -153,7 +132,6 @@ class WishlistRepositoryImpl implements WishlistRepository {
       return _queue(
         kind: WishlistOutboxKinds.clear,
         payload: const {},
-        // Nothing queued before an empty-the-list can still matter.
         replaceMatching: (_) => true,
         apply: (cached) => cached.copyWith(items: const []),
       );
@@ -168,10 +146,6 @@ class WishlistRepositoryImpl implements WishlistRepository {
     String? variantId,
   }) async {
     if (!await _networkInfo.isConnected) {
-      // Not queued. The response is the authoritative cart — reconciled
-      // lines, notices and freshly-priced totals — and there is no honest way
-      // to fabricate one on the device. Refusing keeps the item saved and
-      // leaves the customer somewhere they can retry from.
       return const Result.failure(
         NetworkFailure('Moving an item to your cart needs a connection.'),
       );
@@ -190,8 +164,6 @@ class WishlistRepositoryImpl implements WishlistRepository {
     }
   }
 
-  // ── Offline queue ──────────────────────────────────────────────────────
-
   @override
   Future<Result<Wishlist>> syncPendingWrites() async {
     if (!await _networkInfo.isConnected) {
@@ -208,9 +180,6 @@ class WishlistRepositoryImpl implements WishlistRepository {
 
       if (_isTransient(failure)) return Result.failure(failure);
 
-      // A 404 here is the common case and is benign: removing something that
-      // is already gone. Either way the server will never accept it, so it is
-      // dropped rather than left blocking everything queued behind it.
       await _outbox.remove(entry.id);
     }
 
@@ -240,11 +209,6 @@ class WishlistRepositoryImpl implements WishlistRepository {
     }
   }
 
-  /// What the queue says about a product, or null if it says nothing.
-  ///
-  /// Later entries overwrite earlier ones, so this walks the whole queue
-  /// rather than stopping at the first match — a save, an unsave and another
-  /// save must resolve to "saved".
   bool? _pendingVerdict(String productId) {
     bool? verdict;
     for (final entry in _outbox.pending()) {
@@ -271,7 +235,6 @@ class WishlistRepositoryImpl implements WishlistRepository {
     try {
       await _outbox.enqueue(kind, payload, replaceMatching: replaceMatching);
     } on Object catch (error) {
-      // A write that cannot be recorded must not look like it succeeded.
       return Result.failure(ErrorMapper.toFailure(error));
     }
 
@@ -284,8 +247,6 @@ class WishlistRepositoryImpl implements WishlistRepository {
     return Result.success(updated.toEntity());
   }
 
-  // ── Plumbing ───────────────────────────────────────────────────────────
-
   Future<Result<Wishlist>> _fetchAndCache() async {
     try {
       final envelope = await _remote.getWishlist();
@@ -293,8 +254,6 @@ class WishlistRepositoryImpl implements WishlistRepository {
       return Result.success(envelope.data.toEntity());
     } on Object catch (error) {
       final failure = ErrorMapper.toFailure(error);
-      // A transport failure falls back to cache; a 4xx does not — a refusal
-      // means the server disagrees with us, and stale data would hide that.
       if (_isTransient(failure)) {
         final cached = _local.read();
         if (cached != null) return Result.success(cached.toEntity());

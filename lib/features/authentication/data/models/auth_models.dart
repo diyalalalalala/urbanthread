@@ -4,10 +4,6 @@ import 'user_model.dart';
 
 part 'auth_models.g.dart';
 
-/// `{ user, accessToken }` — returned by both register and login.
-///
-/// There is no refresh token: the API issues a single 7-day JWT and revokes
-/// by bumping the user's `tokenVersion`, so this is the whole session.
 @JsonSerializable(createToJson: false)
 class AuthResponseModel {
   const AuthResponseModel({required this.user, required this.accessToken});
@@ -41,11 +37,8 @@ class RegisterRequest {
   final String name;
   final String email;
 
-  /// Backend rule: at least 8 characters with an upper, a lower and a digit.
   final String password;
 
-  /// Omitted rather than sent as null — the validator rejects an empty string
-  /// but accepts an absent key.
   final String? phone;
 
   Map<String, dynamic> toJson() => _$RegisterRequestToJson(this);

@@ -8,33 +8,12 @@ part of 'product_list_notifier.dart';
 
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, type=warning
-/// Drives [ProductListPage] and any other infinite catalogue grid.
-///
-/// Keyed by the query it starts from, so a category page, a brand page and
-/// the all-products page are three independent instances that do not fight
-/// over one another's scroll position. Changing sort or filters mutates the
-/// query *inside* one instance rather than creating another — otherwise every
-/// filter tweak would leak a provider that is never read again.
 
 @ProviderFor(ProductListNotifier)
 final productListProvider = ProductListNotifierFamily._();
 
-/// Drives [ProductListPage] and any other infinite catalogue grid.
-///
-/// Keyed by the query it starts from, so a category page, a brand page and
-/// the all-products page are three independent instances that do not fight
-/// over one another's scroll position. Changing sort or filters mutates the
-/// query *inside* one instance rather than creating another — otherwise every
-/// filter tweak would leak a provider that is never read again.
 final class ProductListNotifierProvider
     extends $NotifierProvider<ProductListNotifier, ProductListState> {
-  /// Drives [ProductListPage] and any other infinite catalogue grid.
-  ///
-  /// Keyed by the query it starts from, so a category page, a brand page and
-  /// the all-products page are three independent instances that do not fight
-  /// over one another's scroll position. Changing sort or filters mutates the
-  /// query *inside* one instance rather than creating another — otherwise every
-  /// filter tweak would leak a provider that is never read again.
   ProductListNotifierProvider._({
     required ProductListNotifierFamily super.from,
     required ProductQuery super.argument,
@@ -82,14 +61,6 @@ final class ProductListNotifierProvider
 String _$productListNotifierHash() =>
     r'edc26555b6759990c8f17aa529ec1759217ef407';
 
-/// Drives [ProductListPage] and any other infinite catalogue grid.
-///
-/// Keyed by the query it starts from, so a category page, a brand page and
-/// the all-products page are three independent instances that do not fight
-/// over one another's scroll position. Changing sort or filters mutates the
-/// query *inside* one instance rather than creating another — otherwise every
-/// filter tweak would leak a provider that is never read again.
-
 final class ProductListNotifierFamily extends $Family
     with
         $ClassFamilyOverride<
@@ -108,28 +79,12 @@ final class ProductListNotifierFamily extends $Family
         isAutoDispose: true,
       );
 
-  /// Drives [ProductListPage] and any other infinite catalogue grid.
-  ///
-  /// Keyed by the query it starts from, so a category page, a brand page and
-  /// the all-products page are three independent instances that do not fight
-  /// over one another's scroll position. Changing sort or filters mutates the
-  /// query *inside* one instance rather than creating another — otherwise every
-  /// filter tweak would leak a provider that is never read again.
-
   ProductListNotifierProvider call(ProductQuery initialQuery) =>
       ProductListNotifierProvider._(argument: initialQuery, from: this);
 
   @override
   String toString() => r'productListProvider';
 }
-
-/// Drives [ProductListPage] and any other infinite catalogue grid.
-///
-/// Keyed by the query it starts from, so a category page, a brand page and
-/// the all-products page are three independent instances that do not fight
-/// over one another's scroll position. Changing sort or filters mutates the
-/// query *inside* one instance rather than creating another — otherwise every
-/// filter tweak would leak a provider that is never read again.
 
 abstract class _$ProductListNotifier extends $Notifier<ProductListState> {
   late final _$args = ref.$arg as ProductQuery;

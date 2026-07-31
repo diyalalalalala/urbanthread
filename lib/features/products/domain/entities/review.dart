@@ -1,7 +1,5 @@
 import 'package:equatable/equatable.dart';
 
-/// Sort orders `GET /reviews/product/{id}` accepts. As with product sorting,
-/// the set is closed and an unknown value is a 422.
 enum ReviewSort {
   newest('newest', 'Newest'),
   oldest('oldest', 'Oldest'),
@@ -22,11 +20,6 @@ enum ReviewSort {
   }
 }
 
-/// A customer review on a product page.
-///
-/// The author's name and avatar are *snapshots* taken when the review was
-/// written, not a populated user reference — a deleted account keeps its
-/// reviews readable. So there is no user object to follow here.
 class Review extends Equatable {
   const Review({
     required this.id,
@@ -47,15 +40,12 @@ class Review extends Equatable {
   final String productId;
   final String userName;
 
-  /// Null when the reviewer had no avatar — the API stores that as `""`.
   final String? userAvatarUrl;
 
   final int rating;
   final String title;
   final String comment;
 
-  /// Set when the reviewer has a delivered order containing this product.
-  /// Renders the "Verified Purchase" badge, the page's strongest trust cue.
   final bool isVerifiedPurchase;
 
   final int helpfulCount;
@@ -65,7 +55,6 @@ class Review extends Equatable {
 
   bool get hasTitle => title.isNotEmpty;
 
-  /// Up to two letters for the avatar fallback.
   String get initials {
     final parts = userName.trim().split(RegExp(r'\s+'));
     if (parts.isEmpty || parts.first.isEmpty) return '?';
@@ -90,11 +79,6 @@ class Review extends Equatable {
       ];
 }
 
-/// The rating summary from `GET /reviews/product/{id}/stats`.
-///
-/// Computed from approved reviews only, so it can legitimately disagree with
-/// a product document whose denormalised `rating` has not been recomputed
-/// yet — the stats endpoint is the more current of the two.
 class ReviewStats extends Equatable {
   const ReviewStats({
     this.average = 0,
@@ -105,8 +89,6 @@ class ReviewStats extends Equatable {
   final double average;
   final int count;
 
-  /// Keyed by star value. The wire format uses string keys ("1".."5"); they
-  /// are converted at the model boundary.
   final Map<int, int> distribution;
 
   bool get hasReviews => count > 0;
@@ -119,7 +101,6 @@ class ReviewStats extends Equatable {
   List<Object?> get props => [average, count, distribution];
 }
 
-/// Query parameters for the product review list.
 class ReviewQuery extends Equatable {
   const ReviewQuery({
     this.page = 1,
@@ -132,10 +113,8 @@ class ReviewQuery extends Equatable {
   final int page;
   final int limit;
 
-  /// Show only reviews at this star rating, 1–5.
   final int? rating;
 
-  /// Show only verified purchases.
   final bool? verified;
 
   final ReviewSort sort;
@@ -147,7 +126,6 @@ class ReviewQuery extends Equatable {
       'sort': sort.wireValue,
     };
     if (rating != null) params['rating'] = rating;
-    // Booleans travel as strings; the validator reads the raw query text.
     if (verified != null) params['verified'] = verified! ? 'true' : 'false';
     return params;
   }

@@ -8,23 +8,10 @@ part of 'categories_providers.dart';
 
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, type=warning
-/// Wiring for the taxonomy feature.
-///
-/// The datasources and repository are kept alive: the tree and the brand list
-/// are read by both the categories screen and the home feed, and letting them
-/// dispose between tab switches would rebuild the Retrofit client and re-open
-/// the cache handle for no gain.
 
 @ProviderFor(categoriesRemoteDataSource)
 final categoriesRemoteDataSourceProvider =
     CategoriesRemoteDataSourceProvider._();
-
-/// Wiring for the taxonomy feature.
-///
-/// The datasources and repository are kept alive: the tree and the brand list
-/// are read by both the categories screen and the home feed, and letting them
-/// dispose between tab switches would rebuild the Retrofit client and re-open
-/// the cache handle for no gain.
 
 final class CategoriesRemoteDataSourceProvider
     extends
@@ -34,12 +21,6 @@ final class CategoriesRemoteDataSourceProvider
           CategoriesRemoteDataSource
         >
     with $Provider<CategoriesRemoteDataSource> {
-  /// Wiring for the taxonomy feature.
-  ///
-  /// The datasources and repository are kept alive: the tree and the brand list
-  /// are read by both the categories screen and the home feed, and letting them
-  /// dispose between tab switches would rebuild the Retrofit client and re-open
-  /// the cache handle for no gain.
   CategoriesRemoteDataSourceProvider._()
     : super(
         from: null,
@@ -502,28 +483,8 @@ final class GetBrandUseCaseProvider
 
 String _$getBrandUseCaseHash() => r'1d6899947e4025b396791250f4e2bc1564ea9644';
 
-/// One category with its immediate children, for a category landing screen.
-///
-/// Keyed on the slug-or-id the caller holds; the backend resolves either, so
-/// there is no need for two providers.
-///
-/// One-shot detail reads surface as [AsyncValue], so the [Failure] is thrown
-/// rather than returned. It stays a `Failure` on the way out — the UI matches
-/// on `error is Failure` and hands it straight to `FailureView`, so nothing is
-/// lost by the trip through the error channel.
-
 @ProviderFor(categoryDetail)
 final categoryDetailProvider = CategoryDetailFamily._();
-
-/// One category with its immediate children, for a category landing screen.
-///
-/// Keyed on the slug-or-id the caller holds; the backend resolves either, so
-/// there is no need for two providers.
-///
-/// One-shot detail reads surface as [AsyncValue], so the [Failure] is thrown
-/// rather than returned. It stays a `Failure` on the way out — the UI matches
-/// on `error is Failure` and hands it straight to `FailureView`, so nothing is
-/// lost by the trip through the error channel.
 
 final class CategoryDetailProvider
     extends
@@ -533,15 +494,6 @@ final class CategoryDetailProvider
           FutureOr<CategoryNode>
         >
     with $FutureModifier<CategoryNode>, $FutureProvider<CategoryNode> {
-  /// One category with its immediate children, for a category landing screen.
-  ///
-  /// Keyed on the slug-or-id the caller holds; the backend resolves either, so
-  /// there is no need for two providers.
-  ///
-  /// One-shot detail reads surface as [AsyncValue], so the [Failure] is thrown
-  /// rather than returned. It stays a `Failure` on the way out — the UI matches
-  /// on `error is Failure` and hands it straight to `FailureView`, so nothing is
-  /// lost by the trip through the error channel.
   CategoryDetailProvider._({
     required CategoryDetailFamily super.from,
     required String super.argument,
@@ -588,16 +540,6 @@ final class CategoryDetailProvider
 
 String _$categoryDetailHash() => r'6ca177b7b95e0bad1f6b621aebb4c0248f13b4c9';
 
-/// One category with its immediate children, for a category landing screen.
-///
-/// Keyed on the slug-or-id the caller holds; the backend resolves either, so
-/// there is no need for two providers.
-///
-/// One-shot detail reads surface as [AsyncValue], so the [Failure] is thrown
-/// rather than returned. It stays a `Failure` on the way out — the UI matches
-/// on `error is Failure` and hands it straight to `FailureView`, so nothing is
-/// lost by the trip through the error channel.
-
 final class CategoryDetailFamily extends $Family
     with $FunctionalFamilyOverride<FutureOr<CategoryNode>, String> {
   CategoryDetailFamily._()
@@ -608,16 +550,6 @@ final class CategoryDetailFamily extends $Family
         $allTransitiveDependencies: null,
         isAutoDispose: true,
       );
-
-  /// One category with its immediate children, for a category landing screen.
-  ///
-  /// Keyed on the slug-or-id the caller holds; the backend resolves either, so
-  /// there is no need for two providers.
-  ///
-  /// One-shot detail reads surface as [AsyncValue], so the [Failure] is thrown
-  /// rather than returned. It stays a `Failure` on the way out — the UI matches
-  /// on `error is Failure` and hands it straight to `FailureView`, so nothing is
-  /// lost by the trip through the error channel.
 
   CategoryDetailProvider call(String slugOrId) =>
       CategoryDetailProvider._(argument: slugOrId, from: this);
@@ -695,18 +627,8 @@ final class BrandDetailFamily extends $Family
   String toString() => r'brandDetailProvider';
 }
 
-/// The direct children of a category, paged.
-///
-/// Used by the two-pane browser when a branch is deep enough that the tree
-/// response alone would be an awkward amount to render at once.
-
 @ProviderFor(categoryChildren)
 final categoryChildrenProvider = CategoryChildrenFamily._();
-
-/// The direct children of a category, paged.
-///
-/// Used by the two-pane browser when a branch is deep enough that the tree
-/// response alone would be an awkward amount to render at once.
 
 final class CategoryChildrenProvider
     extends
@@ -716,10 +638,6 @@ final class CategoryChildrenProvider
           FutureOr<List<Category>>
         >
     with $FutureModifier<List<Category>>, $FutureProvider<List<Category>> {
-  /// The direct children of a category, paged.
-  ///
-  /// Used by the two-pane browser when a branch is deep enough that the tree
-  /// response alone would be an awkward amount to render at once.
   CategoryChildrenProvider._({
     required CategoryChildrenFamily super.from,
     required String super.argument,
@@ -766,11 +684,6 @@ final class CategoryChildrenProvider
 
 String _$categoryChildrenHash() => r'62dfc2eb6601b973cb751806b2eb5c02555f2be5';
 
-/// The direct children of a category, paged.
-///
-/// Used by the two-pane browser when a branch is deep enough that the tree
-/// response alone would be an awkward amount to render at once.
-
 final class CategoryChildrenFamily extends $Family
     with $FunctionalFamilyOverride<FutureOr<List<Category>>, String> {
   CategoryChildrenFamily._()
@@ -781,11 +694,6 @@ final class CategoryChildrenFamily extends $Family
         $allTransitiveDependencies: null,
         isAutoDispose: true,
       );
-
-  /// The direct children of a category, paged.
-  ///
-  /// Used by the two-pane browser when a branch is deep enough that the tree
-  /// response alone would be an awkward amount to render at once.
 
   CategoryChildrenProvider call(String parentId) =>
       CategoryChildrenProvider._(argument: parentId, from: this);

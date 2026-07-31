@@ -7,16 +7,6 @@ import '../../domain/entities/wishlist_move_result.dart';
 
 part 'wishlist_models.g.dart';
 
-/// Wire formats for `/wishlist`.
-///
-/// As with the cart, `toJson` is kept on every response DTO: the wishlist is
-/// cached in Hive so it renders offline, and round-tripping the DTO means the
-/// cached copy decodes through the same path as a live response.
-
-/// The payload of `GET /wishlist` and of every wishlist mutation.
-///
-/// Hand-built by the service rather than serialised from Mongoose — there is
-/// no `user` field and no `createdAt`/`updatedAt`, only these three keys.
 @JsonSerializable()
 class WishlistModel {
   const WishlistModel({
@@ -32,8 +22,6 @@ class WishlistModel {
   final String id;
   final List<WishlistItemModel> items;
 
-  /// Sent on every response, but modelled as nullable so a locally-edited
-  /// cached copy can leave it to be recomputed from [items].
   final int? itemCount;
 
   Map<String, dynamic> toJson() => _$WishlistModelToJson(this);
@@ -41,17 +29,12 @@ class WishlistModel {
   WishlistModel copyWith({List<WishlistItemModel>? items}) => WishlistModel(
         id: id,
         items: items ?? this.items,
-        // Deliberately dropped when the items change: a stale count beside an
-        // edited list is worse than deriving it.
         itemCount: items == null ? itemCount : null,
       );
 
   Wishlist toEntity() => Wishlist(
         id: id,
         items: items
-            // The server already filters deleted and deactivated products, so
-            // a null here would mean the contract changed. Guarding costs
-            // nothing and keeps a bad payload from taking down the screen.
             .where((item) => item.product != null)
             .map((item) => item.toEntity())
             .toList(growable: false),
@@ -78,7 +61,6 @@ class WishlistItemModel {
   @JsonKey(fromJson: _productFromJson)
   final WishlistProductModel? product;
 
-  /// Genuinely nullable — most saves do not pick a variant.
   @JsonKey(fromJson: _objectId)
   final String? variantId;
 
@@ -96,11 +78,6 @@ class WishlistItemModel {
       );
 }
 
-/// The card-shaped product projection `/wishlist` populates.
-///
-/// Richer than the cart's: it carries `rating`, `totalStock`, and `brand` and
-/// `category` as **populated `{_id, name, slug}` objects** rather than the
-/// bare ObjectId strings the cart returns.
 @JsonSerializable()
 class WishlistProductModel {
   const WishlistProductModel({
@@ -127,16 +104,12 @@ class WishlistProductModel {
   final String name;
   final String slug;
 
-  /// Reused from the cart's models — the image and variant sub-documents are
-  /// the same product schema on both endpoints, and a second identical DTO
-  /// would be two things to keep in step with one backend field.
   final List<ProductImageModel> images;
 
   final double price;
   final double discountPercentage;
   final double effectivePrice;
 
-  /// Nested `{average, count}` on the wire.
   final ProductRatingModel? rating;
 
   final int totalStock;
@@ -151,7 +124,6 @@ class WishlistProductModel {
 
   Map<String, dynamic> toJson() => _$WishlistProductModelToJson(this);
 
-  /// `primaryImage` is a virtual this projection drops, so it is derived.
   String? get primaryImageUrl {
     if (images.isEmpty) return null;
     for (final image in images) {
@@ -204,7 +176,6 @@ class ProductRatingModel {
   Map<String, dynamic> toJson() => _$ProductRatingModelToJson(this);
 }
 
-/// A populated `{_id, name, slug}` reference.
 @JsonSerializable()
 class ReferenceModel {
   const ReferenceModel({required this.id, this.name = '', this.slug = ''});
@@ -223,12 +194,6 @@ class ReferenceModel {
       WishlistReference(id: id, name: name, slug: slug);
 }
 
-/// `POST /wishlist/{productId}/move-to-cart` → `{ cart, wishlist }`.
-///
-/// The `cart` member is the whole `{cart, notices, summary}` triple, so totals
-/// are at `data.cart.summary` — nested one level deeper than every other cart
-/// response, which is exactly the kind of thing a hand-written path would get
-/// wrong.
 @JsonSerializable(createToJson: false)
 class WishlistMoveResultModel {
   const WishlistMoveResultModel({required this.cart, required this.wishlist});
@@ -245,7 +210,6 @@ class WishlistMoveResultModel {
       );
 }
 
-/// `GET /wishlist/{productId}/check` → `{ productId, inWishlist }`.
 @JsonSerializable(createToJson: false)
 class WishlistCheckModel {
   const WishlistCheckModel({required this.productId, this.inWishlist = false});
@@ -257,24 +221,17 @@ class WishlistCheckModel {
   final bool inWishlist;
 }
 
-// ── Requests ─────────────────────────────────────────────────────────────
-
-/// Body of `POST /wishlist`.
 @JsonSerializable(createFactory: false, includeIfNull: false)
 class AddWishlistItemRequest {
   const AddWishlistItemRequest({required this.productId, this.variantId});
 
   final String productId;
 
-  /// Omitted rather than sent as null — the validator rejects an empty string
-  /// but accepts an absent key.
   final String? variantId;
 
   Map<String, dynamic> toJson() => _$AddWishlistItemRequestToJson(this);
 }
 
-/// Body of `POST /wishlist/{productId}/move-to-cart`. Quantity is not a
-/// parameter — the server hard-codes 1.
 @JsonSerializable(createFactory: false, includeIfNull: false)
 class WishlistMoveToCartRequest {
   const WishlistMoveToCartRequest({this.variantId});
@@ -284,14 +241,9 @@ class WishlistMoveToCartRequest {
   Map<String, dynamic> toJson() => _$WishlistMoveToCartRequestToJson(this);
 }
 
-// ── Decoding helpers ─────────────────────────────────────────────────────
-
 WishlistProductModel? _productFromJson(Object? raw) =>
     raw is Map<String, dynamic> ? WishlistProductModel.fromJson(raw) : null;
 
-/// Tolerates a reference arriving unpopulated (a bare ObjectId) even though
-/// this endpoint populates both — the same field is a raw string on the cart,
-/// so the shape is not something to assume.
 ReferenceModel? _referenceFromJson(Object? raw) {
   if (raw is Map<String, dynamic>) return ReferenceModel.fromJson(raw);
   if (raw is String && raw.isNotEmpty) return ReferenceModel(id: raw);

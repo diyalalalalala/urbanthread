@@ -13,7 +13,6 @@ import '../providers/orders_notifier.dart';
 import '../providers/orders_state.dart';
 import '../widgets/order_card.dart';
 
-/// The order history: a paginated, status-filtered list.
 class OrdersPage extends ConsumerStatefulWidget {
   const OrdersPage({super.key});
 
@@ -38,10 +37,6 @@ class _OrdersPageState extends ConsumerState<OrdersPage> {
     super.dispose();
   }
 
-  /// Fetches the next page while the user is still 400px from the end, so the
-  /// rows are usually there before the scroll reaches them. `loadMore` is a
-  /// no-op when one is already running, so firing on every scroll frame is
-  /// harmless.
   void _onScroll() {
     if (!_scrollController.hasClients) return;
     final position = _scrollController.position;
@@ -118,7 +113,6 @@ class _OrdersPageState extends ConsumerState<OrdersPage> {
           AppDimens.pageGutter,
           AppDimens.space32,
         ),
-        // One extra row at the foot holds the paging spinner.
         itemCount: state.orders.length + 1,
         separatorBuilder: (_, _) => const SizedBox(height: AppDimens.space12),
         itemBuilder: (context, index) {
@@ -142,8 +136,6 @@ class _OrdersPageState extends ConsumerState<OrdersPage> {
       );
     }
 
-    // A page failed but earlier ones are on screen. Offering a retry inline
-    // beats replacing the whole list with an error.
     if (state.failure != null) {
       return Padding(
         padding: const EdgeInsets.symmetric(vertical: AppDimens.space24),
@@ -168,12 +160,6 @@ class _OrdersPageState extends ConsumerState<OrdersPage> {
   }
 }
 
-/// The horizontal chip row of status filters.
-///
-/// Every one of the eight statuses is offered, plus "All". They map to the
-/// `status` query parameter, which the backend validates against the same
-/// enum — a value it does not recognise is dropped and the filter fails open,
-/// so the wire strings come from the enum rather than being typed here.
 class _StatusFilterBar extends StatelessWidget {
   const _StatusFilterBar({required this.selected, required this.onSelected});
 
@@ -205,8 +191,6 @@ class _StatusFilterBar extends StatelessWidget {
               _Chip(
                 label: status.label,
                 isSelected: selected == status,
-                // Tapping the active chip clears the filter, which is what
-                // people expect from a toggle and saves a trip to "All".
                 onTap: () => onSelected(selected == status ? null : status),
               ),
             ],

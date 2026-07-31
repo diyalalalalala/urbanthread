@@ -8,16 +8,9 @@ part of 'product_providers.dart';
 
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, type=warning
-/// Wiring for the catalogue, kept apart from the notifiers so the object
-/// graph reads in one place and a test can override a single edge — usually
-/// [productRepositoryProvider].
 
 @ProviderFor(productRemoteDataSource)
 final productRemoteDataSourceProvider = ProductRemoteDataSourceProvider._();
-
-/// Wiring for the catalogue, kept apart from the notifiers so the object
-/// graph reads in one place and a test can override a single edge — usually
-/// [productRepositoryProvider].
 
 final class ProductRemoteDataSourceProvider
     extends
@@ -27,9 +20,6 @@ final class ProductRemoteDataSourceProvider
           ProductRemoteDataSource
         >
     with $Provider<ProductRemoteDataSource> {
-  /// Wiring for the catalogue, kept apart from the notifiers so the object
-  /// graph reads in one place and a test can override a single edge — usually
-  /// [productRepositoryProvider].
   ProductRemoteDataSourceProvider._()
     : super(
         from: null,
@@ -742,14 +732,8 @@ final class GetProductReviewStatsUseCaseProvider
 String _$getProductReviewStatsUseCaseHash() =>
     r'36a4d4a83cbbf66842b9eabd8eb4023df51fac96';
 
-/// Facets for the filter sheet. Kept alive because the sheet is opened
-/// repeatedly and the facet lists change on the scale of hours, not seconds.
-
 @ProviderFor(productFilterFacets)
 final productFilterFacetsProvider = ProductFilterFacetsProvider._();
-
-/// Facets for the filter sheet. Kept alive because the sheet is opened
-/// repeatedly and the facet lists change on the scale of hours, not seconds.
 
 final class ProductFilterFacetsProvider
     extends
@@ -759,8 +743,6 @@ final class ProductFilterFacetsProvider
           FutureOr<ProductFilters>
         >
     with $FutureModifier<ProductFilters>, $FutureProvider<ProductFilters> {
-  /// Facets for the filter sheet. Kept alive because the sheet is opened
-  /// repeatedly and the facet lists change on the scale of hours, not seconds.
   ProductFilterFacetsProvider._()
     : super(
         from: null,
@@ -790,14 +772,8 @@ final class ProductFilterFacetsProvider
 String _$productFilterFacetsHash() =>
     r'010b4c11d36fa1a201b28d289f9b14a60a06d72d';
 
-/// One curated collection. Family-keyed so the home page can mount all four
-/// without them sharing a cache entry.
-
 @ProviderFor(productCollection)
 final productCollectionProvider = ProductCollectionFamily._();
-
-/// One curated collection. Family-keyed so the home page can mount all four
-/// without them sharing a cache entry.
 
 final class ProductCollectionProvider
     extends
@@ -807,8 +783,6 @@ final class ProductCollectionProvider
           FutureOr<List<Product>>
         >
     with $FutureModifier<List<Product>>, $FutureProvider<List<Product>> {
-  /// One curated collection. Family-keyed so the home page can mount all four
-  /// without them sharing a cache entry.
   ProductCollectionProvider._({
     required ProductCollectionFamily super.from,
     required (ProductCollection, {int limit}) super.argument,
@@ -855,9 +829,6 @@ final class ProductCollectionProvider
 
 String _$productCollectionHash() => r'bd1b5c789d675ade034db2f5697a44188c6146cd';
 
-/// One curated collection. Family-keyed so the home page can mount all four
-/// without them sharing a cache entry.
-
 final class ProductCollectionFamily extends $Family
     with
         $FunctionalFamilyOverride<
@@ -873,9 +844,6 @@ final class ProductCollectionFamily extends $Family
         isAutoDispose: true,
       );
 
-  /// One curated collection. Family-keyed so the home page can mount all four
-  /// without them sharing a cache entry.
-
   ProductCollectionProvider call(
     ProductCollection collection, {
     int limit = 10,
@@ -888,14 +856,8 @@ final class ProductCollectionFamily extends $Family
   String toString() => r'productCollectionProvider';
 }
 
-/// Similar products for the detail page. Takes the product **id**, not the
-/// slug — this route is id-based even though detail is not.
-
 @ProviderFor(relatedProducts)
 final relatedProductsProvider = RelatedProductsFamily._();
-
-/// Similar products for the detail page. Takes the product **id**, not the
-/// slug — this route is id-based even though detail is not.
 
 final class RelatedProductsProvider
     extends
@@ -905,8 +867,6 @@ final class RelatedProductsProvider
           FutureOr<List<Product>>
         >
     with $FutureModifier<List<Product>>, $FutureProvider<List<Product>> {
-  /// Similar products for the detail page. Takes the product **id**, not the
-  /// slug — this route is id-based even though detail is not.
   RelatedProductsProvider._({
     required RelatedProductsFamily super.from,
     required String super.argument,
@@ -953,9 +913,6 @@ final class RelatedProductsProvider
 
 String _$relatedProductsHash() => r'81b4aa45b03116c7c4a03bc0cac380f1eed3e33d';
 
-/// Similar products for the detail page. Takes the product **id**, not the
-/// slug — this route is id-based even though detail is not.
-
 final class RelatedProductsFamily extends $Family
     with $FunctionalFamilyOverride<FutureOr<List<Product>>, String> {
   RelatedProductsFamily._()
@@ -966,9 +923,6 @@ final class RelatedProductsFamily extends $Family
         $allTransitiveDependencies: null,
         isAutoDispose: true,
       );
-
-  /// Similar products for the detail page. Takes the product **id**, not the
-  /// slug — this route is id-based even though detail is not.
 
   RelatedProductsProvider call(String productId) =>
       RelatedProductsProvider._(argument: productId, from: this);
@@ -1060,14 +1014,8 @@ final class FrequentlyBoughtTogetherFamily extends $Family
   String toString() => r'frequentlyBoughtTogetherProvider';
 }
 
-/// The live rating summary. Preferred over `product.rating`, which is a
-/// denormalised copy that can lag a just-posted review.
-
 @ProviderFor(productReviewStats)
 final productReviewStatsProvider = ProductReviewStatsFamily._();
-
-/// The live rating summary. Preferred over `product.rating`, which is a
-/// denormalised copy that can lag a just-posted review.
 
 final class ProductReviewStatsProvider
     extends
@@ -1077,8 +1025,6 @@ final class ProductReviewStatsProvider
           FutureOr<ReviewStats>
         >
     with $FutureModifier<ReviewStats>, $FutureProvider<ReviewStats> {
-  /// The live rating summary. Preferred over `product.rating`, which is a
-  /// denormalised copy that can lag a just-posted review.
   ProductReviewStatsProvider._({
     required ProductReviewStatsFamily super.from,
     required String super.argument,
@@ -1126,9 +1072,6 @@ final class ProductReviewStatsProvider
 String _$productReviewStatsHash() =>
     r'f8cbe6134b1bb7ab7cecf4e981203b2e80a6096a';
 
-/// The live rating summary. Preferred over `product.rating`, which is a
-/// denormalised copy that can lag a just-posted review.
-
 final class ProductReviewStatsFamily extends $Family
     with $FunctionalFamilyOverride<FutureOr<ReviewStats>, String> {
   ProductReviewStatsFamily._()
@@ -1139,9 +1082,6 @@ final class ProductReviewStatsFamily extends $Family
         $allTransitiveDependencies: null,
         isAutoDispose: true,
       );
-
-  /// The live rating summary. Preferred over `product.rating`, which is a
-  /// denormalised copy that can lag a just-posted review.
 
   ProductReviewStatsProvider call(String productId) =>
       ProductReviewStatsProvider._(argument: productId, from: this);

@@ -1,11 +1,6 @@
 import '../../../../core/storage/cache_store.dart';
 import '../models/notification_model.dart';
 
-/// Offline copy of the notification list.
-///
-/// Only the first page is kept. Notifications are read newest-first and
-/// nobody scrolls to page four without a connection, so caching deeper pages
-/// would cost storage for a screen that will never be shown.
 class NotificationLocalDataSource {
   const NotificationLocalDataSource(this._cache);
 
@@ -25,8 +20,6 @@ class NotificationLocalDataSource {
         items.map((item) => item.toJson()).toList(growable: false),
       );
 
-  /// The last known unread count, so the app-bar badge renders at launch
-  /// without a round trip.
   int? readUnreadCount() =>
       _cache.read<int?>(_unreadKey, (json) => json is int ? json : null);
 

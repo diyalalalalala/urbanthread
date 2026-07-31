@@ -12,7 +12,6 @@ import '../widgets/failure_from_error.dart';
 import '../widgets/notification_link.dart';
 import '../widgets/notification_tile.dart';
 
-/// The notification inbox: filter, read, delete.
 class NotificationsPage extends ConsumerStatefulWidget {
   const NotificationsPage({super.key});
 
@@ -106,9 +105,6 @@ class _NotificationsPageState extends ConsumerState<NotificationsPage> {
                         key: ValueKey(notification.id),
                         direction: DismissDirection.endToStart,
                         background: const _DeleteBackground(),
-                        // Confirm rather than delete-then-undo: the endpoint
-                        // has no restore, so an accidental swipe would be
-                        // unrecoverable.
                         confirmDismiss: (_) => _confirmDelete(notification),
                         child: NotificationTile(
                           notification: notification,
@@ -130,7 +126,6 @@ class _NotificationsPageState extends ConsumerState<NotificationsPage> {
     );
   }
 
-  /// Marks the row read, then follows its link if the app has a screen for it.
   Future<void> _open(AppNotification notification) async {
     if (!notification.isRead) {
       await ref.read(notificationsProvider.notifier).markAsRead(notification.id);
@@ -139,8 +134,6 @@ class _NotificationsPageState extends ConsumerState<NotificationsPage> {
 
     final target = NotificationLink.resolve(notification.link);
     if (target == null) {
-      // An unrecognised link is not an error — the backend writes links for
-      // the web client, and some of them have no mobile equivalent.
       if (notification.hasLink) {
         context.showSnack('That link cannot be opened in the app.');
       }
@@ -159,8 +152,6 @@ class _NotificationsPageState extends ConsumerState<NotificationsPage> {
       context.showSnack(failure.message, isError: true);
       return false;
     }
-    // The notifier already removed it from the list, so the Dismissible is
-    // told not to animate a second removal.
     return false;
   }
 
@@ -188,8 +179,6 @@ class _NotificationsPageState extends ConsumerState<NotificationsPage> {
         if (!mounted) return;
         context.showSnack(
           switch (result) {
-            // This one answers 200 with a count, unlike the single delete's
-            // bare 204 — so there is a real number to report.
             Success(:final value) => value == 0
                 ? 'No read notifications to remove.'
                 : '$value removed.',
@@ -235,9 +224,6 @@ class _Filters extends ConsumerWidget {
               selected: type == null,
               onSelected: (_) => notifier.setType(null),
             ),
-            // Only the customer-facing half of the enum is offered; the admin
-            // types are never delivered to this audience, so filtering by one
-            // would always return nothing.
             for (final option in NotificationType.customerFacing) ...[
               const SizedBox(width: AppDimens.space8),
               ChoiceChip(

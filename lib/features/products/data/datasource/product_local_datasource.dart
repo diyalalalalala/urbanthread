@@ -3,11 +3,6 @@ import '../../../../core/storage/cache_store.dart';
 import '../models/product_filters_model.dart';
 import '../models/product_model.dart';
 
-/// A cached page: the items plus the paging meta they came with.
-///
-/// The meta has to be stored alongside the items, otherwise a cached page
-/// restored while offline would not know whether more pages exist and the
-/// infinite scroll would either stop early or spin forever.
 class CachedProductPage {
   const CachedProductPage({required this.items, this.meta});
 
@@ -17,16 +12,6 @@ class CachedProductPage {
   bool get isEmpty => items.isEmpty;
 }
 
-/// The catalogue's Hive-backed offline copy.
-///
-/// Everything here lives in the `catalogue` box, which is public data and is
-/// safe to clear wholesale — it is deliberately *not* wiped on logout, since
-/// re-downloading a catalogue the next user will see anyway only costs them
-/// bandwidth.
-///
-/// Keys are namespaced by concern (`products:list:…`, `products:detail:…`)
-/// so one family can be invalidated without disturbing the others; see
-/// [clearLists].
 class ProductLocalDataSource {
   ProductLocalDataSource(this._store);
 
@@ -40,10 +25,6 @@ class ProductLocalDataSource {
 
   final CacheStore _store;
 
-  // ── List pages ─────────────────────────────────────────────────────────
-
-  /// [key] comes from `ProductQuery.cacheKey`, which already includes the
-  /// page number — consecutive scroll pages must not overwrite each other.
   Future<void> writePage(
     String key,
     List<ProductModel> items,
@@ -61,8 +42,6 @@ class ProductLocalDataSource {
 
         final items = <ProductModel>[];
         for (final entry in rawItems) {
-          // Skip an element written by an older build rather than discarding
-          // the whole page — a partial grid beats an empty one.
           if (entry is! Map<String, dynamic>) continue;
           try {
             items.add(ProductModel.fromJson(entry));
@@ -80,11 +59,7 @@ class ProductLocalDataSource {
         );
       });
 
-  /// Drops every cached list page. Called on pull-to-refresh, where the user
-  /// has explicitly asked for fresh data.
   Future<void> clearLists() => _store.deleteWhereKeyStartsWith(_listPrefix);
-
-  // ── Detail ─────────────────────────────────────────────────────────────
 
   Future<void> writeProduct(ProductModel product) =>
       _store.write('$_detailPrefix${product.slug}', product.toJson());
@@ -97,10 +72,6 @@ class ProductLocalDataSource {
         return ProductModel.fromJson(json);
       });
 
-  // ── Collections and recommendations ────────────────────────────────────
-
-  /// [name] namespaces the list: a collection key (`featured`), or a
-  /// recommendation key (`related:<id>`).
   Future<void> writeCollection(String name, List<ProductModel> items) =>
       _store.write(
         '$_collectionPrefix$name',
@@ -112,10 +83,6 @@ class ProductLocalDataSource {
         (json) => ProductModel.fromJson(json! as Map<String, dynamic>),
       );
 
-  // ── Facets ─────────────────────────────────────────────────────────────
-
-  /// The filter sheet is unusable without facets, and they change rarely, so
-  /// they are worth keeping even when everything else is evicted.
   Future<void> writeFilters(ProductFiltersModel filters) =>
       _store.write(_filtersKey, filters.toJson());
 

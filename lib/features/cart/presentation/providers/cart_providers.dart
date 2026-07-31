@@ -21,12 +21,6 @@ import '../../domain/usecases/validate_cart_usecase.dart';
 
 part 'cart_providers.g.dart';
 
-/// Wiring for the cart feature.
-///
-/// The repository is kept alive: it owns the offline write queue, and a
-/// disposed instance would mean a queued mutation losing the object that knows
-/// how to replay it.
-
 @Riverpod(keepAlive: true)
 CartRemoteDataSource cartRemoteDataSource(Ref ref) =>
     CartRemoteDataSource(ref.watch(dioProvider));
@@ -35,7 +29,6 @@ CartRemoteDataSource cartRemoteDataSource(Ref ref) =>
 CartLocalDataSource cartLocalDataSource(Ref ref) =>
     CartLocalDataSource(ref.watch(accountCacheProvider));
 
-/// The cart's slice of the shared `outbox` box.
 @Riverpod(keepAlive: true)
 OutboxQueue cartOutbox(Ref ref) => OutboxQueue(
       store: ref.watch(outboxCacheProvider),

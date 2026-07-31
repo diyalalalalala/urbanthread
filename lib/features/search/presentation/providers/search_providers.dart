@@ -10,13 +10,6 @@ import '../../domain/usecases/remove_search_term_usecase.dart';
 
 part 'search_providers.g.dart';
 
-/// Wiring for search.
-///
-/// The search *results* come from the catalogue's own
-/// `SearchProductsUseCase` — this feature owns the screen and the history,
-/// not a second copy of the product API. Only the history has its own
-/// repository here.
-
 @Riverpod(keepAlive: true)
 SearchHistoryRepository searchHistoryRepository(Ref ref) =>
     SearchHistoryRepositoryImpl(ref.watch(preferencesServiceProvider));

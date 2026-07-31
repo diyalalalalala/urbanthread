@@ -13,9 +13,6 @@ import '../widgets/auth_scaffold.dart';
 class LoginPage extends ConsumerStatefulWidget {
   const LoginPage({super.key, this.redirectTo});
 
-  /// Where to land after signing in. Set by the router when an unauthenticated
-  /// user is bounced off a guarded route, so they resume what they were doing
-  /// instead of being dropped on the home screen.
   final String? redirectTo;
 
   @override
@@ -57,10 +54,6 @@ class _LoginPageState extends ConsumerState<LoginPage> {
       title: 'Welcome back',
       subtitle: 'Sign in to your UrbanThread account.',
       showBackButton: false,
-      // Reached by a redirect, which replaced the stack. Everything except
-      // the guarded tabs works signed out, so closing means "carry on
-      // browsing" — and it gives the back gesture something to do other than
-      // quit the app.
       onClose: () => context.goHome(),
       footer: _SignUpPrompt(redirectTo: widget.redirectTo),
       child: Form(
@@ -68,8 +61,6 @@ class _LoginPageState extends ConsumerState<LoginPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            // Shown only when the failure has no field to attach to — a bad
-            // password comes back as a bare 401 with no `errors` array.
             if (state.failure != null && validation == null)
               AuthErrorBanner(message: state.failure!.message),
 

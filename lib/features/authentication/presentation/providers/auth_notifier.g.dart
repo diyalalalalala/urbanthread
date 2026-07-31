@@ -8,27 +8,12 @@ part of 'auth_notifier.dart';
 
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, type=warning
-/// The session, and the only thing allowed to change it.
-///
-/// Kept alive for the app's lifetime: the router watches it to guard routes,
-/// so letting it dispose would sign the user out whenever no screen happened
-/// to be listening.
 
 @ProviderFor(AuthNotifier)
 final authProvider = AuthNotifierProvider._();
 
-/// The session, and the only thing allowed to change it.
-///
-/// Kept alive for the app's lifetime: the router watches it to guard routes,
-/// so letting it dispose would sign the user out whenever no screen happened
-/// to be listening.
 final class AuthNotifierProvider
     extends $NotifierProvider<AuthNotifier, AuthState> {
-  /// The session, and the only thing allowed to change it.
-  ///
-  /// Kept alive for the app's lifetime: the router watches it to guard routes,
-  /// so letting it dispose would sign the user out whenever no screen happened
-  /// to be listening.
   AuthNotifierProvider._()
     : super(
         from: null,
@@ -58,12 +43,6 @@ final class AuthNotifierProvider
 
 String _$authNotifierHash() => r'e54833cb58b59f176bba7af4706381010e773f8c';
 
-/// The session, and the only thing allowed to change it.
-///
-/// Kept alive for the app's lifetime: the router watches it to guard routes,
-/// so letting it dispose would sign the user out whenever no screen happened
-/// to be listening.
-
 abstract class _$AuthNotifier extends $Notifier<AuthState> {
   AuthState build();
   @$mustCallSuper
@@ -82,34 +61,11 @@ abstract class _$AuthNotifier extends $Notifier<AuthState> {
   }
 }
 
-/// The signed-in user, or null. The common read for screens that need
-/// identity but not the rest of the auth state.
-///
-/// These derive from the whole state rather than a `.select` on it —
-/// [AuthState] is an Equatable value, so an unchanged state is already
-/// filtered out, and a derived provider only re-emits when its own output
-/// differs. The rebuild savings are the same without the ceremony.
-
 @ProviderFor(currentUser)
 final currentUserProvider = CurrentUserProvider._();
 
-/// The signed-in user, or null. The common read for screens that need
-/// identity but not the rest of the auth state.
-///
-/// These derive from the whole state rather than a `.select` on it —
-/// [AuthState] is an Equatable value, so an unchanged state is already
-/// filtered out, and a derived provider only re-emits when its own output
-/// differs. The rebuild savings are the same without the ceremony.
-
 final class CurrentUserProvider extends $FunctionalProvider<User?, User?, User?>
     with $Provider<User?> {
-  /// The signed-in user, or null. The common read for screens that need
-  /// identity but not the rest of the auth state.
-  ///
-  /// These derive from the whole state rather than a `.select` on it —
-  /// [AuthState] is an Equatable value, so an unchanged state is already
-  /// filtered out, and a derived provider only re-emits when its own output
-  /// differs. The rebuild savings are the same without the ceremony.
   CurrentUserProvider._()
     : super(
         from: null,

@@ -12,13 +12,6 @@ import '../../domain/usecases/read_cached_home_feed_usecase.dart';
 
 part 'home_providers.g.dart';
 
-/// Wiring for the storefront.
-///
-/// The feed use cases depend on the taxonomy feature's repository as well as
-/// this one — the featured category and brand strips are that feature's data,
-/// and pointing at its repository rather than re-fetching the same two
-/// endpoints keeps one cache for those rows instead of two that drift.
-
 @Riverpod(keepAlive: true)
 HomeRemoteDataSource homeRemoteDataSource(Ref ref) =>
     HomeRemoteDataSource(ref.watch(dioProvider));

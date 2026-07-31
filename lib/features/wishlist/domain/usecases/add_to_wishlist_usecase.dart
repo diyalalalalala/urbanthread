@@ -8,13 +8,9 @@ class AddToWishlistParams {
 
   final String productId;
 
-  /// Optional preferred variant, so a later move-to-cart can skip the size
-  /// picker. Omitted rather than sent as null when absent.
   final String? variantId;
 }
 
-/// Saves a product. Idempotent, and answers 200 rather than the 201 a create
-/// would normally use.
 class AddToWishlistUseCase extends UseCase<Wishlist, AddToWishlistParams> {
   const AddToWishlistUseCase(this._repository);
 

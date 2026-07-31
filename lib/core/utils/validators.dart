@@ -1,13 +1,3 @@
-/// Client-side form validation.
-///
-/// These deliberately mirror the backend's express-validator rules rather
-/// than inventing stricter ones. A field the client accepts but the server
-/// rejects produces a confusing round trip; a field the client rejects but
-/// the server would have accepted silently blocks a legitimate user. Where
-/// the two must agree, the backend rule is quoted in a comment.
-///
-/// This is a first line of defence only — the server validates independently,
-/// and its 422 field errors are surfaced through `ValidationFailure`.
 abstract final class Validators {
   const Validators._();
 
@@ -16,7 +6,6 @@ abstract final class Validators {
     r'(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)+$',
   );
 
-  /// Backend: `/^[+]?[\d\s().-]{7,20}$/`.
   static final _phonePattern = RegExp(r'^[+]?[\d\s().-]{7,20}$');
 
   static String? required(String? value, {String field = 'This field'}) =>
@@ -29,10 +18,6 @@ abstract final class Validators {
     return null;
   }
 
-  /// Backend rule: at least 8 characters, with an uppercase letter, a
-  /// lowercase letter and a digit. Each condition is reported separately —
-  /// a single "password is invalid" leaves the user guessing which rule
-  /// they missed.
   static String? password(String? value) {
     final password = value ?? '';
     if (password.isEmpty) return 'Password is required';
@@ -47,11 +32,6 @@ abstract final class Validators {
     return null;
   }
 
-  /// For the login form only.
-  ///
-  /// Existing accounts may predate the current password policy, so applying
-  /// [password] here would lock them out of their own account before the
-  /// request is even sent.
   static String? loginPassword(String? value) =>
       (value?.isEmpty ?? true) ? 'Password is required' : null;
 
@@ -61,7 +41,6 @@ abstract final class Validators {
     return null;
   }
 
-  /// Backend: 2..80 characters.
   static String? name(String? value) {
     final trimmed = value?.trim() ?? '';
     if (trimmed.isEmpty) return 'Name is required';
@@ -70,7 +49,6 @@ abstract final class Validators {
     return null;
   }
 
-  /// Optional on registration and on the profile form.
   static String? phone(String? value, {bool isRequired = false}) {
     final trimmed = value?.trim() ?? '';
     if (trimmed.isEmpty) return isRequired ? 'Phone number is required' : null;
@@ -87,7 +65,6 @@ abstract final class Validators {
     return null;
   }
 
-  /// Backend: 10..2000 characters.
   static String? reviewComment(String? value) {
     final trimmed = value?.trim() ?? '';
     if (trimmed.isEmpty) return 'Write a few words about the product';
@@ -96,7 +73,6 @@ abstract final class Validators {
     return null;
   }
 
-  /// Backend: 3..24 characters.
   static String? couponCode(String? value) {
     final trimmed = value?.trim() ?? '';
     if (trimmed.isEmpty) return 'Enter a coupon code';
@@ -106,7 +82,6 @@ abstract final class Validators {
     return null;
   }
 
-  /// Composes validators, returning the first message that applies.
   static String? Function(String?) all(
     List<String? Function(String?)> validators,
   ) =>

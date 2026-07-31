@@ -8,15 +8,12 @@ part of 'product_detail_notifier.dart';
 
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, type=warning
-/// Loads a product page by slug and tracks the variant selection on it.
 
 @ProviderFor(ProductDetailNotifier)
 final productDetailProvider = ProductDetailNotifierFamily._();
 
-/// Loads a product page by slug and tracks the variant selection on it.
 final class ProductDetailNotifierProvider
     extends $NotifierProvider<ProductDetailNotifier, ProductDetailState> {
-  /// Loads a product page by slug and tracks the variant selection on it.
   ProductDetailNotifierProvider._({
     required ProductDetailNotifierFamily super.from,
     required String super.argument,
@@ -64,8 +61,6 @@ final class ProductDetailNotifierProvider
 String _$productDetailNotifierHash() =>
     r'ff1b55be096161787489f1afc8f2e369c9c84e73';
 
-/// Loads a product page by slug and tracks the variant selection on it.
-
 final class ProductDetailNotifierFamily extends $Family
     with
         $ClassFamilyOverride<
@@ -84,16 +79,12 @@ final class ProductDetailNotifierFamily extends $Family
         isAutoDispose: true,
       );
 
-  /// Loads a product page by slug and tracks the variant selection on it.
-
   ProductDetailNotifierProvider call(String slug) =>
       ProductDetailNotifierProvider._(argument: slug, from: this);
 
   @override
   String toString() => r'productDetailProvider';
 }
-
-/// Loads a product page by slug and tracks the variant selection on it.
 
 abstract class _$ProductDetailNotifier extends $Notifier<ProductDetailState> {
   late final _$args = ref.$arg as String;

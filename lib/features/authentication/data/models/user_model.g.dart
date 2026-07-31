@@ -20,7 +20,6 @@ UserModel _$UserModelFromJson(Map<String, dynamic> json) => UserModel(
           ?.map((e) => AddressModel.fromJson(e as Map<String, dynamic>))
           .toList() ??
       const [],
-  isEmailVerified: json['isEmailVerified'] as bool? ?? false,
   isActive: json['isActive'] as bool? ?? true,
   lastLoginAt: json['lastLoginAt'] as String?,
   createdAt: json['createdAt'] as String?,
@@ -34,7 +33,6 @@ Map<String, dynamic> _$UserModelToJson(UserModel instance) => <String, dynamic>{
   'role': instance.role,
   'avatar': instance.avatar,
   'addresses': instance.addresses,
-  'isEmailVerified': instance.isEmailVerified,
   'isActive': instance.isActive,
   'lastLoginAt': instance.lastLoginAt,
   'createdAt': instance.createdAt,

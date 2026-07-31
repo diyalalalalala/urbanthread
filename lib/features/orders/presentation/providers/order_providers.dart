@@ -15,17 +15,10 @@ import '../../domain/usecases/track_order_usecase.dart';
 
 part 'order_providers.g.dart';
 
-/// Wiring for the orders feature.
-///
-/// Separated from the notifiers so the object graph reads in one place, and
-/// so a test can override [orderRepositoryProvider] alone.
-
 @Riverpod(keepAlive: true)
 OrderRemoteDataSource orderRemoteDataSource(Ref ref) =>
     OrderRemoteDataSource(ref.watch(dioProvider));
 
-/// Orders cache into the `account` box — user data, cleared on sign-out,
-/// spared when the catalogue cache is dropped to reclaim space.
 @Riverpod(keepAlive: true)
 OrderLocalDataSource orderLocalDataSource(Ref ref) =>
     OrderLocalDataSource(ref.watch(accountCacheProvider));

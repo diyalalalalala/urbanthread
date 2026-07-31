@@ -53,28 +53,15 @@ abstract class _$MyReviewsNotifier extends $AsyncNotifier<MyReviewsState> {
   }
 }
 
-/// Delivered items the customer has not reviewed yet — the entry point to
-/// `WriteReviewPage`.
-///
-/// Never paginated: the endpoint caps at 50 and returns a bare array.
-
 @ProviderFor(ReviewableProductsNotifier)
 final reviewableProductsProvider = ReviewableProductsNotifierProvider._();
 
-/// Delivered items the customer has not reviewed yet — the entry point to
-/// `WriteReviewPage`.
-///
-/// Never paginated: the endpoint caps at 50 and returns a bare array.
 final class ReviewableProductsNotifierProvider
     extends
         $AsyncNotifierProvider<
           ReviewableProductsNotifier,
           List<ReviewableProduct>
         > {
-  /// Delivered items the customer has not reviewed yet — the entry point to
-  /// `WriteReviewPage`.
-  ///
-  /// Never paginated: the endpoint caps at 50 and returns a bare array.
   ReviewableProductsNotifierProvider._()
     : super(
         from: null,
@@ -96,11 +83,6 @@ final class ReviewableProductsNotifierProvider
 
 String _$reviewableProductsNotifierHash() =>
     r'c1338aa4d5bcc5649d20271afaec4119fb0e9775';
-
-/// Delivered items the customer has not reviewed yet — the entry point to
-/// `WriteReviewPage`.
-///
-/// Never paginated: the endpoint caps at 50 and returns a bare array.
 
 abstract class _$ReviewableProductsNotifier
     extends $AsyncNotifier<List<ReviewableProduct>> {

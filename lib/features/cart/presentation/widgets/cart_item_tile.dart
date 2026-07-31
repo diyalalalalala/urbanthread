@@ -9,11 +9,6 @@ import '../../domain/entities/cart.dart';
 import '../../domain/entities/cart_notice.dart';
 import 'quantity_stepper.dart';
 
-/// One line in the cart, in either of its two forms.
-///
-/// The saved-for-later variant shows the same product but swaps the stepper
-/// for a "move to bag" action, because a parked item has no quantity that
-/// counts — it is excluded from every total until it comes back.
 class CartItemTile extends StatelessWidget {
   const CartItemTile({
     required this.item,
@@ -34,8 +29,6 @@ class CartItemTile extends StatelessWidget {
   final VoidCallback onSaveForLater;
   final VoidCallback onMoveToCart;
 
-  /// The server's explanation for a change it made to this line on the last
-  /// read. Shown inline, next to the thing it is about.
   final CartNotice? notice;
 
   final bool isBusy;
@@ -46,8 +39,6 @@ class CartItemTile extends StatelessWidget {
     final saved = item.savedForLater;
 
     return Opacity(
-      // A line with a request in flight dims rather than disappearing, so the
-      // list does not reflow under the customer's thumb mid-tap.
       opacity: isBusy ? 0.6 : 1,
       child: Padding(
         padding: const EdgeInsets.symmetric(vertical: AppDimens.space16),
@@ -142,8 +133,6 @@ class _VariantLine extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Colour and size live under `snapshot`, not on the item — this is the
-    // only place they exist on a cart payload.
     final parts = [
       if (item.color.isNotEmpty) item.color,
       if (item.size.isNotEmpty) 'Size ${item.size}',
@@ -172,8 +161,6 @@ class _PriceLine extends StatelessWidget {
       crossAxisAlignment: WrapCrossAlignment.center,
       children: [
         Text(
-          // There is no per-item subtotal on the API — it is unit price times
-          // quantity, computed here.
           Formatters.price(item.lineTotal),
           style: AppTypography.price.copyWith(color: palette.ink, fontSize: 15),
         ),
@@ -184,8 +171,6 @@ class _PriceLine extends StatelessWidget {
           ),
         if (item.priceChanged)
           _Chip(
-            // The snapshot is what the cart is priced at until the server
-            // reconciles it, so this is a heads-up rather than a correction.
             label: item.product.effectivePrice < item.unitPrice
                 ? 'PRICE DROPPED'
                 : 'PRICE CHANGED',
@@ -225,11 +210,7 @@ class _ActiveActions extends StatelessWidget {
           QuantityStepper(
             quantity: item.quantity,
             isBusy: isBusy,
-            // Falls back to the API's own cap when stock is unknown, rather
-            // than disabling the control over missing data.
             maximum: item.maxSelectableQuantity ?? CartItem.maxQuantityPerLine,
-            // Zero is not a valid quantity for the API; the page turns a
-            // decrement at 1 into a removal instead.
             onChanged: onQuantityChanged,
           ),
           _TextAction(
@@ -314,11 +295,6 @@ class _TextAction extends StatelessWidget {
   }
 }
 
-/// Renders one reconciliation notice.
-///
-/// These are worth real estate: they are the customer's only explanation for a
-/// cart that changed between sessions, and the server regenerates them on
-/// every read, so nothing else will ever tell them.
 class _NoticeStrip extends StatelessWidget {
   const _NoticeStrip({required this.notice});
 

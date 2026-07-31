@@ -6,8 +6,6 @@ import '../repositories/product_repository.dart';
 class RelatedProductsParams {
   const RelatedProductsParams(this.productId, {this.limit = 8});
 
-  /// A real ObjectId. This route is id-based even though detail is
-  /// slug-based, so pass `product.id`, never `product.slug`.
   final String productId;
   final int limit;
 }

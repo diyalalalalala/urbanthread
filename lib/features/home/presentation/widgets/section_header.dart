@@ -4,12 +4,6 @@ import '../../../../core/extensions/context_extensions.dart';
 import '../../../../core/theme/app_dimens.dart';
 import '../../../../core/theme/app_typography.dart';
 
-/// The heading above every strip on the storefront: eyebrow, title, and an
-/// optional "see all" on the right.
-///
-/// Factored out because six strips share it, and a home screen whose section
-/// headings drift apart by a few pixels reads as unfinished more quickly than
-/// almost anything else on the page.
 class SectionHeader extends StatelessWidget {
   const SectionHeader({
     required this.title,

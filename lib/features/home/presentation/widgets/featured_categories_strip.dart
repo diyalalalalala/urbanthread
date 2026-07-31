@@ -8,13 +8,6 @@ import '../../domain/entities/home_feed.dart';
 import 'section_header.dart';
 import 'shimmer_block.dart';
 
-/// Horizontally scrolling strip of featured categories.
-///
-/// Circular artwork here, against the square 4px radius used everywhere else.
-/// The exception is deliberate and is the one the web client makes too:
-/// circles read as "browse by" navigation, squares read as "buy this", and
-/// the distinction is what stops the strip from being mistaken for a rail of
-/// products a few pixels further down the page.
 class FeaturedCategoriesStrip extends StatelessWidget {
   const FeaturedCategoriesStrip({
     required this.section,
@@ -32,13 +25,6 @@ class FeaturedCategoriesStrip extends StatelessWidget {
   static const _diameter = 76.0;
   static const _labelLines = 2;
 
-  /// Artwork, gap, and exactly [_labelLines] lines of the label.
-  ///
-  /// Measured from the resolved style rather than hardcoded: `bodySmall` is
-  /// 12.5 at a 1.5 line height, so two lines need 37.5 and the 44 this used
-  /// to reserve for gap-plus-label was two pixels short of the pair. Reading
-  /// it off the theme also means the strip grows with the system font scale
-  /// instead of clipping at the first accessibility step.
   static double _stripHeight(BuildContext context) {
     final style = context.text.bodySmall;
     final fontSize = MediaQuery.textScalerOf(
@@ -55,9 +41,6 @@ class FeaturedCategoriesStrip extends StatelessWidget {
   Widget build(BuildContext context) {
     if (isLoading && section.isEmpty) return const _StripSkeleton();
 
-    // A failed featured strip is simply not drawn. Unlike a product rail it
-    // carries no merchandising promise the user is waiting on, and the full
-    // taxonomy is one tab away — an error box here would be noise.
     if (section.isEmpty) return const SizedBox.shrink();
 
     return Column(
@@ -116,9 +99,6 @@ class _CategoryChip extends StatelessWidget {
                 placeholderIcon: Icons.category_outlined,
               ),
               const SizedBox(height: AppDimens.space8),
-              // Flexible as well as measured: the height above is right for
-              // this style, but a label is one ellipsis away from fitting
-              // whatever is left rather than overflowing the strip.
               Flexible(
                 child: Text(
                   category.name,
@@ -158,8 +138,6 @@ class _StripSkeleton extends StatelessWidget {
             ),
           ),
           SizedBox(
-            // The same measurement as the loaded strip, so the placeholder
-            // does not resize the page the moment the categories arrive.
             height: FeaturedCategoriesStrip._stripHeight(context),
             child: const Padding(
               padding: EdgeInsets.symmetric(horizontal: AppDimens.pageGutter),

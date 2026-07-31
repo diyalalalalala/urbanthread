@@ -8,20 +8,9 @@ part of 'cart_providers.dart';
 
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, type=warning
-/// Wiring for the cart feature.
-///
-/// The repository is kept alive: it owns the offline write queue, and a
-/// disposed instance would mean a queued mutation losing the object that knows
-/// how to replay it.
 
 @ProviderFor(cartRemoteDataSource)
 final cartRemoteDataSourceProvider = CartRemoteDataSourceProvider._();
-
-/// Wiring for the cart feature.
-///
-/// The repository is kept alive: it owns the offline write queue, and a
-/// disposed instance would mean a queued mutation losing the object that knows
-/// how to replay it.
 
 final class CartRemoteDataSourceProvider
     extends
@@ -31,11 +20,6 @@ final class CartRemoteDataSourceProvider
           CartRemoteDataSource
         >
     with $Provider<CartRemoteDataSource> {
-  /// Wiring for the cart feature.
-  ///
-  /// The repository is kept alive: it owns the offline write queue, and a
-  /// disposed instance would mean a queued mutation losing the object that knows
-  /// how to replay it.
   CartRemoteDataSourceProvider._()
     : super(
         from: null,
@@ -121,17 +105,12 @@ final class CartLocalDataSourceProvider
 String _$cartLocalDataSourceHash() =>
     r'9487d89be56d66211b12082a8c1009c07c0e951d';
 
-/// The cart's slice of the shared `outbox` box.
-
 @ProviderFor(cartOutbox)
 final cartOutboxProvider = CartOutboxProvider._();
-
-/// The cart's slice of the shared `outbox` box.
 
 final class CartOutboxProvider
     extends $FunctionalProvider<OutboxQueue, OutboxQueue, OutboxQueue>
     with $Provider<OutboxQueue> {
-  /// The cart's slice of the shared `outbox` box.
   CartOutboxProvider._()
     : super(
         from: null,

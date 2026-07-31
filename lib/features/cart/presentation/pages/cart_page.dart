@@ -21,11 +21,6 @@ import '../widgets/cart_item_tile.dart';
 import '../widgets/cart_summary_card.dart';
 import '../widgets/coupon_field.dart';
 
-/// The bag.
-///
-/// Reads from the kept-alive cart notifier rather than loading its own copy,
-/// so opening this page after tapping the badge shows what the badge counted
-/// with no spinner in between.
 class CartPage extends ConsumerWidget {
   const CartPage({super.key});
 
@@ -34,9 +29,6 @@ class CartPage extends ConsumerWidget {
     final state = ref.watch(cartProvider);
     final isOnline = ref.watch(isOnlineProvider);
 
-    // One-shot messages: rolled-back mutations, coupon results, and the
-    // server's reconciliation notices. Shown here rather than inside the
-    // notifier so the state stays free of presentation concerns.
     ref.listen(cartProvider, (previous, next) {
       final message = next.message;
       if (message == null || message == previous?.message) return;
@@ -55,14 +47,9 @@ class CartPage extends ConsumerWidget {
             ),
         ],
       ),
-      // Shake re-reads the bag from the server, which is also what flushes the
-      // reconciliation notices — the most useful thing a shopper standing in
-      // front of a changed price can do.
       body: ShakeToRefresh(
         onRefresh: () async {
           await ref.read(cartProvider.notifier).refresh();
-          // The notifier already routes its own messages through the listener
-          // above, so only a clean refresh is confirmed here.
           return ref.read(cartProvider).failure == null ? 'Bag updated' : null;
         },
         child: Column(
@@ -142,8 +129,6 @@ class _Body extends ConsumerWidget {
           vertical: AppDimens.space8,
         ),
         children: [
-          // Cart-wide notices — the ones not tied to a line that survived, so
-          // they have nowhere else to appear.
           ..._orphanNotices(snapshot).map(
             (notice) => Padding(
               padding: const EdgeInsets.only(bottom: AppDimens.space12),
@@ -168,8 +153,6 @@ class _Body extends ConsumerWidget {
           CouponField(
             summary: snapshot.summary,
             isBusy: state.isCouponBusy,
-            // A rejected code is a form error and belongs under the field, so
-            // the validation failure is routed here rather than to a toast.
             errorText: state.failure is ValidationFailure
                 ? state.failure!.message
                 : null,
@@ -188,9 +171,6 @@ class _Body extends ConsumerWidget {
     );
   }
 
-  /// Notices whose `itemId` no longer matches a line in the payload — a
-  /// removal, typically. They still have to be shown; the line they describe
-  /// is precisely the one that is gone.
   List<CartNotice> _orphanNotices(CartSnapshot snapshot) => snapshot.notices
       .where(
         (notice) =>
@@ -221,7 +201,6 @@ class _Body extends ConsumerWidget {
           onMoveToCart: () => notifier.moveToCart(item.id),
           onTapProduct: item.product.slug.isEmpty
               ? null
-              // Product detail is slug-only — there is no `GET /products/:id`.
               : () => context.push(
                     AppRoutes.productDetailPath(item.product.slug),
                   ),
@@ -312,7 +291,6 @@ class _GlobalNotice extends StatelessWidget {
   }
 }
 
-/// Tells the customer that a change they made is recorded but not yet sent.
 class _PendingWritesBanner extends ConsumerWidget {
   const _PendingWritesBanner({required this.state});
 
@@ -349,7 +327,6 @@ class _PendingWritesBanner extends ConsumerWidget {
   }
 }
 
-/// The persistent total and checkout CTA.
 class _CheckoutBar extends ConsumerStatefulWidget {
   const _CheckoutBar({required this.state});
 
@@ -369,8 +346,6 @@ class _CheckoutBarState extends ConsumerState<_CheckoutBar> {
     if (!mounted) return;
     setState(() => _isValidating = false);
 
-    // A null result means the request itself failed; the notifier has already
-    // surfaced that as a message.
     if (validation == null) return;
 
     if (validation.isValid) {
@@ -381,9 +356,6 @@ class _CheckoutBarState extends ConsumerState<_CheckoutBar> {
     await _showBlockers(validation);
   }
 
-  /// Lists every blocker at once, because that is how the endpoint reports
-  /// them — the customer fixes the cart in one pass instead of discovering
-  /// problems one refusal at a time.
   Future<void> _showBlockers(CartValidation validation) => showDialog<void>(
         context: context,
         builder: (context) => AlertDialog(
@@ -460,9 +432,6 @@ class _CheckoutBarState extends ConsumerState<_CheckoutBar> {
               child: SizedBox(
                 height: AppDimens.controlHeightLg,
                 child: FilledButton(
-                  // Checkout is synchronous and server-side; attempting it
-                  // offline would fail at the first request, so the button
-                  // says why instead of pretending.
                   onPressed: isOnline && !busy ? _checkout : null,
                   child: _isValidating
                       ? const SizedBox(

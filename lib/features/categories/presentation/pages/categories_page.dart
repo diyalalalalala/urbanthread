@@ -16,17 +16,6 @@ import '../widgets/brand_tile.dart';
 import '../widgets/category_tree_tile.dart';
 import '../widgets/shimmer_block.dart';
 
-/// Browse the catalogue by taxonomy.
-///
-/// The tree is rendered as expandable sections rather than a two-pane
-/// master/detail because the depth is unbounded — a two-pane layout has to
-/// pick a level to put in each pane, and this taxonomy does not promise to
-/// have exactly two.
-///
-/// Both destinations are plain paths so this screen owns no routing:
-/// [AppRoutes.categoryProductsPath] and [AppRoutes.brandProductsPath] build
-/// `/category/<slug>` and `/brand/<slug>`, which the app router resolves to
-/// the filtered catalogue.
 class CategoriesPage extends ConsumerStatefulWidget {
   const CategoriesPage({super.key});
 
@@ -44,8 +33,6 @@ class _CategoriesPageState extends ConsumerState<CategoriesPage> {
     super.dispose();
   }
 
-  /// Pushed so the listing sits on top of this tab and back returns here,
-  /// rather than replacing the shell and leaving nowhere to go back to.
   void _openCategory(Category category) =>
       context.push(AppRoutes.categoryProductsPath(category.slug));
 
@@ -74,17 +61,12 @@ class _CategoriesPageState extends ConsumerState<CategoriesPage> {
   }
 
   Widget _body(CategoriesState state) {
-    // A first load with an empty cache is the only case that gets a spinner;
-    // anything already on disk is painted immediately and refreshed behind.
     if (state.isLoading && !state.hasAnyContent) {
       return const _CategoriesSkeleton();
     }
 
     final blocking = state.blockingFailure;
     if (blocking != null) {
-      // `AlwaysScrollableScrollPhysics` keeps pull-to-refresh reachable on a
-      // screen whose content is too short to scroll — without it the only way
-      // out of an error state would be to leave and come back.
       return ListView(
         physics: const AlwaysScrollableScrollPhysics(),
         children: [
@@ -114,11 +96,6 @@ class _CategoriesPageState extends ConsumerState<CategoriesPage> {
     );
   }
 
-  /// Flat, case-insensitive match over every category at every depth.
-  ///
-  /// Searching client-side rather than through `/categories?search=` is a
-  /// deliberate trade: the whole taxonomy is already in memory, so filtering
-  /// it is instant and keeps working offline, which a request would not.
   List<Category> _matchingCategories(CategoriesState state) {
     if (_query.isEmpty) return const [];
     final needle = _query.toLowerCase();
@@ -208,8 +185,6 @@ class _CategoriesPageState extends ConsumerState<CategoriesPage> {
         padding: const EdgeInsets.symmetric(horizontal: AppDimens.pageGutter),
         child: CategoryTreeTile(
           node: state.tree[index],
-          // The first branch opens by default so the screen shows the shape
-          // of the taxonomy rather than a wall of closed rows.
           initiallyExpanded: index == 0,
           onOpenCategory: _openCategory,
         ),
@@ -243,9 +218,6 @@ class _CategoriesPageState extends ConsumerState<CategoriesPage> {
               else
                 LayoutBuilder(
                   builder: (context, constraints) {
-                    // Two columns on a phone, three or four as the width
-                    // allows — brand names are short, and a single column
-                    // would make the directory a very long scroll.
                     final columns = constraints.maxWidth >= 900
                         ? 4
                         : constraints.maxWidth >= 600
@@ -275,9 +247,6 @@ class _CategoriesPageState extends ConsumerState<CategoriesPage> {
       );
 }
 
-/// A quiet, in-place message for one section that failed while the rest of
-/// the screen is fine. Not a [FailureView]: this must not look like the whole
-/// screen is broken when only a strip is.
 class _SectionFailure extends StatelessWidget {
   const _SectionFailure({required this.label, this.failureMessage});
 
@@ -310,9 +279,6 @@ class _SectionFailure extends StatelessWidget {
       );
 }
 
-/// Cold-start placeholder, using the same shimmer treatment as the one
-/// inside `AppNetworkImage` so a loading screen and a loading image read as
-/// one system rather than two.
 class _CategoriesSkeleton extends StatelessWidget {
   const _CategoriesSkeleton();
 

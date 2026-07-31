@@ -14,14 +14,12 @@ class GetBrandsParams {
 
   final int page;
 
-  /// Capped at 100 by the validator.
   final int limit;
 
   final String? search;
   final bool? isFeatured;
 }
 
-/// A page of brands, ordered server-side — there is no `sort` parameter.
 class GetBrandsUseCase extends UseCase<Paginated<Brand>, GetBrandsParams> {
   const GetBrandsUseCase(this._repository);
 

@@ -6,15 +6,6 @@ import 'product_model.dart';
 
 part 'review_model.g.dart';
 
-/// Wire format for a review.
-///
-/// `userName` and `userAvatar` are snapshots stored on the review document,
-/// not a populated user — so there is no nested user object to unwrap, and a
-/// review outlives the account that wrote it.
-///
-/// `product` is a bare ObjectId string on this route (the review list does
-/// not populate it), which is why it is typed as a String rather than as a
-/// reference model.
 @JsonSerializable(createToJson: true)
 class ReviewModel {
   const ReviewModel({
@@ -43,7 +34,6 @@ class ReviewModel {
 
   final String userName;
 
-  /// `""` when the reviewer has no avatar — normalised to null in [toEntity].
   final String userAvatar;
 
   final int rating;
@@ -73,7 +63,6 @@ class ReviewModel {
       );
 }
 
-/// Wire format for `GET /reviews/product/{id}/stats`.
 @JsonSerializable(createToJson: true)
 class ReviewStatsModel {
   const ReviewStatsModel({
@@ -88,7 +77,6 @@ class ReviewStatsModel {
   final double average;
   final int count;
 
-  /// String keys "1".."5", same as the product's denormalised histogram.
   final Map<String, int> distribution;
 
   Map<String, dynamic> toJson() => _$ReviewStatsModelToJson(this);
@@ -100,9 +88,6 @@ class ReviewStatsModel {
       );
 }
 
-/// Reads a product reference that is normally a bare ObjectId string but
-/// could arrive populated if a future route decides to populate it. Either
-/// way only the id is wanted here.
 class ProductIdConverter implements JsonConverter<String, Object?> {
   const ProductIdConverter();
 

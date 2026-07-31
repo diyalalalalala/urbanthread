@@ -6,16 +6,6 @@ import '../../../../core/theme/app_typography.dart';
 import '../../../../core/widgets/app_network_image.dart';
 import '../../domain/entities/category.dart';
 
-/// One branch of the taxonomy, rendered as an expandable row.
-///
-/// The widget recurses because the data does: `/categories/tree` nests to an
-/// unbounded depth, so a fixed parent/child pair of widgets would silently
-/// stop rendering at the third tier the moment merchandising adds one.
-///
-/// Two tap targets on purpose. The label navigates to the category's product
-/// list; the chevron only opens the branch. Collapsing those into one gesture
-/// forces a choice between "a parent category is browsable" and "a parent
-/// category is expandable", and both are true here.
 class CategoryTreeTile extends StatefulWidget {
   const CategoryTreeTile({
     required this.node,
@@ -28,8 +18,6 @@ class CategoryTreeTile extends StatefulWidget {
   final CategoryNode node;
   final ValueChanged<Category> onOpenCategory;
 
-  /// Nesting level, used only for the indent. The data's depth is unbounded,
-  /// so the indent is capped rather than multiplied without limit.
   final int depth;
 
   final bool initiallyExpanded;
@@ -71,9 +59,6 @@ class _CategoryTreeTileState extends State<CategoryTreeTile>
     final node = widget.node;
     final isRoot = widget.depth == 0;
 
-    // Beyond the third tier the indent stops growing; deeper branches are
-    // rare and letting them march off the right edge would be worse than a
-    // slightly flatter look.
     final indent = AppDimens.space16 * (widget.depth.clamp(0, 3));
 
     return Column(
@@ -159,10 +144,6 @@ class _CategoryTreeTileState extends State<CategoryTreeTile>
             ],
           ),
         ),
-        // Descendants are not built until the branch is first opened. A deep
-        // taxonomy would otherwise construct every node on the first frame,
-        // most of them never seen. Once built they are kept, so re-opening a
-        // branch costs nothing.
         ClipRect(
           child: AnimatedBuilder(
             animation: _controller,

@@ -11,7 +11,6 @@ import 'product_providers.dart';
 
 part 'product_reviews_notifier.g.dart';
 
-/// The review list under a product, paged and filterable.
 class ProductReviewsState extends Equatable {
   const ProductReviewsState({
     this.query = const ReviewQuery(),
@@ -65,11 +64,6 @@ class ProductReviewsState extends Equatable {
       ];
 }
 
-/// Loads reviews for one product.
-///
-/// Kept separate from [ProductDetailNotifier] so a filter change on the
-/// review list — "4 stars only" — does not re-render the gallery, the variant
-/// selector and the recommendations above it.
 @riverpod
 class ProductReviewsNotifier extends _$ProductReviewsNotifier {
   bool _isFetching = false;
@@ -127,7 +121,6 @@ class ProductReviewsNotifier extends _$ProductReviewsNotifier {
           isLoadingMore: false,
         );
       case FailureResult(:final failure):
-        // Page not advanced, so retrying asks for the same page again.
         state = state.copyWith(isLoadingMore: false, failure: failure);
     }
   }
@@ -135,7 +128,6 @@ class ProductReviewsNotifier extends _$ProductReviewsNotifier {
   Future<void> setSort(ReviewSort sort) =>
       _applyQuery(state.query.copyWith(sort: sort));
 
-  /// Filters to a single star rating; pass null to show all.
   Future<void> filterByRating(int? rating) => _applyQuery(
         rating == null
             ? state.query.copyWith(clearRating: true)

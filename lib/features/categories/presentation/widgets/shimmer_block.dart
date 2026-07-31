@@ -3,13 +3,6 @@ import 'package:flutter/material.dart';
 import '../../../../core/extensions/context_extensions.dart';
 import '../../../../core/theme/app_dimens.dart';
 
-/// A single shimmering rectangle, for text- and tile-shaped skeletons.
-///
-/// Core ships this treatment only *inside* `AppNetworkImage`, where the
-/// implementation is private, so a skeleton that is not an image needs its
-/// own. The timing (1.6s) and the two-surface gradient are copied verbatim on
-/// purpose: two shimmers on screen running at different speeds is more
-/// distracting than no shimmer at all.
 class ShimmerBlock extends StatefulWidget {
   const ShimmerBlock({
     required this.width,

@@ -8,22 +8,9 @@ part of 'home_providers.dart';
 
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, type=warning
-/// Wiring for the storefront.
-///
-/// The feed use cases depend on the taxonomy feature's repository as well as
-/// this one — the featured category and brand strips are that feature's data,
-/// and pointing at its repository rather than re-fetching the same two
-/// endpoints keeps one cache for those rows instead of two that drift.
 
 @ProviderFor(homeRemoteDataSource)
 final homeRemoteDataSourceProvider = HomeRemoteDataSourceProvider._();
-
-/// Wiring for the storefront.
-///
-/// The feed use cases depend on the taxonomy feature's repository as well as
-/// this one — the featured category and brand strips are that feature's data,
-/// and pointing at its repository rather than re-fetching the same two
-/// endpoints keeps one cache for those rows instead of two that drift.
 
 final class HomeRemoteDataSourceProvider
     extends
@@ -33,12 +20,6 @@ final class HomeRemoteDataSourceProvider
           HomeRemoteDataSource
         >
     with $Provider<HomeRemoteDataSource> {
-  /// Wiring for the storefront.
-  ///
-  /// The feed use cases depend on the taxonomy feature's repository as well as
-  /// this one — the featured category and brand strips are that feature's data,
-  /// and pointing at its repository rather than re-fetching the same two
-  /// endpoints keeps one cache for those rows instead of two that drift.
   HomeRemoteDataSourceProvider._()
     : super(
         from: null,

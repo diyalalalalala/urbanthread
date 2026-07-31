@@ -5,10 +5,6 @@ import '../config/app_config.dart';
 import '../storage/token_storage.dart';
 import 'interceptors/auth_interceptor.dart';
 
-/// Builds the single [Dio] the whole app shares.
-///
-/// One instance matters: the auth interceptor holds the session, and a second
-/// client would silently issue unauthenticated requests.
 abstract final class DioClient {
   const DioClient._();
 
@@ -24,11 +20,6 @@ abstract final class DioClient {
         sendTimeout: AppConfig.connectTimeout,
         contentType: Headers.jsonContentType,
         responseType: ResponseType.json,
-        // `validateStatus` is left at its default (2xx only). A 4xx must
-        // raise a DioException so Retrofit never attempts to decode an error
-        // envelope into a success model — the body is still reachable via
-        // `DioException.response`, which is where ErrorMapper reads the
-        // backend's `message` and `errors` from.
       ),
     );
 

@@ -8,7 +8,6 @@ import '../../features/authentication/presentation/pages/login_page.dart';
 import '../../features/authentication/presentation/pages/register_page.dart';
 import '../../features/authentication/presentation/pages/reset_password_page.dart';
 import '../../features/authentication/presentation/pages/splash_page.dart';
-import '../../features/authentication/presentation/pages/verify_email_page.dart';
 import '../../features/authentication/presentation/providers/auth_notifier.dart';
 import '../../features/authentication/presentation/providers/auth_state.dart';
 import '../../features/cart/presentation/pages/cart_page.dart';
@@ -42,11 +41,6 @@ import 'app_shell.dart';
 
 part 'app_router.g.dart';
 
-/// Routes that require a session.
-///
-/// These mirror the backend's `authenticate` middleware. Guarding them here
-/// is a UX decision, not a security one — the server is the real gate; this
-/// just means a signed-out user gets a login screen instead of a 401 toast.
 const _protectedPrefixes = <String>[
   AppRoutes.cart,
   AppRoutes.checkout,
@@ -54,12 +48,9 @@ const _protectedPrefixes = <String>[
   AppRoutes.orders,
   AppRoutes.profile,
   AppRoutes.notifications,
-  // Written out rather than taken from `AppRoutes.orderConfirmation`, which
-  // carries a `:id` segment that would never match a real location.
   '/order-confirmation',
 ];
 
-/// Routes a signed-in user has no business seeing.
 const _guestOnlyPaths = <String>[
   AppRoutes.login,
   AppRoutes.register,
@@ -68,9 +59,6 @@ const _guestOnlyPaths = <String>[
 
 @Riverpod(keepAlive: true)
 GoRouter appRouter(Ref ref) {
-  // A plain `ref.watch` would rebuild the whole GoRouter on every auth
-  // change, discarding the navigation stack. Listening instead lets the
-  // existing router re-evaluate `redirect` in place.
   final refreshListenable = _AuthRefreshListenable(ref);
   ref.onDispose(refreshListenable.dispose);
 
@@ -82,17 +70,11 @@ GoRouter appRouter(Ref ref) {
       final auth = ref.read(authProvider);
       final location = state.matchedLocation;
 
-      // The token is still being checked. Hold on the splash rather than
-      // guessing — sending a signed-in user to login and then bouncing them
-      // back reads as a flicker on every cold start.
       if (!auth.isResolved) {
         return location == AppRoutes.splash ? null : AppRoutes.splash;
       }
 
-      // Verification links must open regardless of session state: the link is
-      // often opened on a device that has never signed in.
-      if (location.startsWith('/verify-email/') ||
-          location.startsWith('/reset-password/')) {
+      if (location.startsWith('/reset-password/')) {
         return null;
       }
 
@@ -103,8 +85,6 @@ GoRouter appRouter(Ref ref) {
         return null;
       }
 
-      // Signed out, heading somewhere that needs a session: carry the
-      // destination so login can resume it instead of dumping the user home.
       final needsAuth = _protectedPrefixes.any(location.startsWith);
       if (needsAuth) {
         return Uri(
@@ -123,7 +103,6 @@ GoRouter appRouter(Ref ref) {
         builder: (context, state) => const SplashPage(),
       ),
 
-      // ── Auth ───────────────────────────────────────────────────────────
       GoRoute(
         path: AppRoutes.login,
         name: AppRouteNames.login,
@@ -135,8 +114,6 @@ GoRouter appRouter(Ref ref) {
         path: AppRoutes.register,
         name: AppRouteNames.register,
         builder: (context, state) => RegisterPage(
-          // Sent via `extra` from the login screen so a redirect survives the
-          // detour through registration.
           redirectTo: state.extra as String?,
         ),
       ),
@@ -152,15 +129,7 @@ GoRouter appRouter(Ref ref) {
           token: state.pathParameters['token'] ?? '',
         ),
       ),
-      GoRoute(
-        path: AppRoutes.verifyEmail,
-        name: AppRouteNames.verifyEmail,
-        builder: (context, state) => VerifyEmailPage(
-          token: state.pathParameters['token'] ?? '',
-        ),
-      ),
 
-      // ── Tabs ───────────────────────────────────────────────────────────
       StatefulShellRoute.indexedStack(
         builder: (context, state, navigationShell) =>
             AppShell(navigationShell: navigationShell),
@@ -213,7 +182,6 @@ GoRouter appRouter(Ref ref) {
         ],
       ),
 
-      // ── Catalogue ──────────────────────────────────────────────────────
       GoRoute(
         path: AppRoutes.products,
         name: AppRouteNames.products,
@@ -227,8 +195,6 @@ GoRouter appRouter(Ref ref) {
         path: AppRoutes.productDetail,
         name: AppRouteNames.productDetail,
         builder: (context, state) => _ProductDetailRoute(
-          // Detail is slug-only — the backend registers no `/:id` route, and
-          // passing an ObjectId here would 404.
           slug: state.pathParameters['slug'] ?? '',
         ),
       ),
@@ -254,17 +220,11 @@ GoRouter appRouter(Ref ref) {
         ),
       ),
 
-      // ── Checkout and orders ────────────────────────────────────────────
       GoRoute(
         path: AppRoutes.checkout,
         name: AppRouteNames.checkout,
         builder: (context, state) => const CheckoutPage(),
       ),
-      // The confirmation carries the placed order in `extra` — the checkout
-      // response *is* the finished order, so re-fetching it would put a
-      // spinner (or an error) on the one screen that must reassure. `extra`
-      // does not survive a deep link or a restore, and there is nothing to
-      // confirm in that case, so those fall through to the order itself.
       GoRoute(
         path: AppRoutes.orderConfirmation,
         name: AppRouteNames.orderConfirmation,
@@ -299,7 +259,6 @@ GoRouter appRouter(Ref ref) {
         ],
       ),
 
-      // ── Account ────────────────────────────────────────────────────────
       GoRoute(
         path: AppRoutes.editProfile,
         name: AppRouteNames.editProfile,
@@ -335,12 +294,6 @@ GoRouter appRouter(Ref ref) {
   );
 }
 
-/// Bridges the auth notifier to GoRouter's [Listenable]-based refresh.
-///
-/// Only genuine sign-in/sign-out transitions are forwarded. Firing on every
-/// [AuthState] change would re-run `redirect` for unrelated updates — a
-/// failed login attempt, a submitting flag — and each of those would reset
-/// the navigation stack.
 class _AuthRefreshListenable extends ChangeNotifier {
   _AuthRefreshListenable(Ref ref) {
     _lastStatus = ref.read(authProvider).status;
@@ -365,11 +318,6 @@ class _AuthRefreshListenable extends ChangeNotifier {
   }
 }
 
-/// Supplies the product page's add-to-cart and wishlist actions.
-///
-/// The products feature deliberately does not import the cart or the wishlist,
-/// so the three are joined here at the route — the one place that already
-/// knows about all of them.
 class _ProductDetailRoute extends ConsumerStatefulWidget {
   const _ProductDetailRoute({required this.slug});
 
@@ -381,19 +329,11 @@ class _ProductDetailRoute extends ConsumerStatefulWidget {
 }
 
 class _ProductDetailRouteState extends ConsumerState<_ProductDetailRoute> {
-  /// True when this page was reached by coming back from a sign-in that the
-  /// heart asked for, and the save still has to be replayed. It cannot be done
-  /// in `initState`: the intent is keyed by slug — all the heart knew before
-  /// leaving — while the request needs the product's ObjectId, which is not
-  /// available until the detail response lands.
   bool _replayPendingSave = false;
 
   @override
   void initState() {
     super.initState();
-    // Claimed once, here, rather than watched: coming back signed in is the
-    // only moment this can fire, and reading it later would re-save on every
-    // subsequent visit to the same product.
     _replayPendingSave = ref.read(isAuthenticatedProvider) &&
         ref.read(pendingWishlistSaveProvider.notifier).claim(widget.slug);
   }
@@ -404,9 +344,6 @@ class _ProductDetailRouteState extends ConsumerState<_ProductDetailRoute> {
       return;
     }
 
-    // Every `/wishlist` route sits behind `authenticate`, so a guest's tap has
-    // to become a sign-in. The intent is parked first because the login screen
-    // returns with `context.go`, which rebuilds this route from scratch.
     ref.read(pendingWishlistSaveProvider.notifier).remember(widget.slug);
     context.push(
       '${AppRoutes.login}'
@@ -420,8 +357,6 @@ class _ProductDetailRouteState extends ConsumerState<_ProductDetailRoute> {
 
     if (_replayPendingSave && product != null) {
       _replayPendingSave = false;
-      // After the frame: this runs during build, and the notifier's optimistic
-      // write would otherwise mutate a provider mid-build.
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (!mounted) return;
         ref.read(wishlistProvider.notifier).add(productId: product.id);
@@ -438,7 +373,6 @@ class _ProductDetailRouteState extends ConsumerState<_ProductDetailRoute> {
             );
       },
       showWishlistButton: true,
-      // Watched, not read, so the heart fills the moment the save settles.
       isWishlisted: (product) => ref.watch(isWishlistedProvider(product.id)),
       onWishlistTap: _onWishlistTap,
     );

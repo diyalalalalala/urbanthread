@@ -6,12 +6,6 @@ import '../entities/product.dart';
 import '../entities/product_query.dart';
 import '../repositories/product_repository.dart';
 
-/// Runs a catalogue search.
-///
-/// An empty term is rejected here rather than sent: `/products/search`
-/// answers a blank `search` with a 400, and paying a round trip to learn that
-/// on every cleared search box would be wasteful — and would flash an error
-/// on a screen the user is simply resetting.
 class SearchProductsUseCase extends UseCase<Paginated<Product>, ProductQuery> {
   const SearchProductsUseCase(this._repository);
 

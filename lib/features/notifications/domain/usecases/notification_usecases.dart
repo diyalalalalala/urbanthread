@@ -52,7 +52,6 @@ class MarkNotificationReadUseCase extends UseCase<AppNotification, String> {
   Future<Result<AppNotification>> call(String id) => _repository.markAsRead(id);
 }
 
-/// Returns how many rows the server actually changed.
 class MarkAllNotificationsReadUseCase extends UseCase<int, NoParams> {
   const MarkAllNotificationsReadUseCase(this._repository);
 
@@ -71,7 +70,6 @@ class DeleteNotificationUseCase extends UseCase<void, String> {
   Future<Result<void>> call(String id) => _repository.deleteNotification(id);
 }
 
-/// Returns how many read rows were removed.
 class DeleteReadNotificationsUseCase extends UseCase<int, NoParams> {
   const DeleteReadNotificationsUseCase(this._repository);
 

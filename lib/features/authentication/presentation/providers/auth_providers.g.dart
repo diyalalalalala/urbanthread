@@ -8,20 +8,9 @@ part of 'auth_providers.dart';
 
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, type=warning
-/// Wiring for the authentication feature.
-///
-/// Kept separate from the state notifier so the object graph is readable in
-/// one place, and so a test can override exactly one edge — usually
-/// [authRepositoryProvider] — without rebuilding the rest.
 
 @ProviderFor(authRemoteDataSource)
 final authRemoteDataSourceProvider = AuthRemoteDataSourceProvider._();
-
-/// Wiring for the authentication feature.
-///
-/// Kept separate from the state notifier so the object graph is readable in
-/// one place, and so a test can override exactly one edge — usually
-/// [authRepositoryProvider] — without rebuilding the rest.
 
 final class AuthRemoteDataSourceProvider
     extends
@@ -31,11 +20,6 @@ final class AuthRemoteDataSourceProvider
           AuthRemoteDataSource
         >
     with $Provider<AuthRemoteDataSource> {
-  /// Wiring for the authentication feature.
-  ///
-  /// Kept separate from the state notifier so the object graph is readable in
-  /// one place, and so a test can override exactly one edge — usually
-  /// [authRepositoryProvider] — without rebuilding the rest.
   AuthRemoteDataSourceProvider._()
     : super(
         from: null,
@@ -475,99 +459,3 @@ final class ChangePasswordUseCaseProvider
 
 String _$changePasswordUseCaseHash() =>
     r'87ac37d0ab027c8def7825f6ae7fbe78f5a1d42f';
-
-@ProviderFor(verifyEmailUseCase)
-final verifyEmailUseCaseProvider = VerifyEmailUseCaseProvider._();
-
-final class VerifyEmailUseCaseProvider
-    extends
-        $FunctionalProvider<
-          VerifyEmailUseCase,
-          VerifyEmailUseCase,
-          VerifyEmailUseCase
-        >
-    with $Provider<VerifyEmailUseCase> {
-  VerifyEmailUseCaseProvider._()
-    : super(
-        from: null,
-        argument: null,
-        retry: null,
-        name: r'verifyEmailUseCaseProvider',
-        isAutoDispose: true,
-        dependencies: null,
-        $allTransitiveDependencies: null,
-      );
-
-  @override
-  String debugGetCreateSourceHash() => _$verifyEmailUseCaseHash();
-
-  @$internal
-  @override
-  $ProviderElement<VerifyEmailUseCase> $createElement(
-    $ProviderPointer pointer,
-  ) => $ProviderElement(pointer);
-
-  @override
-  VerifyEmailUseCase create(Ref ref) {
-    return verifyEmailUseCase(ref);
-  }
-
-  /// {@macro riverpod.override_with_value}
-  Override overrideWithValue(VerifyEmailUseCase value) {
-    return $ProviderOverride(
-      origin: this,
-      providerOverride: $SyncValueProvider<VerifyEmailUseCase>(value),
-    );
-  }
-}
-
-String _$verifyEmailUseCaseHash() =>
-    r'16a79a670026b92b5c43a23aadd5eb73cd1c6bb3';
-
-@ProviderFor(resendVerificationUseCase)
-final resendVerificationUseCaseProvider = ResendVerificationUseCaseProvider._();
-
-final class ResendVerificationUseCaseProvider
-    extends
-        $FunctionalProvider<
-          ResendVerificationUseCase,
-          ResendVerificationUseCase,
-          ResendVerificationUseCase
-        >
-    with $Provider<ResendVerificationUseCase> {
-  ResendVerificationUseCaseProvider._()
-    : super(
-        from: null,
-        argument: null,
-        retry: null,
-        name: r'resendVerificationUseCaseProvider',
-        isAutoDispose: true,
-        dependencies: null,
-        $allTransitiveDependencies: null,
-      );
-
-  @override
-  String debugGetCreateSourceHash() => _$resendVerificationUseCaseHash();
-
-  @$internal
-  @override
-  $ProviderElement<ResendVerificationUseCase> $createElement(
-    $ProviderPointer pointer,
-  ) => $ProviderElement(pointer);
-
-  @override
-  ResendVerificationUseCase create(Ref ref) {
-    return resendVerificationUseCase(ref);
-  }
-
-  /// {@macro riverpod.override_with_value}
-  Override overrideWithValue(ResendVerificationUseCase value) {
-    return $ProviderOverride(
-      origin: this,
-      providerOverride: $SyncValueProvider<ResendVerificationUseCase>(value),
-    );
-  }
-}
-
-String _$resendVerificationUseCaseHash() =>
-    r'57e293097153e410a929a61ed8d1d366b5c23ba9';

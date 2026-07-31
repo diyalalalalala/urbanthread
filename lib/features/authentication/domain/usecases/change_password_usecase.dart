@@ -13,7 +13,6 @@ class ChangePasswordParams {
   final String newPassword;
 }
 
-/// Changes the password for the signed-in user.
 class ChangePasswordUseCase extends UseCase<User, ChangePasswordParams> {
   const ChangePasswordUseCase(this._repository);
 

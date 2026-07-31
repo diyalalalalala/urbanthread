@@ -1,6 +1,5 @@
 import 'package:equatable/equatable.dart';
 
-/// A purchasable colour/size combination of a saved product.
 class WishlistVariant extends Equatable {
   const WishlistVariant({
     required this.id,
@@ -29,11 +28,6 @@ class WishlistVariant extends Equatable {
       [id, size, colorName, colorHex, sku, stock, priceOverride, isActive];
 }
 
-/// A populated reference — `{_id, name, slug}`.
-///
-/// Worth noting the contrast with the cart, where `brand` and `category` come
-/// back as bare ObjectId strings. The wishlist populates them, so its cards
-/// can show a brand name without a second request.
 class WishlistReference extends Equatable {
   const WishlistReference({
     required this.id,
@@ -49,11 +43,6 @@ class WishlistReference extends Equatable {
   List<Object?> get props => [id, name, slug];
 }
 
-/// The product behind a saved item.
-///
-/// The wishlist's own projection, not the catalogue entity: `/wishlist`
-/// selects a fixed card-shaped subset and populates brand and category, so
-/// this is self-contained and needs nothing from the products feature.
 class WishlistProduct extends Equatable {
   const WishlistProduct({
     required this.id,
@@ -75,24 +64,17 @@ class WishlistProduct extends Equatable {
   final String id;
   final String name;
 
-  /// Product detail is slug-only — there is no `GET /products/:id` — so this
-  /// is what a tap on the card routes with.
   final String slug;
 
   final String? imageUrl;
   final double price;
   final double discountPercentage;
 
-  /// Post-discount price, and the figure to compare against
-  /// [WishlistItem.priceWhenAdded].
   final double effectivePrice;
 
-  /// `rating` is nested on the API (`rating.average` / `rating.count`),
-  /// flattened here.
   final double ratingAverage;
   final int ratingCount;
 
-  /// Denormalised sum of variant stock.
   final int totalStock;
 
   final List<WishlistVariant> variants;
@@ -102,8 +84,6 @@ class WishlistProduct extends Equatable {
 
   bool get inStock => totalStock > 0;
 
-  /// The first variant that can actually be bought, so "move to cart" has
-  /// something to send when the item was saved without one.
   WishlistVariant? get firstAvailableVariant {
     for (final variant in variants) {
       if (variant.inStock) return variant;
@@ -138,7 +118,6 @@ class WishlistProduct extends Equatable {
       ];
 }
 
-/// One saved product.
 class WishlistItem extends Equatable {
   const WishlistItem({
     required this.id,
@@ -148,32 +127,19 @@ class WishlistItem extends Equatable {
     this.addedAt,
   });
 
-  /// The wishlist line id. Note it is *not* what the mutation routes take —
-  /// `DELETE /wishlist/{productId}` and `/wishlist/{productId}/move-to-cart`
-  /// both key off the product id.
   final String id;
 
-  /// Always populated and non-null: the server filters out items whose
-  /// product was deleted or deactivated before it answers.
   final WishlistProduct product;
 
-  /// Optional preferred variant, so moving to the cart can skip the size
-  /// picker. Genuinely nullable — most saves do not choose one.
   final String? variantId;
 
-  /// The effective price at the moment it was saved. Purely informational;
-  /// checkout always re-reads the live price.
   final double priceWhenAdded;
 
   final DateTime? addedAt;
 
-  /// The variant to send when moving to the cart: the saved preference if it
-  /// still exists, otherwise the first buyable one.
   WishlistVariant? get variantForCart =>
       product.variantById(variantId) ?? product.firstAvailableVariant;
 
-  /// True when the product has got cheaper since it was saved — the prompt
-  /// `priceWhenAdded` exists for.
   bool get priceDropped =>
       priceWhenAdded > 0 &&
       product.effectivePrice > 0 &&
@@ -186,11 +152,6 @@ class WishlistItem extends Equatable {
   List<Object?> get props => [id, product, variantId, priceWhenAdded, addedAt];
 }
 
-/// The wishlist document as the API hands it back.
-///
-/// Hand-built by the service rather than serialised from Mongoose, which is
-/// why there is no `user` field and no timestamps: it is exactly
-/// `{_id, items, itemCount}`.
 class Wishlist extends Equatable {
   const Wishlist({required this.id, this.items = const [], int? itemCount})
       : _itemCount = itemCount;
@@ -201,8 +162,6 @@ class Wishlist extends Equatable {
   final List<WishlistItem> items;
   final int? _itemCount;
 
-  /// The server's own count, falling back to the list length. They agree in
-  /// practice; the fallback covers an optimistically-edited local copy.
   int get itemCount => _itemCount ?? items.length;
 
   bool get isEmpty => items.isEmpty;
@@ -217,8 +176,6 @@ class Wishlist extends Equatable {
     return null;
   }
 
-  /// Drops a product locally, for an optimistic heart toggle. The count is
-  /// recomputed from the list rather than carried over.
   Wishlist without(String productId) => Wishlist(
         id: id,
         items: items

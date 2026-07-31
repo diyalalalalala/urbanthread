@@ -46,9 +46,6 @@ class NotificationRepositoryImpl implements NotificationRepository {
       final envelope = await _remote.getNotifications(
         page: page,
         limit: limit,
-        // Omitted when false: the backend only narrows on a truthy value, and
-        // sending `unread=false` would read as "give me the read ones", which
-        // it does not do.
         unread: unreadOnly ? true : null,
         type: type == null || type == NotificationType.unknown
             ? null
@@ -57,8 +54,6 @@ class NotificationRepositoryImpl implements NotificationRepository {
 
       final models = envelope.data;
 
-      // Only the plain first page is worth caching — a filtered or deep page
-      // is not what the screen opens on.
       if (page == 1 && !unreadOnly && type == null) {
         await _local.writeNotifications(models);
       }
@@ -88,8 +83,6 @@ class NotificationRepositoryImpl implements NotificationRepository {
     }
   }
 
-  /// The offline read path. Deep pages have nothing cached, so asking for one
-  /// while offline is an empty cache rather than a silent first page.
   Result<Paginated<AppNotification>> _cachedPage(int page) {
     if (page > 1) return const Result.failure(EmptyCacheFailure());
     final cached = cachedNotifications;
@@ -121,8 +114,6 @@ class NotificationRepositoryImpl implements NotificationRepository {
       final envelope = await _remote.markAsRead(id);
       final updated = envelope.data;
 
-      // Swap the one row in the cached page, leaving the rest and its order
-      // untouched.
       final current = _local.readNotifications();
       if (current.isNotEmpty) {
         await _local.writeNotifications(
@@ -163,7 +154,6 @@ class NotificationRepositoryImpl implements NotificationRepository {
   @override
   Future<Result<void>> deleteNotification(String id) async {
     try {
-      // 204, no body.
       await _remote.deleteNotification(id);
       await _local.writeNotifications(
         _local
@@ -180,7 +170,6 @@ class NotificationRepositoryImpl implements NotificationRepository {
   @override
   Future<Result<int>> deleteReadNotifications() async {
     try {
-      // 200 with `{ deleted }` — not a 204.
       final envelope = await _remote.deleteRead();
       await _local.writeNotifications(
         _local

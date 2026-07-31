@@ -12,14 +12,6 @@ import 'home_product_card.dart';
 import 'section_header.dart';
 import 'shimmer_block.dart';
 
-/// One horizontal merchandising rail.
-///
-/// The rail renders itself from a [HomeSection], which means it — not the
-/// page — decides what a failed section looks like. That is the whole
-/// graceful-degradation contract in one place: a rail with items shows them
-/// even if its last refresh failed, a rail with a failure and nothing to show
-/// offers a retry, and a rail that is simply empty disappears rather than
-/// leaving a heading over a void.
 class ProductRail extends StatelessWidget {
   const ProductRail({
     required this.collection,
@@ -34,8 +26,6 @@ class ProductRail extends StatelessWidget {
   final HomeCollection collection;
   final HomeSection<HomeProduct> section;
 
-  /// Given the product's **slug** — product detail is slug-only, so an id
-  /// would not resolve.
   final ValueChanged<HomeProduct> onOpenProduct;
 
   final VoidCallback? onSeeAll;
@@ -44,18 +34,9 @@ class ProductRail extends StatelessWidget {
 
   static const _cardWidth = 156.0;
 
-  /// Kept in step with [HomeProductCard]: its name's `maxLines` and the size
-  /// of the star in its rating row.
   static const _nameLines = 2;
   static const _ratingIconSize = 14.0;
 
-  /// Card width, plus the image's 3:4 height, plus the caption.
-  ///
-  /// A horizontal `ListView` has no intrinsic height to fall back on, so this
-  /// has to be stated up front — which is why the caption is measured from
-  /// the card's own styles rather than being the constant 132 it was. That
-  /// constant was right for one font at one text scale and clipped everywhere
-  /// else.
   static double railHeight(BuildContext context) {
     final text = context.text;
 
@@ -119,8 +100,6 @@ class ProductRail extends StatelessWidget {
   }
 }
 
-/// A rail that could not load, kept to the size of a rail so the rest of the
-/// page does not jump when it eventually does.
 class _RailFailure extends StatelessWidget {
   const _RailFailure({
     required this.collection,
@@ -194,8 +173,6 @@ class _RailSkeleton extends StatelessWidget {
             ),
           ),
           SizedBox(
-            // The same measurement as the loaded rail, so the placeholder
-            // does not resize the page the moment the products arrive.
             height: ProductRail.railHeight(context),
             child: ListView.separated(
               scrollDirection: Axis.horizontal,

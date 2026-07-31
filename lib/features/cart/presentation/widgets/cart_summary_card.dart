@@ -6,20 +6,11 @@ import '../../../../core/theme/app_typography.dart';
 import '../../../../core/utils/formatters.dart';
 import '../../domain/entities/cart_summary.dart';
 
-/// The money block.
-///
-/// Every figure comes from the server, which recomputes them at checkout and
-/// charges what *it* derives — so this never does arithmetic of its own beyond
-/// the free-shipping progress bar.
 class CartSummaryCard extends StatelessWidget {
   const CartSummaryCard({required this.summary, super.key, this.isEstimated = false});
 
   final CartSummary summary;
 
-  /// True while an optimistic edit is in flight and the totals are the
-  /// client's estimate rather than the server's. Said out loud rather than
-  /// hidden — a number that silently corrects itself is worse than one that
-  /// admits it is provisional.
   final bool isEstimated;
 
   @override
@@ -82,8 +73,6 @@ class CartSummaryCard extends StatelessWidget {
               Text('Total', style: context.text.titleMedium),
               const Spacer(),
               Text(
-                // `grandTotal`, never `total` — the latter key does not exist
-                // on this API.
                 Formatters.price(summary.grandTotal),
                 style: AppTypography.price.copyWith(
                   color: palette.ink,
@@ -107,11 +96,6 @@ class CartSummaryCard extends StatelessWidget {
   }
 }
 
-/// How far the cart is from free delivery.
-///
-/// Split out because it is the one part of the summary that is a nudge rather
-/// than a statement of account, and it disappears entirely on an empty cart —
-/// where the threshold is not information, it is an obstacle.
 class FreeShippingProgress extends StatelessWidget {
   const FreeShippingProgress({required this.summary, super.key});
 

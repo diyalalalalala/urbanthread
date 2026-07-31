@@ -2,7 +2,6 @@ import '../../../../core/domain/result.dart';
 import '../../../../core/domain/usecase.dart';
 import '../repositories/search_history_repository.dart';
 
-/// Reads the recent searches shown before a term is typed.
 class GetSearchHistoryUseCase extends UseCase<List<String>, NoParams> {
   const GetSearchHistoryUseCase(this._repository);
 

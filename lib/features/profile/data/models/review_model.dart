@@ -7,7 +7,6 @@ import 'product_ref_model.dart';
 
 part 'review_model.g.dart';
 
-/// Wire format for a review.
 @JsonSerializable()
 class ReviewModel {
   const ReviewModel({
@@ -34,18 +33,11 @@ class ReviewModel {
   @JsonKey(name: '_id', defaultValue: '')
   final String id;
 
-  /// Polymorphic: a bare ObjectId string on `POST`/`PATCH` results, a
-  /// populated `{_id, name, slug, images, price}` on `/reviews/my-reviews`.
-  /// Held raw so both shapes survive a round-trip through the cache, and
-  /// resolved in [toEntity].
   @JsonKey(name: 'product')
   final Object? product;
 
   final String userName;
 
-  /// A plain URL string. `User.avatar` is an object with `{url, publicId}` —
-  /// the review model denormalises just the URL, so the two are not
-  /// interchangeable.
   final String userAvatar;
 
   final int rating;
@@ -89,12 +81,6 @@ class ReviewModel {
   }
 }
 
-/// One row of `GET /reviews/reviewable`.
-///
-/// This is an aggregation pipeline, not a collection read: it has no `_id`
-/// (the `$project` stage drops it), no pagination, and a hard cap of 50. So
-/// `product` — the id string — is the identity field, and there is nothing to
-/// key a list off other than that.
 @JsonSerializable(createToJson: false)
 class ReviewableProductModel {
   const ReviewableProductModel({
@@ -111,13 +97,11 @@ class ReviewableProductModel {
   factory ReviewableProductModel.fromJson(Map<String, dynamic> json) =>
       _$ReviewableProductModelFromJson(json);
 
-  /// The product ObjectId, as a string.
   final String product;
 
   final String productName;
   final String slug;
 
-  /// A single URL, not the usual images array.
   final String image;
 
   final String brandName;
@@ -137,8 +121,6 @@ class ReviewableProductModel {
       );
 }
 
-/// Body for `POST /reviews`. The validator accepts these four keys and
-/// nothing else.
 @JsonSerializable(createFactory: false, includeIfNull: false)
 class CreateReviewRequest {
   const CreateReviewRequest({
@@ -152,15 +134,11 @@ class CreateReviewRequest {
   final int rating;
   final String comment;
 
-  /// Omitted rather than sent as null — an absent key is what "no title"
-  /// means to the validator.
   final String? title;
 
   Map<String, dynamic> toJson() => _$CreateReviewRequestToJson(this);
 }
 
-/// Body for `PATCH /reviews/{id}`. Every field is optional, but sending all
-/// three as null is a 400 — the caller must include at least one.
 @JsonSerializable(createFactory: false, includeIfNull: false)
 class UpdateReviewRequest {
   const UpdateReviewRequest({this.rating, this.title, this.comment});

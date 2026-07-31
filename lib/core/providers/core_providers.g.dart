@@ -8,24 +8,9 @@ part of 'core_providers.dart';
 
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, type=warning
-/// Singletons that must exist before the widget tree does.
-///
-/// [SharedPreferences] and [TokenStorage] are asynchronous to create but
-/// synchronous to read, and the router needs to know at first frame whether
-/// there is a session. Rather than make every consumer await, bootstrap
-/// resolves them and overrides these two providers in `ProviderScope`, so the
-/// rest of the graph can depend on plain values.
 
 @ProviderFor(sharedPreferences)
 final sharedPreferencesProvider = SharedPreferencesProvider._();
-
-/// Singletons that must exist before the widget tree does.
-///
-/// [SharedPreferences] and [TokenStorage] are asynchronous to create but
-/// synchronous to read, and the router needs to know at first frame whether
-/// there is a session. Rather than make every consumer await, bootstrap
-/// resolves them and overrides these two providers in `ProviderScope`, so the
-/// rest of the graph can depend on plain values.
 
 final class SharedPreferencesProvider
     extends
@@ -35,13 +20,6 @@ final class SharedPreferencesProvider
           SharedPreferences
         >
     with $Provider<SharedPreferences> {
-  /// Singletons that must exist before the widget tree does.
-  ///
-  /// [SharedPreferences] and [TokenStorage] are asynchronous to create but
-  /// synchronous to read, and the router needs to know at first frame whether
-  /// there is a session. Rather than make every consumer await, bootstrap
-  /// resolves them and overrides these two providers in `ProviderScope`, so the
-  /// rest of the graph can depend on plain values.
   SharedPreferencesProvider._()
     : super(
         from: null,
@@ -255,16 +233,11 @@ final class SessionEventsProvider
 
 String _$sessionEventsHash() => r'e11d40f19d2b43c3e06c460fc54ac3882ba22132';
 
-/// The one HTTP client. A second instance would not carry the session.
-
 @ProviderFor(dio)
 final dioProvider = DioProvider._();
 
-/// The one HTTP client. A second instance would not carry the session.
-
 final class DioProvider extends $FunctionalProvider<Dio, Dio, Dio>
     with $Provider<Dio> {
-  /// The one HTTP client. A second instance would not carry the session.
   DioProvider._()
     : super(
         from: null,
@@ -430,26 +403,12 @@ final class NetworkInfoProvider
 
 String _$networkInfoHash() => r'5320dc76e63c3cf34355c411fe06a46b0dbb94d7';
 
-/// Live connectivity, for the offline banner and the sync trigger.
-///
-/// Starts optimistic. Assuming online until proven otherwise avoids flashing
-/// an offline banner during the first probe, which is the common case.
-
 @ProviderFor(connectionStatus)
 final connectionStatusProvider = ConnectionStatusProvider._();
-
-/// Live connectivity, for the offline banner and the sync trigger.
-///
-/// Starts optimistic. Assuming online until proven otherwise avoids flashing
-/// an offline banner during the first probe, which is the common case.
 
 final class ConnectionStatusProvider
     extends $FunctionalProvider<AsyncValue<bool>, bool, Stream<bool>>
     with $FutureModifier<bool>, $StreamProvider<bool> {
-  /// Live connectivity, for the offline banner and the sync trigger.
-  ///
-  /// Starts optimistic. Assuming online until proven otherwise avoids flashing
-  /// an offline banner during the first probe, which is the common case.
   ConnectionStatusProvider._()
     : super(
         from: null,

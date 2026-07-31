@@ -8,26 +8,9 @@ part of 'sensor_providers.dart';
 
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, type=warning
-/// Device sensors, wired the same way as the rest of core: a keep-alive
-/// provider per service, and an **auto-disposed** provider per *stream*.
-///
-/// The disposal difference is the whole battery story. A sensor costs nothing
-/// while nobody is subscribed, and these stream providers are subscribed only
-/// while a widget that needs them is on screen — so closing the last guarded
-/// screen, or backgrounding the app, releases the hardware without anyone
-/// having to remember to.
 
 @ProviderFor(proximitySensorService)
 final proximitySensorServiceProvider = ProximitySensorServiceProvider._();
-
-/// Device sensors, wired the same way as the rest of core: a keep-alive
-/// provider per service, and an **auto-disposed** provider per *stream*.
-///
-/// The disposal difference is the whole battery story. A sensor costs nothing
-/// while nobody is subscribed, and these stream providers are subscribed only
-/// while a widget that needs them is on screen — so closing the last guarded
-/// screen, or backgrounding the app, releases the hardware without anyone
-/// having to remember to.
 
 final class ProximitySensorServiceProvider
     extends
@@ -37,14 +20,6 @@ final class ProximitySensorServiceProvider
           ProximitySensorService
         >
     with $Provider<ProximitySensorService> {
-  /// Device sensors, wired the same way as the rest of core: a keep-alive
-  /// provider per service, and an **auto-disposed** provider per *stream*.
-  ///
-  /// The disposal difference is the whole battery story. A sensor costs nothing
-  /// while nobody is subscribed, and these stream providers are subscribed only
-  /// while a widget that needs them is on screen — so closing the last guarded
-  /// screen, or backgrounding the app, releases the hardware without anyone
-  /// having to remember to.
   ProximitySensorServiceProvider._()
     : super(
         from: null,
@@ -123,29 +98,12 @@ final class ShakeDetectorProvider
 
 String _$shakeDetectorHash() => r'330ed6c02f1859a70b1b37746ba2fa413148ec50';
 
-/// Whether this handset has a proximity sensor at all.
-///
-/// Nothing in the UI needs to gate on this — an absent sensor already produces
-/// a stream that never emits — but the settings screen can use it to explain
-/// why the feature is doing nothing.
-
 @ProviderFor(hasProximitySensor)
 final hasProximitySensorProvider = HasProximitySensorProvider._();
-
-/// Whether this handset has a proximity sensor at all.
-///
-/// Nothing in the UI needs to gate on this — an absent sensor already produces
-/// a stream that never emits — but the settings screen can use it to explain
-/// why the feature is doing nothing.
 
 final class HasProximitySensorProvider
     extends $FunctionalProvider<AsyncValue<bool>, bool, FutureOr<bool>>
     with $FutureModifier<bool>, $FutureProvider<bool> {
-  /// Whether this handset has a proximity sensor at all.
-  ///
-  /// Nothing in the UI needs to gate on this — an absent sensor already produces
-  /// a stream that never emits — but the settings screen can use it to explain
-  /// why the feature is doing nothing.
   HasProximitySensorProvider._()
     : super(
         from: null,
@@ -174,29 +132,12 @@ final class HasProximitySensorProvider
 String _$hasProximitySensorHash() =>
     r'52f67729a3e4a91e1fc8e48198eefb57a1eb3a26';
 
-/// `true` while an object is close to the screen.
-///
-/// Re-created when the app leaves or re-enters the foreground: returning a
-/// finished stream cancels the subscription underneath it, which is how the
-/// sensor gets released while the app is in the background.
-
 @ProviderFor(proximityNear)
 final proximityNearProvider = ProximityNearProvider._();
-
-/// `true` while an object is close to the screen.
-///
-/// Re-created when the app leaves or re-enters the foreground: returning a
-/// finished stream cancels the subscription underneath it, which is how the
-/// sensor gets released while the app is in the background.
 
 final class ProximityNearProvider
     extends $FunctionalProvider<AsyncValue<bool>, bool, Stream<bool>>
     with $FutureModifier<bool>, $StreamProvider<bool> {
-  /// `true` while an object is close to the screen.
-  ///
-  /// Re-created when the app leaves or re-enters the foreground: returning a
-  /// finished stream cancels the subscription underneath it, which is how the
-  /// sensor gets released while the app is in the background.
   ProximityNearProvider._()
     : super(
         from: null,
@@ -224,43 +165,11 @@ final class ProximityNearProvider
 
 String _$proximityNearHash() => r'f4a3e2cceea9c029232ee0c7d0024440fe39d0b4';
 
-/// Whether sensitive content should be obscured right now.
-///
-/// Collapses the stream to a plain bool the same way `isOnlineProvider` does,
-/// so a widget reads a boolean instead of unpacking an [AsyncValue].
-///
-/// This deliberately **fails open**. Loading means the first reading has not
-/// arrived, and an error means the sensor stopped answering — and an error is
-/// checked before the value because a stream that dies while an object is near
-/// keeps reporting its last reading, which would leave a mask that can never
-/// be lifted over a screen the customer needs.
-
 @ProviderFor(privacyShield)
 final privacyShieldProvider = PrivacyShieldProvider._();
 
-/// Whether sensitive content should be obscured right now.
-///
-/// Collapses the stream to a plain bool the same way `isOnlineProvider` does,
-/// so a widget reads a boolean instead of unpacking an [AsyncValue].
-///
-/// This deliberately **fails open**. Loading means the first reading has not
-/// arrived, and an error means the sensor stopped answering — and an error is
-/// checked before the value because a stream that dies while an object is near
-/// keeps reporting its last reading, which would leave a mask that can never
-/// be lifted over a screen the customer needs.
-
 final class PrivacyShieldProvider extends $FunctionalProvider<bool, bool, bool>
     with $Provider<bool> {
-  /// Whether sensitive content should be obscured right now.
-  ///
-  /// Collapses the stream to a plain bool the same way `isOnlineProvider` does,
-  /// so a widget reads a boolean instead of unpacking an [AsyncValue].
-  ///
-  /// This deliberately **fails open**. Loading means the first reading has not
-  /// arrived, and an error means the sensor stopped answering — and an error is
-  /// checked before the value because a stream that dies while an object is near
-  /// keeps reporting its last reading, which would leave a mask that can never
-  /// be lifted over a screen the customer needs.
   PrivacyShieldProvider._()
     : super(
         from: null,
@@ -296,12 +205,8 @@ final class PrivacyShieldProvider extends $FunctionalProvider<bool, bool, bool>
 
 String _$privacyShieldHash() => r'4a03434d1771ad21ba42457bcc5adbd516e4fd97';
 
-/// One event per deliberate shake, while the app is in the foreground.
-
 @ProviderFor(shakeEvents)
 final shakeEventsProvider = ShakeEventsProvider._();
-
-/// One event per deliberate shake, while the app is in the foreground.
 
 final class ShakeEventsProvider
     extends
@@ -311,7 +216,6 @@ final class ShakeEventsProvider
           Stream<ShakeEvent>
         >
     with $FutureModifier<ShakeEvent>, $StreamProvider<ShakeEvent> {
-  /// One event per deliberate shake, while the app is in the foreground.
   ShakeEventsProvider._()
     : super(
         from: null,

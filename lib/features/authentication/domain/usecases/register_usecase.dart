@@ -17,10 +17,6 @@ class RegisterParams {
   final String? phone;
 }
 
-/// Creates a customer account and signs in.
-///
-/// `role`, `isActive` and `isEmailVerified` are stripped server-side, so there
-/// is no way to self-provision an administrator.
 class RegisterUseCase extends UseCase<User, RegisterParams> {
   const RegisterUseCase(this._repository);
 

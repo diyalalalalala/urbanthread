@@ -47,11 +47,6 @@ class _ForgotPasswordPageState extends ConsumerState<ForgotPasswordPage> {
     setState(() {
       _isSubmitting = false;
       switch (result) {
-        // The server's message is shown verbatim. It is deliberately
-        // non-committal ("If an account exists for that address…") so the
-        // endpoint cannot be used to discover which addresses are
-        // registered — a friendlier, more definite string would leak exactly
-        // what the wording withholds.
         case Success(:final value):
           _confirmation = value;
         case FailureResult(:final failure):

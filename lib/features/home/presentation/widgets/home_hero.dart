@@ -6,19 +6,13 @@ import '../../../../core/extensions/context_extensions.dart';
 import '../../../../core/theme/app_dimens.dart';
 import '../../../../core/theme/app_typography.dart';
 
-/// The block at the top of the storefront: a greeting and the season's line.
-///
-/// Featuring a full-bleed hero image background.
 class HomeHero extends StatelessWidget {
   const HomeHero({super.key, this.userName, this.onShopAll});
 
-  /// The signed-in customer's name, or null when browsing signed out.
   final String? userName;
 
   final VoidCallback? onShopAll;
 
-  /// Greets by clock rather than by session, so a signed-out visitor gets a
-  /// warm opening line too instead of a conspicuous blank.
   static String greetingFor(DateTime now) {
     final hour = now.hour;
     if (hour < 12) return 'Good morning';
@@ -30,8 +24,6 @@ class HomeHero extends StatelessWidget {
   Widget build(BuildContext context) {
     final palette = context.palette;
     final greeting = greetingFor(DateTime.now());
-    // Only the first name: a full legal name in a greeting reads like a
-    // billing statement.
     final firstName = userName?.trim().split(RegExp(r'\s+')).firstOrNull;
 
     return Container(

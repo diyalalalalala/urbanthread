@@ -4,10 +4,6 @@ import '../../domain/entities/app_notification.dart';
 
 part 'notification_model.g.dart';
 
-/// Wire format for a notification.
-///
-/// List responses are `.lean()`, so there is no `id` virtual — `_id` is the
-/// only identifier present on every path.
 @JsonSerializable()
 class NotificationModel {
   const NotificationModel({
@@ -31,16 +27,12 @@ class NotificationModel {
   @JsonKey(name: '_id', defaultValue: '')
   final String id;
 
-  /// `"user"` or `"admin"`. The customer app only ever receives `"user"`
-  /// rows — the route filters by the caller's audience — but it is carried
-  /// through rather than dropped so an unexpected row is visible in a log.
   final String audience;
 
   final String type;
   final String title;
   final String message;
 
-  /// Defaults to `""`, not null.
   final String link;
 
   final String entityType;
@@ -52,8 +44,6 @@ class NotificationModel {
 
   Map<String, dynamic> toJson() => _$NotificationModelToJson(this);
 
-  /// Used to keep the offline copy in step with a read/unread mutation
-  /// without re-fetching the page.
   NotificationModel copyWith({bool? isRead, String? readAt}) =>
       NotificationModel(
         id: id,
@@ -85,7 +75,6 @@ class NotificationModel {
       );
 }
 
-/// `GET /notifications/unread-count` → `{ unread: 3 }`.
 @JsonSerializable(createToJson: false)
 class UnreadCountModel {
   const UnreadCountModel({this.unread = 0});
@@ -96,7 +85,6 @@ class UnreadCountModel {
   final int unread;
 }
 
-/// `PATCH /notifications/read-all` → `{ updated: 7 }`.
 @JsonSerializable(createToJson: false)
 class UpdatedCountModel {
   const UpdatedCountModel({this.updated = 0});
@@ -107,8 +95,6 @@ class UpdatedCountModel {
   final int updated;
 }
 
-/// `DELETE /notifications/read` → `{ deleted: 7 }`, returned with a 200 —
-/// unlike `DELETE /notifications/{id}`, which answers 204 and no body.
 @JsonSerializable(createToJson: false)
 class DeletedCountModel {
   const DeletedCountModel({this.deleted = 0});

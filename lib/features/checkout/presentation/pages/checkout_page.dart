@@ -12,7 +12,6 @@ import '../../../../core/utils/formatters.dart';
 import '../../../../core/widgets/app_network_image.dart';
 import '../../../../core/widgets/privacy_guard.dart';
 import '../../../../core/widgets/state_views.dart';
-import '../../../authentication/presentation/providers/auth_notifier.dart';
 import '../../../orders/domain/entities/order.dart';
 import '../../../orders/domain/entities/order_failures.dart';
 import '../../../orders/presentation/widgets/order_pricing_summary.dart';
@@ -24,12 +23,6 @@ import '../widgets/address_selector.dart';
 import '../widgets/coupon_section.dart';
 import '../widgets/payment_method_selector.dart';
 
-/// The place-order screen.
-///
-/// One page, no wizard, because the flow really is one step: there is no
-/// payment gateway to hand off to and nothing to come back from. Choose an
-/// address, choose how to pay, review, submit — and the response to that
-/// submission is the finished order.
 class CheckoutPage extends ConsumerWidget {
   const CheckoutPage({super.key});
 
@@ -38,9 +31,6 @@ class CheckoutPage extends ConsumerWidget {
     final state = ref.watch(checkoutProvider);
     final notifier = ref.read(checkoutProvider.notifier);
 
-    // The whole scaffold, not just the body: the delivery address is in the
-    // body but the grand total is in the bottom bar, and both are things a
-    // shopper would rather not show the person beside them.
     return PrivacyGuard(
       label: 'Checkout hidden',
       child: Scaffold(
@@ -61,8 +51,6 @@ class CheckoutPage extends ConsumerWidget {
   }
 }
 
-/// The load error, which for checkout is usually *informative* rather than
-/// broken: `GET /cart/validate` answers 422 with one entry per blocker.
 class _LoadFailure extends StatelessWidget {
   const _LoadFailure({required this.failure, required this.onRetry});
 
@@ -71,9 +59,6 @@ class _LoadFailure extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Not a transport problem — the server is telling us exactly what is
-    // wrong with the basket, and every reason should be shown at once so the
-    // customer fixes them in a single pass.
     if (failure is ValidationFailure) {
       final reasons = OrderFailures.reasons(failure);
 
@@ -113,9 +98,6 @@ class _LoadFailure extends StatelessWidget {
                 children: [
                   OutlinedButton(
                     style: AppTheme.hugContent,
-                    // Checkout is always pushed from the basket, so popping
-                    // returns to it with its state intact. The fallback only
-                    // matters for a deep link straight here.
                     onPressed: () => context.popOrGo(AppRoutes.cart),
                     child: const Text('BACK TO BASKET'),
                   ),
@@ -157,10 +139,6 @@ class _Body extends ConsumerWidget {
           AppDimens.space32,
         ),
         children: [
-          if (state.isEmailUnverified) ...[
-            const _VerifyEmailCard(),
-            const SizedBox(height: AppDimens.space20),
-          ],
           if (state.isOffline) ...[
             const _OfflineCard(),
             const SizedBox(height: AppDimens.space20),
@@ -259,18 +237,12 @@ class _Body extends ConsumerWidget {
           if (state.appliedCoupon != null) ...[
             const SizedBox(height: AppDimens.space8),
             Text(
-              // The summary above comes from the server and does not yet know
-              // about a code entered on this screen — it is applied inside the
-              // order transaction. Saying so beats showing a total that
-              // silently changes at the last moment.
               'Your coupon is applied when the order is placed, so the total '
               'above does not include it yet.',
               style: context.text.bodySmall,
             ),
           ],
 
-          // The demo switch, offered only where it can do anything: it forces
-          // the mock gateway to decline and is ignored by cash on delivery.
           if (state.paymentMethod == PaymentMethod.mockGateway) ...[
             const SizedBox(height: AppDimens.space16),
             SwitchListTile(
@@ -386,78 +358,6 @@ class _LineTile extends StatelessWidget {
   }
 }
 
-/// The verified-email gate.
-///
-/// `POST /orders` sits behind `requireVerifiedEmail`, so an unconfirmed
-/// address turns checkout into a 403 that reads "you do not have permission
-/// to do that" — technically accurate and completely unhelpful. Catching it
-/// here means the customer learns what is wrong and can fix it without
-/// leaving the screen.
-class _VerifyEmailCard extends ConsumerWidget {
-  const _VerifyEmailCard();
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final palette = context.palette;
-    final email = ref.watch(currentUserProvider)?.email ?? 'your address';
-
-    return Container(
-      padding: const EdgeInsets.all(AppDimens.space16),
-      decoration: BoxDecoration(
-        color: palette.warningSubtle,
-        borderRadius: AppDimens.borderRadius,
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Icon(Icons.mark_email_unread_outlined, color: palette.warning),
-              const SizedBox(width: AppDimens.space12),
-              Expanded(
-                child: Text(
-                  'Confirm your email to order',
-                  style: context.text.titleSmall
-                      ?.copyWith(color: palette.warning),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: AppDimens.space8),
-          Text(
-            'We sent a link to $email. Open it to confirm your address, then '
-            'come back here — orders stay closed until then.',
-            style: context.text.bodySmall?.copyWith(color: palette.warning),
-          ),
-          const SizedBox(height: AppDimens.space12),
-          Row(
-            children: [
-              OutlinedButton(
-                style: AppTheme.hugContent,
-                onPressed: () async {
-                  final message = await ref
-                      .read(checkoutProvider.notifier)
-                      .resendVerificationEmail();
-                  if (message != null && context.mounted) {
-                    context.showSnack(message);
-                  }
-                },
-                child: const Text('RESEND LINK'),
-              ),
-              const SizedBox(width: AppDimens.space8),
-              TextButton(
-                onPressed: () =>
-                    ref.read(checkoutProvider.notifier).recheckVerification(),
-                child: const Text("I'VE CONFIRMED IT"),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-}
-
 class _OfflineCard extends StatelessWidget {
   const _OfflineCard();
 
@@ -477,9 +377,6 @@ class _OfflineCard extends StatelessWidget {
           const SizedBox(width: AppDimens.space12),
           Expanded(
             child: Text(
-              // Orders are never queued: prices and stock are confirmed at the
-              // instant of purchase, so a promise made offline could not be
-              // kept.
               'You are offline. Orders are confirmed against live stock and '
               'prices, so this one cannot be saved for later — reconnect to '
               'place it.',
@@ -492,7 +389,6 @@ class _OfflineCard extends StatelessWidget {
   }
 }
 
-/// The submit bar: the total, the button, and whatever went wrong last time.
 class _PlaceOrderBar extends ConsumerWidget {
   const _PlaceOrderBar({required this.state});
 
@@ -563,10 +459,6 @@ class _PlaceOrderBar extends ConsumerWidget {
     final order = await ref.read(checkoutProvider.notifier).placeOrder();
     if (order == null || !context.mounted) return;
 
-    // Replacing rather than pushing: there is nothing to go back to. The cart
-    // is empty and the order is placed, so a back gesture onto checkout would
-    // only offer to buy an empty basket. Replacing it also leaves the shell
-    // directly beneath the confirmation, so back lands on the tabs.
     context.pushReplacement(
       AppRoutes.orderConfirmationPath(order.id),
       extra: order,
@@ -574,7 +466,6 @@ class _PlaceOrderBar extends ConsumerWidget {
   }
 }
 
-/// Explains a refused `POST /orders`.
 class _FailureNotice extends StatelessWidget {
   const _FailureNotice({required this.failure});
 
@@ -608,11 +499,6 @@ class _FailureNotice extends StatelessWidget {
           if (declined) ...[
             const SizedBox(height: AppDimens.space8),
             Text(
-              // The decline is raised inside the server's transaction, so
-              // everything it had done is undone: no order row, no coupon
-              // redemption, stock back on the shelf. There is nothing to
-              // resume or reconcile — placing again is the only path, and the
-              // basket is exactly as it was.
               'Nothing was charged and no order was created — your basket is '
               'untouched. Try cash on delivery, or place the order again.',
               style: context.text.bodySmall?.copyWith(color: palette.danger),

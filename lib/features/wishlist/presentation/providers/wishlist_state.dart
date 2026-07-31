@@ -3,7 +3,6 @@ import 'package:equatable/equatable.dart';
 import '../../../../core/errors/failures.dart';
 import '../../domain/entities/wishlist.dart';
 
-/// Everything the wishlist grid and the saved-items badge need.
 class WishlistState extends Equatable {
   const WishlistState({
     this.wishlist,
@@ -19,17 +18,13 @@ class WishlistState extends Equatable {
 
   final Wishlist? wishlist;
 
-  /// First load only — a refresh over existing data leaves the grid up.
   final bool isLoading;
   final bool isSyncing;
 
   final Failure? failure;
 
-  /// One-shot snack-bar line, cleared once shown.
   final String? message;
 
-  /// Cards with a mutation in flight, keyed by **product** id — the id every
-  /// wishlist route takes.
   final Set<String> busyProductIds;
 
   final int pendingWrites;
@@ -40,7 +35,6 @@ class WishlistState extends Equatable {
 
   bool get isEmpty => !isLoading && (wishlist?.isEmpty ?? false);
 
-  /// Only a failure with nothing behind it should take over the screen.
   bool get showsFailureScreen => failure != null && wishlist == null;
 
   int get itemCount => wishlist?.itemCount ?? 0;

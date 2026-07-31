@@ -8,11 +8,6 @@ import '../../domain/entities/home_feed.dart';
 import 'section_header.dart';
 import 'shimmer_block.dart';
 
-/// Horizontally scrolling strip of featured brands.
-///
-/// Logos are contained, never cropped — brand marks arrive at every aspect
-/// ratio the catalogue's suppliers felt like uploading, and a cover fit would
-/// slice the wordmark off half of them.
 class FeaturedBrandsStrip extends StatelessWidget {
   const FeaturedBrandsStrip({
     required this.section,
@@ -34,9 +29,6 @@ class FeaturedBrandsStrip extends StatelessWidget {
   Widget build(BuildContext context) {
     if (isLoading && section.isEmpty) return const _BrandsSkeleton();
 
-    // Same reasoning as the categories strip: a failed brand strip is left
-    // out rather than replaced with an error, because nothing else on the
-    // page depends on it.
     if (section.isEmpty) return const SizedBox.shrink();
 
     return Column(

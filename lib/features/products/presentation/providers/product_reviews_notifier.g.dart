@@ -8,27 +8,12 @@ part of 'product_reviews_notifier.dart';
 
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, type=warning
-/// Loads reviews for one product.
-///
-/// Kept separate from [ProductDetailNotifier] so a filter change on the
-/// review list — "4 stars only" — does not re-render the gallery, the variant
-/// selector and the recommendations above it.
 
 @ProviderFor(ProductReviewsNotifier)
 final productReviewsProvider = ProductReviewsNotifierFamily._();
 
-/// Loads reviews for one product.
-///
-/// Kept separate from [ProductDetailNotifier] so a filter change on the
-/// review list — "4 stars only" — does not re-render the gallery, the variant
-/// selector and the recommendations above it.
 final class ProductReviewsNotifierProvider
     extends $NotifierProvider<ProductReviewsNotifier, ProductReviewsState> {
-  /// Loads reviews for one product.
-  ///
-  /// Kept separate from [ProductDetailNotifier] so a filter change on the
-  /// review list — "4 stars only" — does not re-render the gallery, the variant
-  /// selector and the recommendations above it.
   ProductReviewsNotifierProvider._({
     required ProductReviewsNotifierFamily super.from,
     required String super.argument,
@@ -77,12 +62,6 @@ final class ProductReviewsNotifierProvider
 String _$productReviewsNotifierHash() =>
     r'55acacda94873b19830b151e019525fab9fec1cc';
 
-/// Loads reviews for one product.
-///
-/// Kept separate from [ProductDetailNotifier] so a filter change on the
-/// review list — "4 stars only" — does not re-render the gallery, the variant
-/// selector and the recommendations above it.
-
 final class ProductReviewsNotifierFamily extends $Family
     with
         $ClassFamilyOverride<
@@ -101,24 +80,12 @@ final class ProductReviewsNotifierFamily extends $Family
         isAutoDispose: true,
       );
 
-  /// Loads reviews for one product.
-  ///
-  /// Kept separate from [ProductDetailNotifier] so a filter change on the
-  /// review list — "4 stars only" — does not re-render the gallery, the variant
-  /// selector and the recommendations above it.
-
   ProductReviewsNotifierProvider call(String productId) =>
       ProductReviewsNotifierProvider._(argument: productId, from: this);
 
   @override
   String toString() => r'productReviewsProvider';
 }
-
-/// Loads reviews for one product.
-///
-/// Kept separate from [ProductDetailNotifier] so a filter change on the
-/// review list — "4 stars only" — does not re-render the gallery, the variant
-/// selector and the recommendations above it.
 
 abstract class _$ProductReviewsNotifier extends $Notifier<ProductReviewsState> {
   late final _$args = ref.$arg as String;

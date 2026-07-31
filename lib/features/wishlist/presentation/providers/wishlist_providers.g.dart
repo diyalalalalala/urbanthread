@@ -8,22 +8,9 @@ part of 'wishlist_providers.dart';
 
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, type=warning
-/// Wiring for the wishlist feature.
-///
-/// The one edge that points at another feature is [cartLocalDataSourceProvider]:
-/// move-to-cart answers with both halves, and the cart half is written to the
-/// cart's own cache so the two never disagree on disk. The dependency runs
-/// wishlist → cart only.
 
 @ProviderFor(wishlistRemoteDataSource)
 final wishlistRemoteDataSourceProvider = WishlistRemoteDataSourceProvider._();
-
-/// Wiring for the wishlist feature.
-///
-/// The one edge that points at another feature is [cartLocalDataSourceProvider]:
-/// move-to-cart answers with both halves, and the cart half is written to the
-/// cart's own cache so the two never disagree on disk. The dependency runs
-/// wishlist → cart only.
 
 final class WishlistRemoteDataSourceProvider
     extends
@@ -33,12 +20,6 @@ final class WishlistRemoteDataSourceProvider
           WishlistRemoteDataSource
         >
     with $Provider<WishlistRemoteDataSource> {
-  /// Wiring for the wishlist feature.
-  ///
-  /// The one edge that points at another feature is [cartLocalDataSourceProvider]:
-  /// move-to-cart answers with both halves, and the cart half is written to the
-  /// cart's own cache so the two never disagree on disk. The dependency runs
-  /// wishlist → cart only.
   WishlistRemoteDataSourceProvider._()
     : super(
         from: null,
@@ -124,17 +105,12 @@ final class WishlistLocalDataSourceProvider
 String _$wishlistLocalDataSourceHash() =>
     r'49f42a6c30fe59571b1df303ae8c7c76310f1ebc';
 
-/// The wishlist's slice of the shared `outbox` box.
-
 @ProviderFor(wishlistOutbox)
 final wishlistOutboxProvider = WishlistOutboxProvider._();
-
-/// The wishlist's slice of the shared `outbox` box.
 
 final class WishlistOutboxProvider
     extends $FunctionalProvider<OutboxQueue, OutboxQueue, OutboxQueue>
     with $Provider<OutboxQueue> {
-  /// The wishlist's slice of the shared `outbox` box.
   WishlistOutboxProvider._()
     : super(
         from: null,

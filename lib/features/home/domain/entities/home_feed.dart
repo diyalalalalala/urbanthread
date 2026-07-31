@@ -5,13 +5,6 @@ import '../../../categories/domain/entities/brand.dart';
 import '../../../categories/domain/entities/category.dart';
 import 'home_product.dart';
 
-/// One strip of the home screen, with its own outcome.
-///
-/// The failure travels *with* the data rather than beside the whole feed
-/// because the home screen is six independent requests stitched together.
-/// A single screen-level error would mean a dead `/products/best-sellers`
-/// blanks four working rails — which is exactly the failure mode this type
-/// exists to prevent.
 class HomeSection<T> extends Equatable {
   const HomeSection({this.items = const [], this.failure});
 
@@ -21,17 +14,12 @@ class HomeSection<T> extends Equatable {
 
   final List<T> items;
 
-  /// Non-null when this strip could not be loaded. It may be non-null *and*
-  /// [items] non-empty: a refresh that failed over content that is already
-  /// on screen, where the right behaviour is to keep showing the content.
   final Failure? failure;
 
   bool get isEmpty => items.isEmpty;
 
   bool get isNotEmpty => items.isNotEmpty;
 
-  /// Whether the strip should be hidden entirely. A rail with nothing to show
-  /// is removed rather than rendered as an empty box with a heading.
   bool get isHidden => items.isEmpty;
 
   HomeSection<T> copyWith({List<T>? items, Failure? failure, bool clearFailure = false}) =>
@@ -44,10 +32,6 @@ class HomeSection<T> extends Equatable {
   List<Object?> get props => [items, failure];
 }
 
-/// Everything the storefront landing screen renders.
-///
-/// Assembled from six endpoints in parallel. Any subset may be empty; the
-/// screen composes whatever arrived.
 class HomeFeed extends Equatable {
   const HomeFeed({
     this.newArrivals = const HomeSection<HomeProduct>.empty(),
@@ -73,10 +57,6 @@ class HomeFeed extends Equatable {
   final HomeSection<Category> featuredCategories;
   final HomeSection<Brand> featuredBrands;
 
-  /// The product rails in the order they appear on screen.
-  ///
-  /// New arrivals lead: it is the rail whose contents change most often, so
-  /// it is the one that rewards a returning visitor for coming back.
   Map<HomeCollection, HomeSection<HomeProduct>> get rails => {
         HomeCollection.newArrivals: newArrivals,
         HomeCollection.trending: trending,
@@ -92,7 +72,6 @@ class HomeFeed extends Equatable {
         HomeCollection.bestSellers => bestSellers,
       };
 
-  /// True when there is at least one thing worth drawing.
   bool get hasContent =>
       newArrivals.isNotEmpty ||
       trending.isNotEmpty ||
@@ -101,10 +80,6 @@ class HomeFeed extends Equatable {
       featuredCategories.isNotEmpty ||
       featuredBrands.isNotEmpty;
 
-  /// A failure worth showing full-screen, or null.
-  ///
-  /// Only meaningful when nothing at all loaded: as long as one rail has
-  /// content, the screen is useful and an error page would be a regression.
   Failure? get blockingFailure {
     if (hasContent) return null;
     for (final section in [
@@ -137,12 +112,6 @@ class HomeFeed extends Equatable {
         featuredBrands: featuredBrands ?? this.featuredBrands,
       );
 
-  /// Overlays [next] on this feed, keeping the current contents of any
-  /// section that came back empty **and** failed.
-  ///
-  /// This is what makes a refresh non-destructive: a rail whose request died
-  /// keeps whatever it was already showing, so pulling to refresh on a train
-  /// cannot empty a screen that was working a moment ago.
   HomeFeed mergeWith(HomeFeed next) => HomeFeed(
         newArrivals: _merge(newArrivals, next.newArrivals),
         trending: _merge(trending, next.trending),

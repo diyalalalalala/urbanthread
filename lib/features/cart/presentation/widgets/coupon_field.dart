@@ -8,13 +8,6 @@ import '../../../../core/theme/app_typography.dart';
 import '../../../../core/utils/formatters.dart';
 import '../../domain/entities/cart_summary.dart';
 
-/// Enter, apply and remove a coupon code.
-///
-/// Three states, and the third is the one that is easy to miss: a code can be
-/// *attached* to the cart and still be worth nothing, because the summary
-/// re-validates it on every read and a code can expire or hit its usage limit
-/// while the cart sits idle. So an applied-but-rejected coupon gets its own
-/// treatment with the server's reason, rather than being drawn as a success.
 class CouponField extends StatefulWidget {
   const CouponField({
     required this.summary,
@@ -28,15 +21,11 @@ class CouponField extends StatefulWidget {
 
   final CartSummary summary;
 
-  /// Returns once the request settles, so the field can clear itself only on
-  /// a code the server actually took.
   final Future<void> Function(String code) onApply;
 
   final VoidCallback onRemove;
   final bool isBusy;
 
-  /// A rejection from the server, shown under the field. A bad code is a form
-  /// error, not a transient toast.
   final String? errorText;
 
   final bool enabled;
@@ -51,8 +40,6 @@ class _CouponFieldState extends State<CouponField> {
   @override
   void didUpdateWidget(CouponField oldWidget) {
     super.didUpdateWidget(oldWidget);
-    // A newly-applied code moves into the chip above, so the input has served
-    // its purpose and should not keep showing what is now displayed twice.
     final applied = widget.summary.coupon?.valid ?? false;
     final wasApplied = oldWidget.summary.coupon?.valid ?? false;
     if (applied && !wasApplied) _controller.clear();
@@ -66,8 +53,6 @@ class _CouponFieldState extends State<CouponField> {
 
   Future<void> _submit() async {
     final code = _controller.text.trim();
-    // The route's validator wants 3–24 characters; checking here saves a round
-    // trip and gives a faster, more specific message than the 422 would.
     if (code.length < 3) return;
     await widget.onApply(code);
   }
@@ -103,8 +88,6 @@ class _CouponFieldState extends State<CouponField> {
                 textCapitalization: TextCapitalization.characters,
                 textInputAction: TextInputAction.done,
                 maxLength: 24,
-                // Uppercased server-side anyway; doing it here means the field
-                // shows what will actually be applied.
                 inputFormatters: [UpperCaseTextFormatter()],
                 onSubmitted: (_) => _submit(),
                 decoration: InputDecoration(
@@ -137,7 +120,6 @@ class _CouponFieldState extends State<CouponField> {
   }
 }
 
-/// Uppercases as the customer types, matching what the backend stores.
 class UpperCaseTextFormatter extends TextInputFormatter {
   const UpperCaseTextFormatter();
 
@@ -227,8 +209,6 @@ class _RejectedCoupon extends StatelessWidget {
           const SizedBox(width: AppDimens.space12),
           Expanded(
             child: Text(
-              // The backend's own reason — "this coupon has expired", "minimum
-              // spend not met". Far more useful than a generic refusal.
               coupon.message ?? '${coupon.code} no longer applies.',
               style: context.text.bodySmall?.copyWith(color: palette.warning),
             ),

@@ -18,13 +18,6 @@ import '../../domain/usecases/get_featured_categories_usecase.dart';
 
 part 'categories_providers.g.dart';
 
-/// Wiring for the taxonomy feature.
-///
-/// The datasources and repository are kept alive: the tree and the brand list
-/// are read by both the categories screen and the home feed, and letting them
-/// dispose between tab switches would rebuild the Retrofit client and re-open
-/// the cache handle for no gain.
-
 @Riverpod(keepAlive: true)
 CategoriesRemoteDataSource categoriesRemoteDataSource(Ref ref) =>
     CategoriesRemoteDataSource(ref.watch(dioProvider));
@@ -68,15 +61,6 @@ GetFeaturedBrandsUseCase getFeaturedBrandsUseCase(Ref ref) =>
 GetBrandUseCase getBrandUseCase(Ref ref) =>
     GetBrandUseCase(ref.watch(categoriesRepositoryProvider));
 
-/// One category with its immediate children, for a category landing screen.
-///
-/// Keyed on the slug-or-id the caller holds; the backend resolves either, so
-/// there is no need for two providers.
-///
-/// One-shot detail reads surface as [AsyncValue], so the [Failure] is thrown
-/// rather than returned. It stays a `Failure` on the way out — the UI matches
-/// on `error is Failure` and hands it straight to `FailureView`, so nothing is
-/// lost by the trip through the error channel.
 @riverpod
 Future<CategoryNode> categoryDetail(Ref ref, String slugOrId) async {
   final result = await ref.watch(getCategoryUseCaseProvider)(slugOrId);
@@ -95,10 +79,6 @@ Future<Brand> brandDetail(Ref ref, String slugOrId) async {
   };
 }
 
-/// The direct children of a category, paged.
-///
-/// Used by the two-pane browser when a branch is deep enough that the tree
-/// response alone would be an awkward amount to render at once.
 @riverpod
 Future<List<Category>> categoryChildren(Ref ref, String parentId) async {
   final result = await ref.watch(getCategoriesUseCaseProvider)(

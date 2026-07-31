@@ -5,16 +5,6 @@ import '../../domain/entities/user.dart';
 
 part 'user_model.g.dart';
 
-/// Wire format for a user.
-///
-/// Two API quirks are absorbed here so the domain never sees them:
-///
-/// 1. **`_id` vs `id`.** The backend has no `toJSON` transform, so hydrated
-///    documents carry both while `.lean()` reads carry only `_id`. Since
-///    `lean` is the repository default, `_id` is the only field present on
-///    every path — it is the one we read.
-/// 2. **Empty strings as null.** `phone` and `avatar.url` default to `""`,
-///    not null. They are normalised on the way into the entity.
 @JsonSerializable(createToJson: true)
 class UserModel {
   const UserModel({
@@ -25,7 +15,6 @@ class UserModel {
     this.role = 'customer',
     this.avatar,
     this.addresses = const [],
-    this.isEmailVerified = false,
     this.isActive = true,
     this.lastLoginAt,
     this.createdAt,
@@ -42,10 +31,8 @@ class UserModel {
   final String role;
   final AvatarModel? avatar;
   final List<AddressModel> addresses;
-  final bool isEmailVerified;
   final bool isActive;
 
-  /// Absent entirely — not null — for a user who has never logged in.
   final String? lastLoginAt;
   final String? createdAt;
 
@@ -61,7 +48,6 @@ class UserModel {
         addresses: addresses
             .map((address) => address.toEntity())
             .toList(growable: false),
-        isEmailVerified: isEmailVerified,
         isActive: isActive,
         lastLoginAt: _parseDate(lastLoginAt),
         createdAt: _parseDate(createdAt),

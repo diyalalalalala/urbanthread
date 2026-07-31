@@ -7,14 +7,6 @@ import '../../../../core/utils/formatters.dart';
 import '../../../../core/widgets/app_network_image.dart';
 import '../../domain/entities/home_product.dart';
 
-/// The compact product card used by the storefront rails.
-///
-/// Home-local on purpose. The catalogue grid's card and this one look similar
-/// but answer different questions — a grid card can afford a wishlist button,
-/// a size run and a two-line description, while a rail card has 150dp and one
-/// job: be recognisable enough to tap. Sharing one widget between them means
-/// a prop for every difference and a card that is slightly wrong in both
-/// places.
 class HomeProductCard extends StatelessWidget {
   const HomeProductCard({
     required this.product,
@@ -43,10 +35,6 @@ class HomeProductCard extends StatelessWidget {
             Stack(
               children: [
                 AspectRatio(
-                  // Catalogue photography is shot 3:4 throughout, so the frame
-                  // is fixed rather than sized to whatever arrives — a rail of
-                  // cards at different heights is the fastest way to make a
-                  // storefront look broken.
                   aspectRatio: AppDimens.productAspectRatio,
                   child: AppNetworkImage(
                     url: product.imageUrl,
@@ -74,8 +62,6 @@ class HomeProductCard extends StatelessWidget {
                       foreground: palette.canvas,
                     ),
                   ),
-                // Stock is recomputed from `totalStock` because the `inStock`
-                // virtual is absent on these lean collection responses.
                 if (!product.inStock)
                   Positioned.fill(
                     child: DecoratedBox(
@@ -105,10 +91,6 @@ class HomeProductCard extends StatelessWidget {
               ),
               const SizedBox(height: AppDimens.space4),
             ],
-            // Flexible for the same reason the rail's height is measured: the
-            // name is the one part of the caption that can give ground, so a
-            // card a pixel short of two lines ellipsises the name rather than
-            // overflowing.
             Flexible(
               child: Text(
                 product.name,
@@ -158,9 +140,6 @@ class HomeProductCard extends StatelessWidget {
                     style: context.text.bodySmall,
                   ),
                   const SizedBox(width: AppDimens.space4),
-                  // The count is what goes when the card runs out of width —
-                  // at a large text scale the star and "4.5" already fill a
-                  // 156dp tile, and the average is the useful half.
                   Flexible(
                     child: Text(
                       '(${Formatters.compact(product.ratingCount)})',

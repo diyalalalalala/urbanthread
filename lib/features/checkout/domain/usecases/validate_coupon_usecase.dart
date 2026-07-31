@@ -10,7 +10,6 @@ class ValidateCouponParams {
   final double? subtotal;
 }
 
-/// Checks a typed-in code before committing to it.
 class ValidateCouponUseCase extends UseCase<CouponPreview, ValidateCouponParams> {
   const ValidateCouponUseCase(this._repository);
 

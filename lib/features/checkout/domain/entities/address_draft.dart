@@ -2,17 +2,6 @@ import 'package:equatable/equatable.dart';
 
 import '../../../authentication/domain/entities/user.dart';
 
-/// The editable fields of an address, for create and update.
-///
-/// The [Address] entity itself is reused from the authentication feature
-/// rather than redefined here — it is the same postal address whether it is
-/// read off the user document or managed through `/addresses`, and a second
-/// definition would drift. What is *not* reusable is the write shape:
-/// [Address] requires an id it does not have until the server assigns one,
-/// and `PATCH` accepts a subset. Hence this.
-///
-/// Field names follow the API exactly. In particular the street line is
-/// **`street`** — there is no `line1`/`line2` pair anywhere in this system.
 class AddressDraft extends Equatable {
   const AddressDraft({
     required this.fullName,
@@ -28,7 +17,6 @@ class AddressDraft extends Equatable {
     this.isDefault = false,
   });
 
-  /// Pre-fills the form when editing an existing entry.
   AddressDraft.from(Address address)
       : fullName = address.fullName,
         phone = address.phone,
@@ -81,9 +69,6 @@ class AddressDraft extends Equatable {
         isDefault: isDefault ?? this.isDefault,
       );
 
-  /// The four fields the backend requires on create. Checked here so the
-  /// form can disable its submit button rather than round-tripping for a 422
-  /// the client could have predicted.
   bool get isComplete =>
       fullName.trim().length >= 2 &&
       phone.trim().isNotEmpty &&

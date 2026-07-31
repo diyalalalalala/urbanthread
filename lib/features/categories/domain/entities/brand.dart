@@ -1,11 +1,5 @@
 import 'package:equatable/equatable.dart';
 
-/// A catalogue brand.
-///
-/// Structurally a near-twin of `Category`, with one trap: the image object is
-/// keyed `logo` here and `image` there. Same `{url, publicId}` shape, different
-/// name — modelling them separately is cheaper than a shared type that has to
-/// be told which key to read.
 class Brand extends Equatable {
   const Brand({
     required this.id,
@@ -27,10 +21,8 @@ class Brand extends Equatable {
   final String slug;
   final String description;
 
-  /// Null when `logo.url` was the API's empty-string "no image" sentinel.
   final String? logoUrl;
 
-  /// Null when unset — again normalised from `""` in the model.
   final String? website;
 
   final String country;
@@ -42,7 +34,6 @@ class Brand extends Equatable {
 
   bool get hasLogo => logoUrl != null;
 
-  /// Up to two letters, for the tile shown when a brand has no logo.
   String get initials {
     final parts = name.trim().split(RegExp(r'\s+'));
     if (parts.isEmpty || parts.first.isEmpty) return '?';

@@ -8,13 +8,6 @@ import '../../../../core/widgets/app_network_image.dart';
 import '../../domain/entities/review.dart';
 import 'rating_stars.dart';
 
-/// The average, the count and the 1–5 histogram.
-///
-/// Fed from `/reviews/product/{id}/stats` rather than from the product's own
-/// `rating` block: the product document holds a denormalised copy that is
-/// only recomputed when the review service writes it back, so it can trail a
-/// review posted seconds ago. Two different numbers on one screen is worse
-/// than one extra request.
 class RatingSummary extends StatelessWidget {
   const RatingSummary({
     required this.stats,
@@ -25,10 +18,8 @@ class RatingSummary extends StatelessWidget {
 
   final ReviewStats stats;
 
-  /// The star filter currently applied to the list below, if any.
   final int? selectedRating;
 
-  /// Tapping a histogram row filters the list. Null makes the bars inert.
   final ValueChanged<int?>? onRatingSelected;
 
   @override
@@ -58,7 +49,6 @@ class RatingSummary extends StatelessWidget {
         Expanded(
           child: Column(
             children: [
-              // Descending, so five stars sits at the top where shoppers look.
               for (var stars = 5; stars >= 1; stars--)
                 _HistogramRow(
                   stars: stars,
@@ -67,8 +57,6 @@ class RatingSummary extends StatelessWidget {
                   isSelected: selectedRating == stars,
                   onTap: onRatingSelected == null
                       ? null
-                      // Tapping the active row clears the filter, which is the
-                      // only way back to "all reviews" from the histogram.
                       : () => onRatingSelected!(
                             selectedRating == stars ? null : stars,
                           ),
@@ -147,7 +135,6 @@ class _HistogramRow extends StatelessWidget {
       );
 }
 
-/// One review.
 class ReviewTile extends StatelessWidget {
   const ReviewTile({required this.review, super.key});
 
@@ -173,8 +160,6 @@ class ReviewTile extends StatelessWidget {
                     Text(review.userName, style: context.text.titleSmall),
                     const SizedBox(height: AppDimens.space2),
                     Text(
-                      // `isEdited` matters to a reader deciding how much to
-                      // trust a review, so it is surfaced rather than hidden.
                       review.isEdited
                           ? '${Formatters.relative(review.createdAt)} · edited'
                           : Formatters.relative(review.createdAt),
@@ -268,8 +253,6 @@ class _Avatar extends StatelessWidget {
   }
 }
 
-/// The review sort control — the review-list counterpart of the catalogue's
-/// sort sheet, with its own closed set of wire values.
 Future<ReviewSort?> showReviewSortSheet(
   BuildContext context, {
   required ReviewSort current,

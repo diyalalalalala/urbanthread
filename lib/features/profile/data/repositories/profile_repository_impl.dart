@@ -16,7 +16,6 @@ import '../datasource/profile_remote_datasource.dart';
 import '../models/recently_viewed_model.dart';
 import '../models/update_profile_request.dart';
 
-/// The `/users/me` API as [Result]s, with an offline read path.
 class ProfileRepositoryImpl implements ProfileRepository {
   const ProfileRepositoryImpl({
     required ProfileRemoteDataSource remote,
@@ -28,11 +27,8 @@ class ProfileRepositoryImpl implements ProfileRepository {
         _networkInfo = networkInfo,
         _preferences = preferences;
 
-  /// Multer's limit. Checked client-side so a 5 MB upload is not pushed over a
-  /// mobile connection only to be rejected on arrival.
   static const maxAvatarBytes = 5 * 1024 * 1024;
 
-  /// The exact set `fileFilter` accepts. Anything else is a 400 server-side.
   static const _allowedMimeTypes = {
     'jpg': 'image/jpeg',
     'jpeg': 'image/jpeg',
@@ -69,9 +65,6 @@ class ProfileRepositoryImpl implements ProfileRepository {
       return Result.success(await _persist(envelope.data));
     } on Object catch (error) {
       final failure = ErrorMapper.toFailure(error);
-      // A transport failure falls back to cache; a 4xx does not — a 401 must
-      // reach the session handler rather than being papered over with a stale
-      // profile.
       if (failure is NetworkFailure || failure is TimeoutFailure) {
         final cached = cachedProfile;
         if (cached != null) return Result.success(cached);
@@ -84,8 +77,6 @@ class ProfileRepositoryImpl implements ProfileRepository {
   Future<Result<User>> updateProfile({String? name, String? phone}) async {
     final request = UpdateProfileRequest(name: name, phone: phone);
     if (request.isEmpty) {
-      // The backend answers 400 for an empty effective update. Refusing here
-      // keeps the error message specific instead of relaying a generic one.
       return const Result.failure(
         ValidationFailure('Change something before saving.'),
       );
@@ -126,12 +117,9 @@ class ProfileRepositoryImpl implements ProfileRepository {
     try {
       final parts = mimeType.split('/');
       final form = FormData.fromMap({
-        // Field name is fixed by `upload.single('avatar')` on the route.
         'avatar': await MultipartFile.fromFile(
           filePath,
           filename: filePath.split(Platform.pathSeparator).last,
-          // Set explicitly: `fileFilter` reads the part's MIME type, and Dio
-          // would otherwise send `application/octet-stream`.
           contentType: DioMediaType(parts.first, parts.last),
         ),
       });
@@ -175,7 +163,6 @@ class ProfileRepositoryImpl implements ProfileRepository {
   @override
   Future<Result<void>> clearRecentlyViewed() async {
     try {
-      // 204, no body — there is nothing to decode, only a status to survive.
       await _remote.clearRecentlyViewed();
       await _local.clearRecentlyViewed();
       return const Result.success(null);
@@ -194,11 +181,6 @@ class ProfileRepositoryImpl implements ProfileRepository {
   List<RecentlyViewedItem> _toEntities(List<RecentlyViewedModel> items) =>
       items.map((item) => item.toEntity()).toList(growable: false);
 
-  /// Writes a freshly fetched user to both stores.
-  ///
-  /// The session copy in preferences is updated too, so an avatar change or a
-  /// rename is reflected in the app shell on the next cold start without
-  /// waiting for `/auth/me`.
   Future<User> _persist(UserModel user) async {
     final json = user.toJson();
     await _local.writeProfile(user);

@@ -3,7 +3,6 @@ import '../../../../core/domain/usecase.dart';
 import '../entities/theme_preference.dart';
 import '../repositories/settings_repository.dart';
 
-/// Persists the chosen colour scheme.
 class SetThemePreferenceUseCase extends UseCase<void, ThemePreference> {
   const SetThemePreferenceUseCase(this._repository);
 
@@ -16,7 +15,6 @@ class SetThemePreferenceUseCase extends UseCase<void, ThemePreference> {
   }
 }
 
-/// Empties the catalogue cache to reclaim storage.
 class ClearCatalogueCacheUseCase extends UseCase<void, NoParams> {
   const ClearCatalogueCacheUseCase(this._repository);
 

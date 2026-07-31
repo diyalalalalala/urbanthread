@@ -18,13 +18,6 @@ import '../../domain/usecases/validate_coupon_usecase.dart';
 
 part 'checkout_providers.g.dart';
 
-/// Wiring for the checkout feature.
-///
-/// One datasource serves three route families — cart reads, coupons and the
-/// address book — because checkout is the only screen that needs all three at
-/// once, and splitting them would mean three Dio-backed objects for six
-/// endpoints.
-
 @Riverpod(keepAlive: true)
 CheckoutRemoteDataSource checkoutRemoteDataSource(Ref ref) =>
     CheckoutRemoteDataSource(ref.watch(dioProvider));

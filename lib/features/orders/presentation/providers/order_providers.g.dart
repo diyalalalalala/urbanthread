@@ -8,18 +8,9 @@ part of 'order_providers.dart';
 
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, type=warning
-/// Wiring for the orders feature.
-///
-/// Separated from the notifiers so the object graph reads in one place, and
-/// so a test can override [orderRepositoryProvider] alone.
 
 @ProviderFor(orderRemoteDataSource)
 final orderRemoteDataSourceProvider = OrderRemoteDataSourceProvider._();
-
-/// Wiring for the orders feature.
-///
-/// Separated from the notifiers so the object graph reads in one place, and
-/// so a test can override [orderRepositoryProvider] alone.
 
 final class OrderRemoteDataSourceProvider
     extends
@@ -29,10 +20,6 @@ final class OrderRemoteDataSourceProvider
           OrderRemoteDataSource
         >
     with $Provider<OrderRemoteDataSource> {
-  /// Wiring for the orders feature.
-  ///
-  /// Separated from the notifiers so the object graph reads in one place, and
-  /// so a test can override [orderRepositoryProvider] alone.
   OrderRemoteDataSourceProvider._()
     : super(
         from: null,
@@ -70,14 +57,8 @@ final class OrderRemoteDataSourceProvider
 String _$orderRemoteDataSourceHash() =>
     r'95c4176735391414f06a2bf9830d66aaf416c4ce';
 
-/// Orders cache into the `account` box — user data, cleared on sign-out,
-/// spared when the catalogue cache is dropped to reclaim space.
-
 @ProviderFor(orderLocalDataSource)
 final orderLocalDataSourceProvider = OrderLocalDataSourceProvider._();
-
-/// Orders cache into the `account` box — user data, cleared on sign-out,
-/// spared when the catalogue cache is dropped to reclaim space.
 
 final class OrderLocalDataSourceProvider
     extends
@@ -87,8 +68,6 @@ final class OrderLocalDataSourceProvider
           OrderLocalDataSource
         >
     with $Provider<OrderLocalDataSource> {
-  /// Orders cache into the `account` box — user data, cleared on sign-out,
-  /// spared when the catalogue cache is dropped to reclaim space.
   OrderLocalDataSourceProvider._()
     : super(
         from: null,

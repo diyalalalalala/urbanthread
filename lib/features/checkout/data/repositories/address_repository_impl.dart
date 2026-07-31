@@ -10,13 +10,6 @@ import '../../domain/repositories/address_repository.dart';
 import '../datasource/checkout_remote_datasource.dart';
 import '../models/checkout_models.dart';
 
-/// The address book, cached for reading.
-///
-/// Unlike the rest of checkout this *is* worth caching: an address is a fact
-/// about the customer, not a claim about stock, so a saved copy stays true
-/// while offline. Writes are never queued though — the id the server assigns
-/// is what `POST /orders` needs, and an address that exists only on the
-/// device has no id to send.
 class AddressRepositoryImpl implements AddressRepository {
   AddressRepositoryImpl({
     required CheckoutRemoteDataSource remote,
@@ -62,8 +55,6 @@ class AddressRepositoryImpl implements AddressRepository {
 
     try {
       final envelope = await _remote.addAddress(_requestOf(draft, partial: false));
-      // The new entry may have become the default — the first address always
-      // does — so the cached list is no longer a safe copy of the book.
       await _cache.delete(_cacheKey);
       return Result.success(envelope.data.toEntity());
     } on Object catch (error) {
@@ -111,8 +102,6 @@ class AddressRepositoryImpl implements AddressRepository {
     }
 
     try {
-      // The response is the whole book, already re-flagged. Taking it
-      // wholesale is the only way to avoid briefly showing two defaults.
       final envelope = await _remote.setDefaultAddress(id);
       await _write(envelope.data);
       return Result.success(_toEntities(envelope.data));
@@ -121,14 +110,6 @@ class AddressRepositoryImpl implements AddressRepository {
     }
   }
 
-  // ── Helpers ──────────────────────────────────────────────────────────
-
-  /// Builds the request body.
-  ///
-  /// On update every field is optional server-side, but sending the complete
-  /// draft is still correct — the form edits a whole address, and a partial
-  /// body would leave a cleared `landmark` at its old value. The flag exists
-  /// so a future field-level edit can send less without changing the shape.
   AddressRequest _requestOf(AddressDraft draft, {required bool partial}) =>
       AddressRequest(
         label: draft.label.trim(),
@@ -141,17 +122,12 @@ class AddressRepositoryImpl implements AddressRepository {
         postalCode: draft.postalCode.trim(),
         country: draft.country.trim(),
         landmark: draft.landmark.trim(),
-        // Never send `isDefault: false` on an update — it is a no-op the
-        // server would still process, and clearing a default is done by
-        // promoting another address, not by unsetting this one.
         isDefault: draft.isDefault ? true : (partial ? null : false),
       );
 
   List<Address> _toEntities(List<AddressModel> models) {
     final addresses =
         models.map((model) => model.toEntity()).toList(growable: true);
-    // Default first, then stable. The picker opens on the first row, so this
-    // is what makes the common case a single tap.
     addresses.sort((a, b) {
       if (a.isDefault == b.isDefault) return 0;
       return a.isDefault ? -1 : 1;

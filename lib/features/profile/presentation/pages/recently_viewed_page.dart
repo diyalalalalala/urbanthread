@@ -13,7 +13,6 @@ import '../providers/recently_viewed_notifier.dart';
 import '../widgets/failure_from_error.dart';
 import '../widgets/rating_stars.dart';
 
-/// The last 20 products the customer opened.
 class RecentlyViewedPage extends ConsumerWidget {
   const RecentlyViewedPage({super.key});
 
@@ -109,7 +108,6 @@ class _RecentTile extends StatelessWidget {
     final product = item.product;
 
     return InkWell(
-      // Detail is slug-only; the id carried alongside it would 404 here.
       onTap: () => context.push(AppRoutes.productDetailPath(product.slug)),
       child: Container(
         padding: const EdgeInsets.all(AppDimens.space12),

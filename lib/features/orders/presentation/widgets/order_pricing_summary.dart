@@ -6,12 +6,6 @@ import '../../../../core/theme/app_typography.dart';
 import '../../../../core/utils/formatters.dart';
 import '../../domain/entities/order.dart';
 
-/// The money breakdown, shared by the order detail screen and the checkout
-/// review step.
-///
-/// The total row reads `grandTotal`. There is no `total` field on this API,
-/// and a summary that quietly showed zero would be the worst possible bug on
-/// this particular screen.
 class OrderPricingSummary extends StatelessWidget {
   const OrderPricingSummary({
     required this.subtotal,
@@ -24,7 +18,6 @@ class OrderPricingSummary extends StatelessWidget {
     this.couponCode,
   });
 
-  /// Builds one straight from a placed order.
   factory OrderPricingSummary.fromOrder(Order order, {Key? key}) =>
       OrderPricingSummary(
         key: key,
@@ -55,16 +48,12 @@ class OrderPricingSummary extends StatelessWidget {
         if (discount > 0)
           _Row(
             label: couponCode == null ? 'Discount' : 'Discount ($couponCode)',
-            // Signed, so it reads as a subtraction rather than a second
-            // charge sitting next to the others.
             value: '− ${Formatters.price(discount)}',
             valueColor: palette.success,
           ),
         _Row(label: taxLabel, value: Formatters.price(tax)),
         _Row(
           label: 'Shipping',
-          // Free shipping is a benefit worth naming. "Rs 0" reads as an
-          // absent value; "Free" reads as something earned.
           value: shipping <= 0 ? 'Free' : Formatters.price(shipping),
           valueColor: shipping <= 0 ? palette.success : null,
         ),
@@ -110,7 +99,6 @@ class _Row extends StatelessWidget {
       );
 }
 
-/// A labelled address block, used for both shipping and billing.
 class OrderAddressBlock extends StatelessWidget {
   const OrderAddressBlock({
     required this.title,
@@ -141,8 +129,6 @@ class OrderAddressBlock extends StatelessWidget {
       );
 }
 
-/// A section heading with a rule under it, matching the web client's
-/// editorial section breaks.
 class OrderSectionHeader extends StatelessWidget {
   const OrderSectionHeader({required this.title, super.key, this.trailing});
 

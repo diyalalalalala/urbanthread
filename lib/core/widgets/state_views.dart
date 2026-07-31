@@ -5,14 +5,6 @@ import '../extensions/context_extensions.dart';
 import '../theme/app_dimens.dart';
 import '../theme/app_typography.dart';
 
-/// The three screen-level states every async view needs, styled once.
-///
-/// Having a single [FailureView] matters more than it looks: it is where the
-/// distinction between "offline" and "broken" gets expressed. An offline
-/// failure offers *Retry* and says the data may be stale; a server failure
-/// says something different. Left to individual screens, that nuance
-/// collapses into a generic "Something went wrong" everywhere.
-
 class LoadingView extends StatelessWidget {
   const LoadingView({super.key, this.message});
 
@@ -138,10 +130,6 @@ class FailureView extends StatelessWidget {
   }
 }
 
-/// A slim strip pinned under the app bar while the device is offline.
-///
-/// Deliberately non-blocking: cached catalogue, cart and wishlist all stay
-/// usable without a connection, so this informs rather than interrupts.
 class OfflineBanner extends StatelessWidget {
   const OfflineBanner({super.key});
 

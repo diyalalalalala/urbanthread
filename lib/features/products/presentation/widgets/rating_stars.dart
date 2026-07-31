@@ -4,11 +4,6 @@ import '../../../../core/extensions/context_extensions.dart';
 import '../../../../core/theme/app_dimens.dart';
 import '../../../../core/utils/formatters.dart';
 
-/// Five stars for a 0–5 average, with optional half-fill and review count.
-///
-/// The API rounds `rating.average` to one decimal, so halves are the finest
-/// distinction worth rendering — anything more precise would be invented
-/// resolution.
 class RatingStars extends StatelessWidget {
   const RatingStars({
     required this.rating,
@@ -21,12 +16,10 @@ class RatingStars extends StatelessWidget {
 
   final double rating;
 
-  /// Number of reviews. Rendered as `(1.2K)` when present.
   final int? count;
 
   final double size;
 
-  /// Prints the numeric average next to the stars, for a summary block.
   final bool showValue;
 
   final Color? color;
@@ -65,9 +58,6 @@ class RatingStars extends StatelessWidget {
     );
   }
 
-  /// A star is half-filled between .25 and .75 of its position — the same
-  /// thresholds Material's own rating widgets use, so 4.5 shows four and a
-  /// half rather than rounding to five.
   IconData _iconFor(int index) {
     final filled = rating - index;
     if (filled >= 0.75) return Icons.star_rounded;

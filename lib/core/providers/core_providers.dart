@@ -15,13 +15,6 @@ import '../storage/token_storage.dart';
 
 part 'core_providers.g.dart';
 
-/// Singletons that must exist before the widget tree does.
-///
-/// [SharedPreferences] and [TokenStorage] are asynchronous to create but
-/// synchronous to read, and the router needs to know at first frame whether
-/// there is a session. Rather than make every consumer await, bootstrap
-/// resolves them and overrides these two providers in `ProviderScope`, so the
-/// rest of the graph can depend on plain values.
 @Riverpod(keepAlive: true)
 SharedPreferences sharedPreferences(Ref ref) => throw UnimplementedError(
       'sharedPreferencesProvider must be overridden in ProviderScope. '
@@ -50,7 +43,6 @@ SessionEvents sessionEvents(Ref ref) {
   return events;
 }
 
-/// The one HTTP client. A second instance would not carry the session.
 @Riverpod(keepAlive: true)
 Dio dio(Ref ref) {
   final tokenStorage = ref.watch(tokenStorageProvider);
@@ -60,8 +52,6 @@ Dio dio(Ref ref) {
   final client = DioClient.create(
     tokenStorage: tokenStorage,
     onSessionExpired: () async {
-      // Order matters: clear credentials first so nothing in-flight can
-      // retry with the dead token, then announce it.
       await tokenStorage.clear();
       await preferences.clearSession();
       await HiveBoxes.clearUserData();
@@ -85,10 +75,6 @@ NetworkInfo networkInfo(Ref ref) => NetworkInfoImpl(
       internetConnection: ref.watch(internetConnectionProvider),
     );
 
-/// Live connectivity, for the offline banner and the sync trigger.
-///
-/// Starts optimistic. Assuming online until proven otherwise avoids flashing
-/// an offline banner during the first probe, which is the common case.
 @Riverpod(keepAlive: true)
 Stream<bool> connectionStatus(Ref ref) =>
     ref.watch(networkInfoProvider).onStatusChange;
@@ -96,9 +82,6 @@ Stream<bool> connectionStatus(Ref ref) =>
 @riverpod
 bool isOnline(Ref ref) =>
     ref.watch(connectionStatusProvider).value ?? true;
-
-// ── Caches ───────────────────────────────────────────────────────────────
-// Boxes are opened during bootstrap, so these are synchronous.
 
 @Riverpod(keepAlive: true)
 CacheStore catalogueCache(Ref ref) =>

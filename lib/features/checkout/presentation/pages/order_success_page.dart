@@ -12,12 +12,6 @@ import '../../../orders/domain/entities/order.dart';
 import '../../../orders/presentation/widgets/order_pricing_summary.dart';
 import '../../../orders/presentation/widgets/order_status_chip.dart';
 
-/// Confirmation, after a successful `POST /orders`.
-///
-/// Takes the placed order as a value rather than re-fetching it by id: the
-/// checkout response *is* the finished order, already in its settled state.
-/// A round trip here would only risk showing a spinner — or an error — on the
-/// one screen that must reassure.
 class OrderSuccessPage extends ConsumerWidget {
   const OrderSuccessPage({required this.order, super.key});
 
@@ -29,18 +23,12 @@ class OrderSuccessPage extends ConsumerWidget {
     final isPaid = order.payment.isPaid;
 
     return PopScope(
-      // The order is placed and the basket is gone; there is no checkout to
-      // return to — it was replaced by this screen. Back drops the stack for
-      // the tabs, which is what the button at the bottom does too: a
-      // confirmation should not be something you have to dismiss twice.
       canPop: false,
       onPopInvokedWithResult: (didPop, _) {
         if (!didPop) context.goHome();
       },
       child: Scaffold(
         backgroundColor: palette.canvas,
-        // Order number, delivery address and what was paid — the confirmation
-        // screen is the densest concentration of order data in the app.
         body: PrivacyGuard(
           label: 'Order details hidden',
           child: SafeArea(
@@ -83,9 +71,6 @@ class OrderSuccessPage extends ConsumerWidget {
                 ),
                 const SizedBox(height: AppDimens.space24),
 
-                // The reference customers quote to support. Given its own
-                // treatment because it is the single most useful thing on the
-                // page.
                 Container(
                   padding: const EdgeInsets.all(AppDimens.space16),
                   decoration: BoxDecoration(
@@ -158,9 +143,6 @@ class OrderSuccessPage extends ConsumerWidget {
 
                 const SizedBox(height: AppDimens.space32),
                 FilledButton(
-                  // Replaces the confirmation rather than stacking on it: an
-                  // order that has already been placed is not worth a second
-                  // screen of celebration on the way back out.
                   onPressed: () => context.pushReplacement(
                     AppRoutes.orderDetailPath(order.id),
                   ),
@@ -180,12 +162,6 @@ class OrderSuccessPage extends ConsumerWidget {
   }
 }
 
-/// The next steps, which genuinely differ by payment method.
-///
-/// Cash on delivery leaves the order `pending` with the payment `pending` —
-/// the courier collects, and only then does the backend mark it paid. The
-/// mock gateway settles during checkout, so that order arrives already
-/// `confirmed` and `paid` and skips a stage.
 class _NextSteps extends StatelessWidget {
   const _NextSteps({required this.order});
 

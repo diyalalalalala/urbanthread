@@ -153,5 +153,3 @@ checkout: applying a coupon, and placing an order.
   warns before submit.
 - **Product detail is slug-only.** There is no `GET /products/:id`, so slugs
   are carried through from list responses.
-- **Checkout and reviews require a verified email.** Both screens explain that
-  rather than surfacing a bare 403.

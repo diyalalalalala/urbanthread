@@ -3,12 +3,6 @@ import 'package:flutter/material.dart';
 import '../../../../core/extensions/context_extensions.dart';
 import '../../../../core/theme/app_dimens.dart';
 
-/// One row of the settings list.
-///
-/// A local copy of the account menu row rather than an import from the profile
-/// feature: two presentation layers importing each other's widgets is how a
-/// shared-widget tangle starts, and the shape is small enough that a copy is
-/// cheaper than the coupling.
 class SettingsTile extends StatelessWidget {
   const SettingsTile({
     required this.icon,
@@ -82,7 +76,6 @@ class SettingsTile extends StatelessWidget {
   }
 }
 
-/// A small caps label above a group of [SettingsTile]s.
 class SettingsSectionHeader extends StatelessWidget {
   const SettingsSectionHeader(this.label, {super.key});
 

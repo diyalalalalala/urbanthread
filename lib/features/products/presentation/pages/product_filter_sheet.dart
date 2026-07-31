@@ -7,8 +7,6 @@ import '../../../../core/utils/formatters.dart';
 import '../../domain/entities/product_filters.dart';
 import '../../domain/entities/product_query.dart';
 
-/// Opens the filter sheet over [query], resolving to the edited query or to
-/// null if it was dismissed without applying.
 Future<ProductQuery?> showProductFilterSheet(
   BuildContext context, {
   required ProductFilters facets,
@@ -29,15 +27,6 @@ Future<ProductQuery?> showProductFilterSheet(
       builder: (context) => ProductFilterSheet(facets: facets, query: query),
     );
 
-/// Every facet `/products/filters` offers, as one editable draft.
-///
-/// The sheet edits a *copy* of the query and only returns it on Apply, so
-/// backing out leaves the grid exactly as it was. Refetching on every chip
-/// tap would be the alternative, and on a mobile connection it makes the
-/// sheet feel broken.
-///
-/// Facet counts come from the endpoint and are shown next to each value —
-/// they are what stop a shopper stacking filters into an empty result set.
 class ProductFilterSheet extends StatefulWidget {
   const ProductFilterSheet({
     required this.facets,
@@ -68,12 +57,9 @@ class _ProductFilterSheetState extends State<ProductFilterSheet> {
       range.min,
       range.max,
     );
-    // A query whose bounds arrived inverted (hand-built deep link) would make
-    // RangeSlider assert, so they are ordered here rather than trusted.
     return RangeValues(start <= end ? start : end, start <= end ? end : start);
   }
 
-  /// Adds or removes [value] from a multi-value facet.
   void _toggle(
     List<String> current,
     String value,
@@ -91,9 +77,6 @@ class _ProductFilterSheetState extends State<ProductFilterSheet> {
   void _apply() {
     var result = _draft;
 
-    // Only send price bounds that actually narrow the catalogue. Sending the
-    // full range would filter on `effectivePrice` for no reason and would
-    // wrongly light up the "filters active" badge.
     final touchedMin = _priceRange.start > _bounds.min;
     final touchedMax = _priceRange.end < _bounds.max;
     result = _bounds.isCollapsed || (!touchedMin && !touchedMax)
@@ -145,9 +128,6 @@ class _ProductFilterSheetState extends State<ProductFilterSheet> {
                     values: _priceRange,
                     min: _bounds.min,
                     max: _bounds.max,
-                    // One division per rupee would be unusable on a wide
-                    // catalogue; 40 steps keeps the thumb snappy and the
-                    // resulting bound is still exact enough to filter on.
                     divisions: 40,
                     labels: RangeLabels(
                       Formatters.price(_priceRange.start),
@@ -165,8 +145,6 @@ class _ProductFilterSheetState extends State<ProductFilterSheet> {
                     spacing: AppDimens.space8,
                     runSpacing: AppDimens.space8,
                     children: [
-                      // Single-select: the `category` parameter takes one slug
-                      // or id, unlike the other facets.
                       for (final category in facets.categories)
                         _FilterChip(
                           label: category.name,
@@ -208,10 +186,6 @@ class _ProductFilterSheetState extends State<ProductFilterSheet> {
                 ],
 
                 if (facets.sizes.isNotEmpty) ...[
-                  // `size` and `color` together are matched with `$elemMatch`,
-                  // so a single variant must satisfy both — picking "M" and
-                  // "Red" finds red mediums, not products that stock a medium
-                  // in some colour and a red in some size.
                   const _SectionHeader(label: 'Size'),
                   Wrap(
                     spacing: AppDimens.space8,
@@ -329,9 +303,6 @@ class _ProductFilterSheetState extends State<ProductFilterSheet> {
                 _SwitchRow(
                   label: 'New arrivals',
                   value: _draft.isNewArrival ?? false,
-                  // Cleared rather than set to false: `isNewArrival=false`
-                  // is a valid filter that would hide every new arrival,
-                  // which is not what switching the toggle off means.
                   onChanged: (value) => setState(() {
                     _draft = value
                         ? _draft.copyWith(isNewArrival: true)

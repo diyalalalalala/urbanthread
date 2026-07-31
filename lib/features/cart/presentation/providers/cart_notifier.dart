@@ -16,38 +16,19 @@ import 'cart_state.dart';
 
 part 'cart_notifier.g.dart';
 
-/// The cart, and the only thing allowed to change it.
-///
-/// Kept alive for the app's lifetime: the bottom-nav badge reads it from every
-/// tab, and letting it dispose when the cart page closes would drop the badge
-/// to zero and re-fetch on the next visit.
-///
-/// Mutations are optimistic. The previous snapshot is captured before the
-/// request, the change is applied locally, and the captured copy is restored
-/// if the server disagrees — a stepper that waits on a round trip before
-/// moving feels broken, and the rollback is what makes that safe.
 @Riverpod(keepAlive: true)
 class CartNotifier extends _$CartNotifier {
   @override
   CartState build() {
     final repository = ref.watch(cartRepositoryProvider);
 
-    // Connectivity returning is the trigger to flush anything queued offline.
-    // Watched rather than polled so a write made in a lift reaches the server
-    // as soon as the doors open, without the customer revisiting the cart.
     ref.listen(connectionStatusProvider, (previous, next) {
       final isOnline = next.value ?? false;
       final wasOnline = previous?.value ?? false;
       if (isOnline && !wasOnline) unawaited(sync());
     });
 
-    // Paint from disk first. The cart is cached precisely so it renders
-    // without a connection, and a spinner over data we already hold would be
-    // a downgrade.
     final cached = repository.cachedCart;
-    // Always silent here, cache or no cache: `state` does not exist until
-    // `build` returns, so `_load` must reach its first `await` without
-    // touching it. The `isLoading` below is the write it would have made.
     unawaited(_load(silent: true));
 
     return CartState(
@@ -57,7 +38,6 @@ class CartNotifier extends _$CartNotifier {
     );
   }
 
-  /// Re-reads the cart from the server.
   Future<void> refresh() => _load(silent: state.snapshot != null);
 
   Future<void> _load({bool silent = false}) async {
@@ -82,7 +62,6 @@ class CartNotifier extends _$CartNotifier {
     }
   }
 
-  /// Replays queued offline writes, then reconciles with the server.
   Future<void> sync() async {
     if (state.isSyncing || !state.hasPendingWrites) return;
 
@@ -96,15 +75,11 @@ class CartNotifier extends _$CartNotifier {
           snapshot: value,
           isSyncing: false,
           pendingWrites: remaining,
-          // Say so explicitly. A cart that silently changes shape the moment
-          // the signal returns is more alarming than one that explains itself.
           message: remaining == 0
               ? 'Your offline changes have been saved.'
               : 'Some offline changes could not be saved.',
         );
       case FailureResult():
-        // Still unreachable. The queue is intact; nothing to tell the user
-        // that the offline banner is not already saying.
         state = state.copyWith(
           isSyncing: false,
           pendingWrites: _pendingWrites,
@@ -112,13 +87,6 @@ class CartNotifier extends _$CartNotifier {
     }
   }
 
-  // ── Mutations ──────────────────────────────────────────────────────────
-
-  /// Adds a variant to the cart.
-  ///
-  /// This is the entry point for the rest of the app — product detail, product
-  /// cards, "buy it again". Returns whether the server accepted it, so the
-  /// caller can navigate or animate on success without re-reading state.
   Future<bool> addItem({
     required String productId,
     required String variantId,
@@ -154,10 +122,6 @@ class CartNotifier extends _$CartNotifier {
     }
   }
 
-  /// Sets a line to an absolute quantity, optimistically.
-  ///
-  /// Dropping to zero is treated as a removal, which is what the stepper's
-  /// minus button implies at 1 — the API would reject `quantity: 0` outright.
   Future<void> setQuantity(String itemId, int quantity) async {
     final current = state.snapshot;
     if (current == null || state.isItemBusy(itemId)) return;
@@ -190,8 +154,6 @@ class CartNotifier extends _$CartNotifier {
     return setQuantity(itemId, item.quantity - 1);
   }
 
-  /// Removes a line. The row disappears immediately and comes back if the
-  /// server refuses.
   Future<void> removeItem(String itemId) async {
     final current = state.snapshot;
     if (current == null || state.isItemBusy(itemId)) return;
@@ -202,7 +164,6 @@ class CartNotifier extends _$CartNotifier {
     _settle(result, itemId: itemId, rollbackTo: current);
   }
 
-  /// Parks a line in the saved-for-later section.
   Future<void> saveForLater(String itemId) async {
     final current = state.snapshot;
     final item = current?.cart.itemById(itemId);
@@ -218,11 +179,6 @@ class CartNotifier extends _$CartNotifier {
     _settle(result, itemId: itemId, rollbackTo: current);
   }
 
-  /// Moves a saved line back into the cart.
-  ///
-  /// More likely to fail than saving: the server re-checks stock and refreshes
-  /// the price snapshot on the way back, so an item parked months ago may no
-  /// longer be available at that quantity.
   Future<void> moveToCart(String itemId) async {
     final current = state.snapshot;
     final item = current?.cart.itemById(itemId);
@@ -238,8 +194,6 @@ class CartNotifier extends _$CartNotifier {
     _settle(result, itemId: itemId, rollbackTo: current);
   }
 
-  /// Applies a coupon. Returns the failure so the field can show it inline
-  /// rather than only as a snack bar — a rejected code is a form error.
   Future<Failure?> applyCoupon(String code) async {
     final trimmed = code.trim();
     if (trimmed.isEmpty) return null;
@@ -257,8 +211,6 @@ class CartNotifier extends _$CartNotifier {
         state = state.copyWith(
           snapshot: snapshot,
           isCouponBusy: false,
-          // The server can accept the code and still report it as worthless —
-          // the summary re-validates on every read. Say which happened.
           message: snapshot.summary.hasRejectedCoupon
               ? snapshot.summary.coupon?.message ?? 'That coupon did not apply.'
               : 'Coupon applied.',
@@ -295,7 +247,6 @@ class CartNotifier extends _$CartNotifier {
     }
   }
 
-  /// Empties the cart, saved-for-later lines and coupon included.
   Future<void> clear() async {
     final current = state.snapshot;
     if (current == null) return;
@@ -309,8 +260,6 @@ class CartNotifier extends _$CartNotifier {
     _settle(result, rollbackTo: current);
   }
 
-  /// Runs the checkout gate. Returns null only when the request itself failed;
-  /// an unusable cart comes back as an invalid [CartValidation], not an error.
   Future<CartValidation?> validateForCheckout() async {
     state = state.copyWith(clearFailure: true, clearMessage: true);
     final result = await ref.read(validateCartUseCaseProvider)(
@@ -319,9 +268,6 @@ class CartNotifier extends _$CartNotifier {
 
     return result.fold(
       onSuccess: (validation) async {
-        // Blockers usually mean the server reconciled the cart during the
-        // check, so re-read to show the customer the cart the refusal is
-        // about rather than the one they were looking at.
         if (!validation.isValid) await refresh();
         return validation;
       },
@@ -332,15 +278,6 @@ class CartNotifier extends _$CartNotifier {
     );
   }
 
-  /// Adopts a cart snapshot produced by another feature's request.
-  ///
-  /// `POST /wishlist/{productId}/move-to-cart` returns the complete cart
-  /// triple nested inside its response, so the cart is already authoritative
-  /// by the time the wishlist has finished. Re-reading `/cart` to learn what
-  /// we were just told would waste a round trip and, worse, throw away the
-  /// notices that response carried. The wishlist repository has already
-  /// written the same snapshot to the cart's cache, so this only has to catch
-  /// the in-memory state up.
   void adoptSnapshot(CartSnapshot snapshot) {
     state = state.copyWith(
       snapshot: snapshot,
@@ -349,10 +286,7 @@ class CartNotifier extends _$CartNotifier {
     );
   }
 
-  /// Drops the one-shot snack-bar line once it has been shown.
   void consumeMessage() => state = state.copyWith(clearMessage: true);
-
-  // ── Optimistic plumbing ────────────────────────────────────────────────
 
   int get _pendingWrites => ref.read(cartRepositoryProvider).pendingWriteCount;
 
@@ -365,7 +299,6 @@ class CartNotifier extends _$CartNotifier {
     );
   }
 
-  /// Adopts the server's snapshot, or restores [rollbackTo] if it refused.
   void _settle(
     Result<CartSnapshot> result, {
     required CartSnapshot rollbackTo,
@@ -380,9 +313,6 @@ class CartNotifier extends _$CartNotifier {
           snapshot: value,
           busyItemIds: released,
           pendingWrites: _pendingWrites,
-          // Notices explain a change the customer did not make. They are the
-          // only account they get of a line the server removed or capped, so
-          // they are promoted to a message rather than left in the payload.
           message: value.notices.isEmpty ? null : value.notices.first.message,
         );
       case FailureResult(:final failure):
@@ -397,23 +327,14 @@ class CartNotifier extends _$CartNotifier {
   }
 }
 
-/// Units in the cart, for the bottom-nav badge.
-///
-/// Kept alive and derived rather than `.select`-ed off [cartProvider] —
-/// `.select` is unavailable on a generated notifier provider in Riverpod 3,
-/// and a derived provider only re-emits when the count itself changes, which
-/// is the same saving without the ceremony.
 @Riverpod(keepAlive: true)
 int cartItemCount(Ref ref) =>
     ref.watch(cartProvider).snapshot?.itemCount ?? 0;
 
-/// The payable total, for a persistent checkout bar.
 @riverpod
 double cartGrandTotal(Ref ref) =>
     ref.watch(cartProvider).snapshot?.summary.grandTotal ?? 0;
 
-/// Whether a product/variant pair is already in the cart, so a product page
-/// can offer "view cart" instead of adding a second time.
 @riverpod
 bool isInCart(Ref ref, {required String productId, required String variantId}) {
   final cart = ref.watch(cartProvider).snapshot?.cart;

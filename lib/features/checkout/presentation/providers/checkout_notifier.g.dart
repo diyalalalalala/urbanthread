@@ -8,30 +8,12 @@ part of 'checkout_notifier.dart';
 
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, type=warning
-/// The place-order flow.
-///
-/// Holds the whole of checkout as one value because the steps are not
-/// independent: the coupon depends on the subtotal, the payment warning
-/// depends on the total, and the submit button depends on all of it. Split
-/// across providers, keeping them consistent would be the bulk of the code.
 
 @ProviderFor(CheckoutNotifier)
 final checkoutProvider = CheckoutNotifierProvider._();
 
-/// The place-order flow.
-///
-/// Holds the whole of checkout as one value because the steps are not
-/// independent: the coupon depends on the subtotal, the payment warning
-/// depends on the total, and the submit button depends on all of it. Split
-/// across providers, keeping them consistent would be the bulk of the code.
 final class CheckoutNotifierProvider
     extends $NotifierProvider<CheckoutNotifier, CheckoutState> {
-  /// The place-order flow.
-  ///
-  /// Holds the whole of checkout as one value because the steps are not
-  /// independent: the coupon depends on the subtotal, the payment warning
-  /// depends on the total, and the submit button depends on all of it. Split
-  /// across providers, keeping them consistent would be the bulk of the code.
   CheckoutNotifierProvider._()
     : super(
         from: null,
@@ -59,14 +41,7 @@ final class CheckoutNotifierProvider
   }
 }
 
-String _$checkoutNotifierHash() => r'6ff4180c16beba1e41b96c0fd6412b6121936f9e';
-
-/// The place-order flow.
-///
-/// Holds the whole of checkout as one value because the steps are not
-/// independent: the coupon depends on the subtotal, the payment warning
-/// depends on the total, and the submit button depends on all of it. Split
-/// across providers, keeping them consistent would be the bulk of the code.
+String _$checkoutNotifierHash() => r'402e2cfc105621aac2834396a156b0f53d6b7919';
 
 abstract class _$CheckoutNotifier extends $Notifier<CheckoutState> {
   CheckoutState build();
@@ -86,20 +61,8 @@ abstract class _$CheckoutNotifier extends $Notifier<CheckoutState> {
   }
 }
 
-/// The coupons on offer for the current subtotal.
-///
-/// A separate provider because the coupon sheet is opened on demand — folding
-/// it into [CheckoutNotifier] would fetch a list most customers never look at
-/// on every checkout.
-
 @ProviderFor(availableCoupons)
 final availableCouponsProvider = AvailableCouponsProvider._();
-
-/// The coupons on offer for the current subtotal.
-///
-/// A separate provider because the coupon sheet is opened on demand — folding
-/// it into [CheckoutNotifier] would fetch a list most customers never look at
-/// on every checkout.
 
 final class AvailableCouponsProvider
     extends
@@ -111,11 +74,6 @@ final class AvailableCouponsProvider
     with
         $FutureModifier<List<AvailableCoupon>>,
         $FutureProvider<List<AvailableCoupon>> {
-  /// The coupons on offer for the current subtotal.
-  ///
-  /// A separate provider because the coupon sheet is opened on demand — folding
-  /// it into [CheckoutNotifier] would fetch a list most customers never look at
-  /// on every checkout.
   AvailableCouponsProvider._()
     : super(
         from: null,

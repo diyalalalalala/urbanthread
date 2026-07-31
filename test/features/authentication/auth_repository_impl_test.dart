@@ -80,7 +80,6 @@ void main() {
     String email = 'aarav@example.com',
     String phone = '',
     String avatarUrl = '',
-    bool isEmailVerified = false,
   }) =>
       <String, dynamic>{
         '_id': id,
@@ -90,7 +89,6 @@ void main() {
         'role': 'customer',
         'avatar': <String, dynamic>{'url': avatarUrl, 'publicId': ''},
         'addresses': <Map<String, dynamic>>[],
-        'isEmailVerified': isEmailVerified,
         'isActive': true,
         'createdAt': '2026-01-05T09:30:00.000Z',
       };
@@ -326,12 +324,12 @@ void main() {
   group('getCurrentUser', () {
     test('re-caches the profile it received', () async {
       when(() => remote.getCurrentUser()).thenAnswer(
-        (_) async => userEnvelope(userJson(isEmailVerified: true)),
+        (_) async => userEnvelope(userJson(name: 'Aarav Sharma')),
       );
 
       final result = await repository.getCurrentUser();
 
-      expect(result.valueOrNull?.isEmailVerified, isTrue);
+      expect(result.valueOrNull?.name, 'Aarav Sharma');
       verify(() => preferences.saveUser(any())).called(1);
     });
 
@@ -393,34 +391,6 @@ void main() {
 
       when(() => tokenStorage.hasToken).thenReturn(false);
       expect(repository.hasSession, isFalse);
-    });
-  });
-
-  group('verifyEmail', () {
-    test('caches the newly verified profile', () async {
-      when(() => remote.verifyEmail('token-123')).thenAnswer(
-        (_) async => userEnvelope(userJson(isEmailVerified: true)),
-      );
-
-      final result = await repository.verifyEmail('token-123');
-
-      expect(result.valueOrNull?.canCheckout, isTrue);
-      verify(() => preferences.saveUser(any())).called(1);
-    });
-
-    test('an expired link is a validation failure the user can act on',
-        () async {
-      when(() => remote.verifyEmail(any())).thenThrow(
-        httpError(400, message: 'This verification link has expired.'),
-      );
-
-      final result = await repository.verifyEmail('stale');
-
-      expect(result.failureOrNull, isA<ValidationFailure>());
-      expect(
-        result.failureOrNull?.message,
-        'This verification link has expired.',
-      );
     });
   });
 
@@ -490,23 +460,6 @@ void main() {
       final result = await repository.forgotPassword('aarav@example.com');
 
       expect(result.failureOrNull, isA<RateLimitFailure>());
-    });
-
-    test('resendVerification normalises the address too', () async {
-      when(() => remote.resendVerification(any())).thenAnswer(
-        (_) async => envelope<dynamic>(null, message: 'Verification email '
-            'sent.'),
-      );
-
-      final result = await repository.resendVerification('AARAV@EXAMPLE.COM');
-
-      expect(result.valueOrNull, 'Verification email sent.');
-      expect(
-        captureRequest<EmailRequest>(
-          () => remote.resendVerification(captureAny()),
-        ).email,
-        'aarav@example.com',
-      );
     });
   });
 

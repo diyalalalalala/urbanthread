@@ -11,7 +11,6 @@ class ProductReviewsParams {
   final ReviewQuery query;
 }
 
-/// Loads a page of reviews for the product page.
 class GetProductReviewsUseCase
     extends UseCase<Paginated<Review>, ProductReviewsParams> {
   const GetProductReviewsUseCase(this._repository);

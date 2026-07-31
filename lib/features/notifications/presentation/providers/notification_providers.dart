@@ -25,8 +25,6 @@ NotificationRepository notificationRepository(Ref ref) =>
       networkInfo: ref.watch(networkInfoProvider),
     );
 
-/// Kept alive alongside the badge that consumes it — a use case rebuilt on
-/// every app-bar frame would churn for no benefit.
 @Riverpod(keepAlive: true)
 GetUnreadCountUseCase getUnreadCountUseCase(Ref ref) =>
     GetUnreadCountUseCase(ref.watch(notificationRepositoryProvider));

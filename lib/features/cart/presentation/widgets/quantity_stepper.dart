@@ -3,15 +3,6 @@ import 'package:flutter/material.dart';
 import '../../../../core/extensions/context_extensions.dart';
 import '../../../../core/theme/app_dimens.dart';
 
-/// The minus / count / plus control on a cart line.
-///
-/// It reports the *absolute* quantity it wants, matching
-/// `PATCH /cart/items/{itemId}`, which takes a value rather than a delta.
-///
-/// While a change is in flight the count keeps rendering the optimistic value
-/// rather than a spinner: the number is the thing the customer is looking at,
-/// and swapping it for a progress indicator would hide the very feedback the
-/// optimistic update exists to provide. The buttons disable instead.
 class QuantityStepper extends StatelessWidget {
   const QuantityStepper({
     required this.quantity,
@@ -26,13 +17,8 @@ class QuantityStepper extends StatelessWidget {
   final int quantity;
   final ValueChanged<int> onChanged;
 
-  /// One, normally. The minus button at the minimum is still enabled and is
-  /// wired to removal by the caller, which is what a customer expects from
-  /// tapping minus on a single item.
   final int minimum;
 
-  /// Capped at the server's per-line maximum of 10, or lower when the
-  /// variant's stock says so.
   final int maximum;
 
   final bool isBusy;
@@ -101,8 +87,6 @@ class _StepperButton extends StatelessWidget {
       child: InkWell(
         onTap: onPressed,
         child: SizedBox(
-          // Full tap target despite the compact visual size — a stepper is
-          // tapped repeatedly and a cramped one causes mis-taps.
           width: AppDimens.minTapTarget,
           height: AppDimens.controlHeightSm,
           child: Icon(

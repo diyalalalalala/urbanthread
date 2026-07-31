@@ -5,14 +5,6 @@ import '../../domain/entities/product_ref.dart';
 
 part 'product_ref_model.g.dart';
 
-/// Wire format for the product projections embedded in recently-viewed and
-/// review responses.
-///
-/// `_id` is optional here, unlike everywhere else in the API: `/reviews/
-/// my-reviews` populates only `{name, slug, images, price}`, and the
-/// `/reviews/reviewable` aggregate projects the id out altogether. Defaulting
-/// it to `''` keeps a partial projection parseable instead of throwing on a
-/// field the endpoint was never going to send.
 @JsonSerializable()
 class ProductRefModel {
   const ProductRefModel({
@@ -37,10 +29,6 @@ class ProductRefModel {
   final String name;
   final String slug;
 
-  /// Flattened to URLs on the way in. The catalogue sends objects
-  /// (`{url, alt, isPrimary}`) but seeded and legacy rows can carry bare
-  /// strings, and an account screen only ever needs the first usable URL —
-  /// so both shapes are tolerated rather than modelled.
   @JsonKey(fromJson: _imageUrls, toJson: _imageUrlsToJson)
   final List<String> images;
 
@@ -48,8 +36,6 @@ class ProductRefModel {
   final num? effectivePrice;
   final num discountPercentage;
 
-  /// Nested `{average, count, distribution}`. Absent on the review
-  /// projection.
   final RatingRefModel? rating;
 
   final int? totalStock;
@@ -99,6 +85,4 @@ List<String> _imageUrls(Object? raw) {
   return urls;
 }
 
-/// Round-trips through the cache as plain strings; `_imageUrls` accepts them
-/// back unchanged.
 List<String> _imageUrlsToJson(List<String> images) => images;

@@ -5,25 +5,13 @@ import '../../../../core/theme/app_dimens.dart';
 import '../../../authentication/domain/entities/user.dart';
 import '../../domain/entities/address_draft.dart';
 
-/// The add/edit address form, presented as a bottom sheet.
-///
-/// Field names mirror the API one-for-one, deliberately: the street line is
-/// **`street`** — a single field, not `line1`/`line2` — and only `fullName`,
-/// `phone`, `street` and `city` are required. Anything the form invented here
-/// would be dropped by the validator without complaint.
 class AddressFormSheet extends StatefulWidget {
   const AddressFormSheet({super.key, this.initial, this.isFirstAddress = false});
 
-  /// Null when adding, populated when editing.
   final Address? initial;
 
-  /// The first address a customer saves becomes their default server-side
-  /// regardless of the checkbox, so the checkbox is hidden rather than
-  /// offering a choice that will be overruled.
   final bool isFirstAddress;
 
-  /// Opens the sheet and resolves to the completed draft, or null if
-  /// dismissed.
   static Future<AddressDraft?> show(
     BuildContext context, {
     Address? initial,
@@ -70,8 +58,6 @@ class _AddressFormSheetState extends State<AddressFormSheet> {
     _city = TextEditingController(text: initial?.city ?? '');
     _state = TextEditingController(text: initial?.state ?? '');
     _postalCode = TextEditingController(text: initial?.postalCode ?? '');
-    // Nepal is the backend's own default, so pre-filling it matches what the
-    // server would have stored anyway.
     _country = TextEditingController(text: initial?.country ?? 'Nepal');
     _landmark = TextEditingController(text: initial?.landmark ?? '');
 
@@ -102,8 +88,6 @@ class _AddressFormSheetState extends State<AddressFormSheet> {
     final isEditing = widget.initial != null;
 
     return Padding(
-      // Lifts the sheet clear of the keyboard so the focused field stays
-      // visible while typing.
       padding: EdgeInsets.only(bottom: context.keyboardInset),
       child: DraggableScrollableSheet(
         initialChildSize: 0.9,
@@ -141,8 +125,6 @@ class _AddressFormSheetState extends State<AddressFormSheet> {
                 validator: (value) {
                   final text = value?.trim() ?? '';
                   if (text.isEmpty) return 'A phone number is required';
-                  // Matches the backend's own pattern, which accepts both
-                  // +9779812345678 and 01-4567890.
                   if (!RegExp(r'^[+]?[\d\s().-]{7,20}$').hasMatch(text)) {
                     return 'That does not look like a phone number';
                   }
@@ -283,7 +265,6 @@ class _AddressFormSheetState extends State<AddressFormSheet> {
         postalCode: _postalCode.text.trim(),
         country: _country.text.trim().isEmpty ? 'Nepal' : _country.text.trim(),
         landmark: _landmark.text.trim(),
-        // The first address is made default by the server whatever this says.
         isDefault: _isDefault || widget.isFirstAddress,
       ),
     );

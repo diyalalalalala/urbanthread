@@ -1,11 +1,6 @@
 import '../../../../core/storage/cache_store.dart';
 import '../models/wishlist_models.dart';
 
-/// The wishlist's mirror on disk, in the `account` box.
-///
-/// Cached for the same reason as the cart: the saved-items list must open
-/// without a connection. It also backs the offline answer to "is this
-/// saved?", so a heart button stays correct on a product page with no signal.
 class WishlistLocalDataSource {
   const WishlistLocalDataSource(this._cache);
 
@@ -13,7 +8,6 @@ class WishlistLocalDataSource {
 
   final CacheStore _cache;
 
-  /// Synchronous, so the badge and the first frame need no await.
   WishlistModel? read() => _cache.read<WishlistModel>(
         _key,
         (json) => WishlistModel.fromJson(json! as Map<String, dynamic>),

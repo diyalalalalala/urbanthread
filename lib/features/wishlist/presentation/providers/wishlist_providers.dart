@@ -17,13 +17,6 @@ import '../../domain/usecases/sync_wishlist_usecase.dart';
 
 part 'wishlist_providers.g.dart';
 
-/// Wiring for the wishlist feature.
-///
-/// The one edge that points at another feature is [cartLocalDataSourceProvider]:
-/// move-to-cart answers with both halves, and the cart half is written to the
-/// cart's own cache so the two never disagree on disk. The dependency runs
-/// wishlist → cart only.
-
 @Riverpod(keepAlive: true)
 WishlistRemoteDataSource wishlistRemoteDataSource(Ref ref) =>
     WishlistRemoteDataSource(ref.watch(dioProvider));
@@ -32,7 +25,6 @@ WishlistRemoteDataSource wishlistRemoteDataSource(Ref ref) =>
 WishlistLocalDataSource wishlistLocalDataSource(Ref ref) =>
     WishlistLocalDataSource(ref.watch(accountCacheProvider));
 
-/// The wishlist's slice of the shared `outbox` box.
 @Riverpod(keepAlive: true)
 OutboxQueue wishlistOutbox(Ref ref) => OutboxQueue(
       store: ref.watch(outboxCacheProvider),

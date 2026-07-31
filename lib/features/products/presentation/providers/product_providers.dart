@@ -25,10 +25,6 @@ import '../../domain/usecases/search_products_usecase.dart';
 
 part 'product_providers.g.dart';
 
-/// Wiring for the catalogue, kept apart from the notifiers so the object
-/// graph reads in one place and a test can override a single edge — usually
-/// [productRepositoryProvider].
-
 @Riverpod(keepAlive: true)
 ProductRemoteDataSource productRemoteDataSource(Ref ref) =>
     ProductRemoteDataSource(ref.watch(dioProvider));
@@ -53,8 +49,6 @@ ReviewRepository reviewRepository(Ref ref) => ReviewRepositoryImpl(
       remote: ref.watch(reviewRemoteDataSourceProvider),
       networkInfo: ref.watch(networkInfoProvider),
     );
-
-// ── Use cases ────────────────────────────────────────────────────────────
 
 @riverpod
 GetProductsUseCase getProductsUseCase(Ref ref) =>
@@ -96,30 +90,17 @@ GetProductReviewsUseCase getProductReviewsUseCase(Ref ref) =>
 GetProductReviewStatsUseCase getProductReviewStatsUseCase(Ref ref) =>
     GetProductReviewStatsUseCase(ref.watch(reviewRepositoryProvider));
 
-// ── Derived reads ────────────────────────────────────────────────────────
-//
-// These are plain async providers rather than notifiers: nothing mutates
-// them, so a `Future` provider with `ref.invalidate` for retry is the whole
-// contract. Failures are rethrown so `AsyncValue.error` carries the Failure
-// itself and the UI can hand it straight to `FailureView`.
-
-/// Facets for the filter sheet. Kept alive because the sheet is opened
-/// repeatedly and the facet lists change on the scale of hours, not seconds.
 @Riverpod(keepAlive: true)
 Future<ProductFilters> productFilterFacets(Ref ref) async {
   final result = await ref.watch(getProductFiltersUseCaseProvider)(
     const NoParams(),
   );
-  // Rethrown rather than returned so `AsyncValue.error` carries the Failure
-  // itself, which `FailureView` consumes directly.
   return result.fold(
     onSuccess: (filters) => filters,
     onFailure: (failure) => throw failure,
   );
 }
 
-/// One curated collection. Family-keyed so the home page can mount all four
-/// without them sharing a cache entry.
 @riverpod
 Future<List<Product>> productCollection(
   Ref ref,
@@ -135,8 +116,6 @@ Future<List<Product>> productCollection(
   );
 }
 
-/// Similar products for the detail page. Takes the product **id**, not the
-/// slug — this route is id-based even though detail is not.
 @riverpod
 Future<List<Product>> relatedProducts(Ref ref, String productId) async {
   final result = await ref.watch(getRelatedProductsUseCaseProvider)(
@@ -162,8 +141,6 @@ Future<List<FrequentlyBoughtTogether>> frequentlyBoughtTogether(
   );
 }
 
-/// The live rating summary. Preferred over `product.rating`, which is a
-/// denormalised copy that can lag a just-posted review.
 @riverpod
 Future<ReviewStats> productReviewStats(Ref ref, String productId) async {
   final result = await ref.watch(getProductReviewStatsUseCaseProvider)(

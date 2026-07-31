@@ -5,19 +5,12 @@ import '../../../../core/errors/failures.dart';
 import '../../../../core/extensions/context_extensions.dart';
 import '../../../../core/theme/app_dimens.dart';
 import '../../../../core/widgets/app_network_image.dart';
-import '../../../authentication/presentation/providers/auth_notifier.dart';
 import '../../domain/entities/review.dart';
 import '../../domain/usecases/review_usecases.dart';
 import '../providers/my_reviews_notifier.dart';
 import '../providers/profile_providers.dart';
 import '../widgets/rating_stars.dart';
 
-/// Writes a new review, or edits an existing one.
-///
-/// Reached from the "to review" list (`GET /reviews/reviewable`) or from the
-/// edit action on a review the customer already wrote. Has no route of its
-/// own — it is pushed with its subject, which a path parameter could not
-/// carry without a second fetch.
 class WriteReviewPage extends ConsumerStatefulWidget {
   const WriteReviewPage({
     required this.productId,
@@ -27,7 +20,6 @@ class WriteReviewPage extends ConsumerStatefulWidget {
     this.existingReview,
   });
 
-  /// Editing an existing review. Null means composing a new one.
   final Review? existingReview;
 
   final String productId;
@@ -55,8 +47,6 @@ class _WriteReviewPageState extends ConsumerState<WriteReviewPage> {
     final existing = widget.existingReview;
     _titleController = TextEditingController(text: existing?.title ?? '');
     _commentController = TextEditingController(text: existing?.comment ?? '');
-    // The backend accepts 1..5 only, so a new review starts at the top of the
-    // scale rather than at an impossible zero.
     _rating = existing?.rating ?? 5;
   }
 
@@ -68,18 +58,12 @@ class _WriteReviewPageState extends ConsumerState<WriteReviewPage> {
   }
 
   @override
-  Widget build(BuildContext context) {
-    // `POST /reviews` sits behind `requireVerifiedEmail`. Checking here turns
-    // an opaque 403 into something the customer can act on.
-    final isVerified = ref.watch(currentUserProvider)?.isEmailVerified ?? false;
-
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(widget.isEditing ? 'Edit review' : 'Write a review'),
-      ),
-      body: isVerified ? _buildForm(context) : const _VerificationRequired(),
-    );
-  }
+  Widget build(BuildContext context) => Scaffold(
+        appBar: AppBar(
+          title: Text(widget.isEditing ? 'Edit review' : 'Write a review'),
+        ),
+        body: _buildForm(context),
+      );
 
   Widget _buildForm(BuildContext context) => Form(
         key: _formKey,
@@ -184,8 +168,6 @@ class _WriteReviewPageState extends ConsumerState<WriteReviewPage> {
     });
 
     if (failure == null) {
-      // Both lists change: a new review disappears from "to review" and
-      // appears under "my reviews".
       ref.invalidate(myReviewsProvider);
       ref.invalidate(reviewableProductsProvider);
       context.showSnack(
@@ -196,8 +178,6 @@ class _WriteReviewPageState extends ConsumerState<WriteReviewPage> {
     }
 
     context.showSnack(
-      // 409 means one review per product per user has already been used up.
-      // The generic conflict copy would not explain that.
       failure is ConflictFailure
           ? 'You have already reviewed this product. Edit your existing '
               'review instead.'
@@ -223,8 +203,6 @@ class _WriteReviewPageState extends ConsumerState<WriteReviewPage> {
     final title = _titleController.text.trim();
     final comment = _commentController.text.trim();
 
-    // Only what actually changed is sent; a PATCH that changes nothing is a
-    // 400, and this catches it before the round trip.
     final nextRating = _rating == existing.rating ? null : _rating;
     final nextTitle = title == existing.title ? null : title;
     final nextComment = comment == existing.comment ? null : comment;
@@ -240,45 +218,4 @@ class _WriteReviewPageState extends ConsumerState<WriteReviewPage> {
           comment: nextComment,
         );
   }
-}
-
-/// Shown instead of the form when the address is not confirmed.
-class _VerificationRequired extends StatelessWidget {
-  const _VerificationRequired();
-
-  @override
-  Widget build(BuildContext context) => Center(
-        child: Padding(
-          padding: const EdgeInsets.all(AppDimens.space32),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(
-                Icons.mark_email_unread_outlined,
-                size: 44,
-                color: context.palette.warning,
-              ),
-              const SizedBox(height: AppDimens.space20),
-              Text(
-                'Confirm your email first',
-                style: context.text.headlineSmall,
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: AppDimens.space8),
-              Text(
-                'Only customers with a confirmed email address can post '
-                'reviews. Open the link we sent you, then come back — you can '
-                'resend it from your account page.',
-                style: context.text.bodySmall,
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: AppDimens.space24),
-              OutlinedButton(
-                onPressed: () => Navigator.of(context).maybePop(),
-                child: const Text('GO BACK'),
-              ),
-            ],
-          ),
-        ),
-      );
 }

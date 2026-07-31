@@ -19,28 +19,9 @@ class HomeFeedParams {
   final int productLimit;
   final int categoryLimit;
 
-  /// 12, matching the server default for `/brands/featured` — which is *not*
-  /// 10, unlike every product collection route.
   final int brandLimit;
 }
 
-/// Builds the whole storefront feed in one pass.
-///
-/// Six requests, one `Future.wait`. Issuing them serially would make the
-/// screen as slow as the sum of six round trips instead of the slowest one,
-/// and — more importantly — would let a single stalled endpoint hold back
-/// every rail behind it.
-///
-/// Nothing here throws on a partial failure. Each result is folded into its
-/// own [HomeSection], so a dead `/products/best-sellers` costs exactly one
-/// rail and the other five render normally. The only way this returns a
-/// [FailureResult] is if *every* section failed with nothing cached, which is
-/// the one case where there is genuinely nothing to draw.
-///
-/// It reaches across into [CategoriesRepository] on purpose: the featured
-/// strips are the taxonomy's data, and duplicating those two endpoints into a
-/// second repository would mean two caches for the same rows, quietly
-/// disagreeing.
 class GetHomeFeedUseCase extends UseCase<HomeFeed, HomeFeedParams> {
   const GetHomeFeedUseCase({
     required HomeRepository home,

@@ -4,22 +4,6 @@ import '../../domain/entities/home_product.dart';
 
 part 'home_product_model.g.dart';
 
-/// Wire format for a product as the home rails receive it.
-///
-/// Scoped to the fields a card draws. The collection endpoints return plenty
-/// more; decoding variants and specifications for a card that shows a name, a
-/// price and a photo is work with no visible result.
-///
-/// Two API behaviours are handled here rather than in the widget:
-///
-/// * **The virtuals are gone.** `/products/featured`, `/trending`,
-///   `/best-sellers` and `/new-arrivals` are `.lean()` reads, so
-///   `primaryImage` and `inStock` are absent — not null, absent. The card
-///   image is recomputed from `images` (primary first, then the first entry),
-///   and stock from `totalStock`.
-/// * **`category` and `brand` are polymorphic.** Populated objects on these
-///   routes, bare ObjectId strings on others. The converters below tolerate
-///   either so one model survives both.
 @JsonSerializable()
 class HomeProductModel {
   const HomeProductModel({
@@ -41,24 +25,12 @@ class HomeProductModel {
   factory HomeProductModel.fromJson(Map<String, dynamic> json) =>
       _$HomeProductModelFromJson(json);
 
-  /// The four identity fields below all carry a `defaultValue`, which makes
-  /// the generated decoder read them as nullable and fall back rather than
-  /// cast. That matters more than it looks: retrofit maps the whole `data`
-  /// array in one expression, so a single row that throws takes the entire
-  /// rail down with it — as a raw `TypeError`, which [ErrorMapper] can only
-  /// report as "Something unexpected happened". `slug` is the live example:
-  /// the backend's schema does not mark it `required`, so a product created
-  /// without one is a payload the endpoint is entitled to return.
-  ///
-  /// A row that comes back short is not rendered — see [isRenderable] — it
-  /// simply does not cost the other nine their rail.
   @JsonKey(name: '_id', defaultValue: '')
   final String id;
 
   @JsonKey(defaultValue: '')
   final String name;
 
-  /// Product detail is slug-only, so a card without one cannot navigate.
   @JsonKey(defaultValue: '')
   final String slug;
 
@@ -66,9 +38,6 @@ class HomeProductModel {
   final num price;
   final num discountPercentage;
 
-  /// Server-computed post-discount price. Nullable because the field is a
-  /// Mongoose virtual on some responses; [toEntity] falls back to computing
-  /// it from `price` and `discountPercentage`.
   final num? effectivePrice;
 
   final List<ProductImageModel> images;
@@ -86,23 +55,9 @@ class HomeProductModel {
 
   Map<String, dynamic> toJson() => _$HomeProductModelToJson(this);
 
-  /// Whether this row is worth putting on screen.
-  ///
-  /// A card needs an id to be distinct, a name to read as anything, and a slug
-  /// to open — product detail is slug-only. Missing any of them, the card
-  /// would be a dead tile, so the row is dropped instead. Silently: the rail
-  /// is merchandising, and one absent product is not worth an error over the
-  /// nine that are fine.
   bool get isRenderable =>
       id.isNotEmpty && name.isNotEmpty && slug.isNotEmpty;
 
-  /// The image a card should draw: the one flagged primary, else the first
-  /// uploaded, else nothing.
-  ///
-  /// This ordering mirrors what the `primaryImage` virtual does server-side.
-  /// Reimplementing it is not duplication for its own sake — the virtual is
-  /// simply not in the payload on these routes, and a card with no image
-  /// where one exists is a visible bug.
   String? get cardImageUrl {
     if (images.isEmpty) return null;
     for (final image in images) {
@@ -131,10 +86,6 @@ class HomeProductModel {
         isNewArrival: isNewArrival,
       );
 
-  /// Last-resort price when the server did not send `effectivePrice`.
-  ///
-  /// Kept identical to the backend's own formula so the two never disagree by
-  /// a rupee on the same product.
   num _discounted() => discountPercentage <= 0
       ? price
       : price - (price * discountPercentage / 100);
@@ -163,8 +114,6 @@ class ProductImageModel {
   Map<String, dynamic> toJson() => _$ProductImageModelToJson(this);
 }
 
-/// `rating` is a nested object — `rating.average` / `rating.count` — not two
-/// flat fields, and not a bare number.
 @JsonSerializable()
 class RatingModel {
   const RatingModel({this.average = 0, this.count = 0});
@@ -178,7 +127,6 @@ class RatingModel {
   Map<String, dynamic> toJson() => _$RatingModelToJson(this);
 }
 
-/// The populated form of a `category` or `brand` reference.
 @JsonSerializable()
 class ProductRefModel {
   const ProductRefModel({required this.id, this.name = '', this.slug = ''});
@@ -186,9 +134,6 @@ class ProductRefModel {
   factory ProductRefModel.fromJson(Map<String, dynamic> json) =>
       _$ProductRefModelFromJson(json);
 
-  /// Defaulted for the same reason as the fields on [HomeProductModel]: a
-  /// populated reference that arrived without its `_id` must not cost the
-  /// whole rail.
   @JsonKey(name: '_id', defaultValue: '')
   final String id;
   final String name;
@@ -197,11 +142,6 @@ class ProductRefModel {
   Map<String, dynamic> toJson() => _$ProductRefModelToJson(this);
 }
 
-/// Accepts either a populated reference object or a bare ObjectId string.
-///
-/// A bare id yields a reference with an empty name and slug, which the card
-/// renders as "no brand shown" rather than as a broken link — better than
-/// crashing on a response shape the endpoint is entitled to return.
 ProductRefModel? _refFromJson(Object? raw) => switch (raw) {
       Map<String, dynamic> value => ProductRefModel.fromJson(value),
       String value when value.isNotEmpty => ProductRefModel(id: value),

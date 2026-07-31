@@ -12,7 +12,6 @@ import 'unread_notification_count.dart';
 
 part 'notifications_notifier.g.dart';
 
-/// The notification list, its filters and its paging cursor.
 class NotificationsState extends Equatable {
   const NotificationsState({
     required this.notifications,
@@ -24,10 +23,8 @@ class NotificationsState extends Equatable {
 
   final Paginated<AppNotification> notifications;
 
-  /// Maps to the `unread` query param, which only narrows when truthy.
   final bool unreadOnly;
 
-  /// Null means "every type".
   final NotificationType? type;
 
   final bool isLoadingMore;
@@ -84,19 +81,15 @@ class NotificationsNotifier extends _$NotificationsNotifier {
         type: _type,
       ),
     );
-    // The list and the badge are read from different endpoints, so a pull to
-    // refresh has to resync both or they drift.
     await ref.read(unreadNotificationCountProvider.notifier).refresh();
   }
 
-  /// Switches between "all" and "unread only" and reloads from page one.
   Future<void> setUnreadOnly(bool value) async {
     if (_unreadOnly == value) return;
     _unreadOnly = value;
     await _reload();
   }
 
-  /// Filters by [type], or clears the filter when null.
   Future<void> setType(NotificationType? type) async {
     if (_type == type) return;
     _type = type;
@@ -132,10 +125,6 @@ class NotificationsNotifier extends _$NotificationsNotifier {
     );
   }
 
-  /// Marks one row read and adopts the server's version of it.
-  ///
-  /// While "unread only" is active the row no longer belongs in the list, so
-  /// it is dropped rather than left behind as a contradiction.
   Future<Failure?> markAsRead(String id) async {
     final current = state.value;
     if (current == null) return null;
@@ -168,8 +157,6 @@ class NotificationsNotifier extends _$NotificationsNotifier {
     );
   }
 
-  /// `PATCH /notifications/read-all`. Returns how many rows changed, or the
-  /// failure.
   Future<Result<int>> markAllAsRead() async {
     final result = await ref.read(markAllNotificationsReadUseCaseProvider)(
       const NoParams(),
@@ -178,8 +165,6 @@ class NotificationsNotifier extends _$NotificationsNotifier {
     if (result case Success(:final value)) {
       final current = state.value;
       if (current != null) {
-        // Under "unread only" the whole page has just stopped matching the
-        // filter, so it empties instead of showing rows marked read.
         final items = _unreadOnly
             ? const <AppNotification>[]
             : current.notifications.items
@@ -202,7 +187,6 @@ class NotificationsNotifier extends _$NotificationsNotifier {
     return result;
   }
 
-  /// Deletes one row — 204, no body, so the list is trimmed locally.
   Future<Failure?> delete(String id) async {
     final current = state.value;
     final wasUnread = current == null || (_find(current, id)?.isRead == false);
@@ -221,8 +205,6 @@ class NotificationsNotifier extends _$NotificationsNotifier {
             ),
           );
         }
-        // Deleting an unread row lowers the badge; deleting a read one does
-        // not.
         if (wasUnread) {
           ref.read(unreadNotificationCountProvider.notifier).decrement();
         }
@@ -232,8 +214,6 @@ class NotificationsNotifier extends _$NotificationsNotifier {
     );
   }
 
-  /// `DELETE /notifications/read` — answers **200 with `{deleted}`**, unlike
-  /// the single delete. Returns the count, or the failure.
   Future<Result<int>> deleteRead() async {
     final result = await ref.read(deleteReadNotificationsUseCaseProvider)(
       const NoParams(),
@@ -278,8 +258,6 @@ class NotificationsNotifier extends _$NotificationsNotifier {
     return null;
   }
 
-  /// Rebuilds the page around a new item list, preserving the paging cursor
-  /// so an in-place edit does not look like a fresh first page.
   Paginated<AppNotification> _withItems(
     NotificationsState current,
     List<AppNotification> items, {

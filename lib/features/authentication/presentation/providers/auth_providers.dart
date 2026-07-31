@@ -11,15 +11,8 @@ import '../../domain/usecases/login_usecase.dart';
 import '../../domain/usecases/logout_usecase.dart';
 import '../../domain/usecases/register_usecase.dart';
 import '../../domain/usecases/reset_password_usecase.dart';
-import '../../domain/usecases/verify_email_usecase.dart';
 
 part 'auth_providers.g.dart';
-
-/// Wiring for the authentication feature.
-///
-/// Kept separate from the state notifier so the object graph is readable in
-/// one place, and so a test can override exactly one edge — usually
-/// [authRepositoryProvider] — without rebuilding the rest.
 
 @Riverpod(keepAlive: true)
 AuthRemoteDataSource authRemoteDataSource(Ref ref) =>
@@ -64,11 +57,3 @@ ResetPasswordUseCase resetPasswordUseCase(Ref ref) =>
 @riverpod
 ChangePasswordUseCase changePasswordUseCase(Ref ref) =>
     ChangePasswordUseCase(ref.watch(authRepositoryProvider));
-
-@riverpod
-VerifyEmailUseCase verifyEmailUseCase(Ref ref) =>
-    VerifyEmailUseCase(ref.watch(authRepositoryProvider));
-
-@riverpod
-ResendVerificationUseCase resendVerificationUseCase(Ref ref) =>
-    ResendVerificationUseCase(ref.watch(authRepositoryProvider));

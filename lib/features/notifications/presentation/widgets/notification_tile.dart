@@ -6,11 +6,6 @@ import '../../../../core/theme/app_dimens.dart';
 import '../../../../core/utils/formatters.dart';
 import '../../domain/entities/app_notification.dart';
 
-/// The icon and accent colour for each notification type.
-///
-/// [NotificationType.unknown] resolves to a neutral bell rather than throwing:
-/// the enum is shared with the admin app and gains members server-side, and a
-/// single unfamiliar row must not blank the list.
 ({IconData icon, Color colour}) notificationStyle(
   NotificationType type,
   AppPalette palette,
@@ -40,7 +35,6 @@ import '../../domain/entities/app_notification.dart';
         (icon: Icons.notifications_none, colour: palette.inkSubtle),
     };
 
-/// One row of the notification list.
 class NotificationTile extends StatelessWidget {
   const NotificationTile({
     required this.notification,
@@ -60,8 +54,6 @@ class NotificationTile extends StatelessWidget {
     return InkWell(
       onTap: onTap,
       child: Container(
-        // Unread rows sit on a tinted background and carry a leading rule —
-        // colour alone would not survive a grayscale or colour-blind view.
         color: isUnread ? palette.accentSubtle : palette.surface,
         padding: const EdgeInsets.symmetric(
           horizontal: AppDimens.pageGutter,

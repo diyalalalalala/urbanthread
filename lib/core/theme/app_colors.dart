@@ -1,22 +1,8 @@
 import 'package:flutter/material.dart';
 
-/// Brand palette, ported 1:1 from the web client's design tokens
-/// (`client/src/index.css`).
-///
-/// The web app authors these in oklch and exposes them as CSS variables; the
-/// values below are their sRGB equivalents so the two clients stay visually
-/// identical. Names are kept verbatim — `ink`, `canvas`, `line` — so a token
-/// can be traced across both codebases without a translation table.
-///
-/// Only the handful of roles that map cleanly onto Material's [ColorScheme]
-/// are wired into it; everything else is surfaced through [AppPalette], a
-/// [ThemeExtension], because Material has no slot for "sunken surface" or
-/// "eyebrow subtle" and forcing them into `surfaceContainerHighest`-style
-/// slots loses the meaning.
 abstract final class AppColors {
   const AppColors._();
 
-  // ── Light ──────────────────────────────────────────────────────────────
   static const canvasLight = Color(0xFFFDFCF9);
   static const surfaceLight = Color(0xFFFFFFFF);
   static const surfaceRaisedLight = Color(0xFFFBFAF7);
@@ -43,7 +29,6 @@ abstract final class AppColors {
   static const infoLight = Color(0xFF2579AB);
   static const infoSubtleLight = Color(0xFFDDF2FF);
 
-  // ── Dark ───────────────────────────────────────────────────────────────
   static const canvasDark = Color(0xFF0F0D0B);
   static const surfaceDark = Color(0xFF161311);
   static const surfaceRaisedDark = Color(0xFF1F1C1A);
@@ -71,11 +56,6 @@ abstract final class AppColors {
   static const infoSubtleDark = Color(0xFF08273A);
 }
 
-/// The brand tokens Material's [ColorScheme] has no room for.
-///
-/// Read it through [BuildContext.palette] rather than
-/// `Theme.of(context).extension<AppPalette>()!` — the extension is registered
-/// on both themes in `AppTheme`, so the bang is safe but noisy at call sites.
 @immutable
 class AppPalette extends ThemeExtension<AppPalette> {
   const AppPalette({

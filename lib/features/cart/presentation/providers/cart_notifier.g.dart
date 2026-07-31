@@ -8,42 +8,12 @@ part of 'cart_notifier.dart';
 
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, type=warning
-/// The cart, and the only thing allowed to change it.
-///
-/// Kept alive for the app's lifetime: the bottom-nav badge reads it from every
-/// tab, and letting it dispose when the cart page closes would drop the badge
-/// to zero and re-fetch on the next visit.
-///
-/// Mutations are optimistic. The previous snapshot is captured before the
-/// request, the change is applied locally, and the captured copy is restored
-/// if the server disagrees — a stepper that waits on a round trip before
-/// moving feels broken, and the rollback is what makes that safe.
 
 @ProviderFor(CartNotifier)
 final cartProvider = CartNotifierProvider._();
 
-/// The cart, and the only thing allowed to change it.
-///
-/// Kept alive for the app's lifetime: the bottom-nav badge reads it from every
-/// tab, and letting it dispose when the cart page closes would drop the badge
-/// to zero and re-fetch on the next visit.
-///
-/// Mutations are optimistic. The previous snapshot is captured before the
-/// request, the change is applied locally, and the captured copy is restored
-/// if the server disagrees — a stepper that waits on a round trip before
-/// moving feels broken, and the rollback is what makes that safe.
 final class CartNotifierProvider
     extends $NotifierProvider<CartNotifier, CartState> {
-  /// The cart, and the only thing allowed to change it.
-  ///
-  /// Kept alive for the app's lifetime: the bottom-nav badge reads it from every
-  /// tab, and letting it dispose when the cart page closes would drop the badge
-  /// to zero and re-fetch on the next visit.
-  ///
-  /// Mutations are optimistic. The previous snapshot is captured before the
-  /// request, the change is applied locally, and the captured copy is restored
-  /// if the server disagrees — a stepper that waits on a round trip before
-  /// moving feels broken, and the rollback is what makes that safe.
   CartNotifierProvider._()
     : super(
         from: null,
@@ -73,17 +43,6 @@ final class CartNotifierProvider
 
 String _$cartNotifierHash() => r'743d6ffe4fe659c0342aca726368b7076b57725c';
 
-/// The cart, and the only thing allowed to change it.
-///
-/// Kept alive for the app's lifetime: the bottom-nav badge reads it from every
-/// tab, and letting it dispose when the cart page closes would drop the badge
-/// to zero and re-fetch on the next visit.
-///
-/// Mutations are optimistic. The previous snapshot is captured before the
-/// request, the change is applied locally, and the captured copy is restored
-/// if the server disagrees — a stepper that waits on a round trip before
-/// moving feels broken, and the rollback is what makes that safe.
-
 abstract class _$CartNotifier extends $Notifier<CartState> {
   CartState build();
   @$mustCallSuper
@@ -102,31 +61,11 @@ abstract class _$CartNotifier extends $Notifier<CartState> {
   }
 }
 
-/// Units in the cart, for the bottom-nav badge.
-///
-/// Kept alive and derived rather than `.select`-ed off [cartProvider] —
-/// `.select` is unavailable on a generated notifier provider in Riverpod 3,
-/// and a derived provider only re-emits when the count itself changes, which
-/// is the same saving without the ceremony.
-
 @ProviderFor(cartItemCount)
 final cartItemCountProvider = CartItemCountProvider._();
 
-/// Units in the cart, for the bottom-nav badge.
-///
-/// Kept alive and derived rather than `.select`-ed off [cartProvider] —
-/// `.select` is unavailable on a generated notifier provider in Riverpod 3,
-/// and a derived provider only re-emits when the count itself changes, which
-/// is the same saving without the ceremony.
-
 final class CartItemCountProvider extends $FunctionalProvider<int, int, int>
     with $Provider<int> {
-  /// Units in the cart, for the bottom-nav badge.
-  ///
-  /// Kept alive and derived rather than `.select`-ed off [cartProvider] —
-  /// `.select` is unavailable on a generated notifier provider in Riverpod 3,
-  /// and a derived provider only re-emits when the count itself changes, which
-  /// is the same saving without the ceremony.
   CartItemCountProvider._()
     : super(
         from: null,
@@ -162,17 +101,12 @@ final class CartItemCountProvider extends $FunctionalProvider<int, int, int>
 
 String _$cartItemCountHash() => r'c1f60d7fd70765685ef66f1c39afe6cef8ad1a2f';
 
-/// The payable total, for a persistent checkout bar.
-
 @ProviderFor(cartGrandTotal)
 final cartGrandTotalProvider = CartGrandTotalProvider._();
-
-/// The payable total, for a persistent checkout bar.
 
 final class CartGrandTotalProvider
     extends $FunctionalProvider<double, double, double>
     with $Provider<double> {
-  /// The payable total, for a persistent checkout bar.
   CartGrandTotalProvider._()
     : super(
         from: null,
@@ -208,19 +142,11 @@ final class CartGrandTotalProvider
 
 String _$cartGrandTotalHash() => r'f5602d4ff60433deaba23e76899c34bc37808dac';
 
-/// Whether a product/variant pair is already in the cart, so a product page
-/// can offer "view cart" instead of adding a second time.
-
 @ProviderFor(isInCart)
 final isInCartProvider = IsInCartFamily._();
 
-/// Whether a product/variant pair is already in the cart, so a product page
-/// can offer "view cart" instead of adding a second time.
-
 final class IsInCartProvider extends $FunctionalProvider<bool, bool, bool>
     with $Provider<bool> {
-  /// Whether a product/variant pair is already in the cart, so a product page
-  /// can offer "view cart" instead of adding a second time.
   IsInCartProvider._({
     required IsInCartFamily super.from,
     required ({String productId, String variantId}) super.argument,
@@ -278,9 +204,6 @@ final class IsInCartProvider extends $FunctionalProvider<bool, bool, bool>
 
 String _$isInCartHash() => r'c7edde1e93694ee83cee6a0b7c1e9753bbf06d98';
 
-/// Whether a product/variant pair is already in the cart, so a product page
-/// can offer "view cart" instead of adding a second time.
-
 final class IsInCartFamily extends $Family
     with
         $FunctionalFamilyOverride<
@@ -295,9 +218,6 @@ final class IsInCartFamily extends $Family
         $allTransitiveDependencies: null,
         isAutoDispose: true,
       );
-
-  /// Whether a product/variant pair is already in the cart, so a product page
-  /// can offer "view cart" instead of adding a second time.
 
   IsInCartProvider call({
     required String productId,

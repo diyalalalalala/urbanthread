@@ -3,10 +3,6 @@ import 'package:flutter/material.dart';
 import '../../../../core/extensions/context_extensions.dart';
 import '../../../../core/theme/app_dimens.dart';
 
-/// One row of the account menu.
-///
-/// Square by design — the brand's radius is 4px, so Material's default rounded
-/// list tiles are overridden rather than inherited.
 class AccountTile extends StatelessWidget {
   const AccountTile({
     required this.icon,
@@ -82,7 +78,6 @@ class AccountTile extends StatelessWidget {
   }
 }
 
-/// A small caps label above a group of [AccountTile]s.
 class AccountSectionHeader extends StatelessWidget {
   const AccountSectionHeader(this.label, {super.key});
 

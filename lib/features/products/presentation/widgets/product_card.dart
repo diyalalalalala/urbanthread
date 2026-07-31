@@ -11,23 +11,6 @@ import '../../domain/entities/product.dart';
 import 'price_label.dart';
 import 'rating_stars.dart';
 
-/// The catalogue tile, used by the product grid, search results, wishlist,
-/// recently-viewed, the home collections and the recommendation carousels.
-///
-/// Self-contained by design, because it is the one widget almost every other
-/// feature reuses: it needs nothing but a [Product], and it navigates to the
-/// product page itself unless [onTap] overrides that. Callers therefore never
-/// have to know that detail routing is by **slug** — a distinction that is
-/// easy to get wrong given `/related` and `/frequently-bought-together` are
-/// keyed by id.
-///
-/// The wishlist affordance is opt-in ([showWishlistButton]) so that this
-/// feature does not acquire a dependency on the wishlist feature; the owner
-/// passes the state and the callback in.
-///
-/// Expects a **bounded** height — a grid cell from [ProductGridGeometry], or
-/// the fixed height a horizontal strip must give its children. The caption
-/// flexes to fill it, which is what keeps a long name from overflowing.
 class ProductCard extends StatelessWidget {
   const ProductCard({
     required this.product,
@@ -42,19 +25,14 @@ class ProductCard extends StatelessWidget {
 
   final Product product;
 
-  /// Defaults to pushing `/products/{slug}`.
   final VoidCallback? onTap;
 
   final bool showWishlistButton;
   final bool isWishlisted;
   final VoidCallback? onWishlistTap;
 
-  /// Fixed width, for a horizontally scrolling carousel. Null means "fill the
-  /// grid cell".
   final double? width;
 
-  /// Trims the metadata to name and price — for tight rows such as the
-  /// frequently-bought-together strip.
   final bool dense;
 
   @override
@@ -88,8 +66,6 @@ class ProductCard extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  // Brand is polymorphic on some endpoints — a bare id with no
-                  // name — so the eyebrow is skipped rather than printed blank.
                   if (!dense && (product.brand?.isResolved ?? false)) ...[
                     Text(
                       product.brand!.name.toUpperCase(),
@@ -101,12 +77,6 @@ class ProductCard extends StatelessWidget {
                     ),
                     const SizedBox(height: AppDimens.space8),
                   ],
-                  // The name is the only part of the caption that can give
-                  // ground, so it is the flexible one: everything else is a
-                  // single line of fixed size. If the cell turns out a pixel
-                  // short of two lines — a font whose metrics differ, an
-                  // unusual text scale — the name ellipsises into what is
-                  // left instead of overflowing the tile.
                   Flexible(
                     child: Text(
                       product.name,
@@ -127,8 +97,6 @@ class ProductCard extends StatelessWidget {
                   PriceLabel.forProduct(
                     product,
                     size: dense ? PriceLabelSize.small : PriceLabelSize.medium,
-                    // The cell's height is fixed, so the price is not allowed
-                    // to wrap onto a second run.
                     singleLine: true,
                   ),
                 ],
@@ -143,7 +111,6 @@ class ProductCard extends StatelessWidget {
   }
 }
 
-/// Image, badges and the out-of-stock veil.
 class _Media extends StatelessWidget {
   const _Media({
     required this.product,
@@ -172,9 +139,6 @@ class _Media extends StatelessWidget {
             borderRadius: AppDimens.borderRadius,
           ),
 
-          // Out of stock is a full veil rather than a corner badge: it changes
-          // whether the tile is worth tapping at all, so it should read before
-          // the price does.
           if (product.isOutOfStock)
             DecoratedBox(
               decoration: BoxDecoration(

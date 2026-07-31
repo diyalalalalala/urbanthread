@@ -202,45 +202,11 @@ final class ClearSearchHistoryUseCaseProvider
 String _$clearSearchHistoryUseCaseHash() =>
     r'f0329c9214dd9b774903ea95051ef35898854e97';
 
-/// The app's colour scheme, for `MaterialApp.themeMode`.
-///
-/// Synchronous by design. `PreferencesService` is already loaded by the time
-/// the widget tree exists, so the very first frame can be painted in the right
-/// scheme — an `AsyncValue` here would flash the light theme at a dark-mode
-/// user on every cold start.
-///
-/// Kept alive because `MaterialApp` is the only listener; if it ever stopped
-/// watching, disposing and re-reading would be a needless round trip through
-/// storage. The class carries no `Notifier` suffix so the generator emits
-/// exactly `themeModeProvider`.
-
 @ProviderFor(ThemeModeNotifier)
 final themeModeProvider = ThemeModeNotifierProvider._();
 
-/// The app's colour scheme, for `MaterialApp.themeMode`.
-///
-/// Synchronous by design. `PreferencesService` is already loaded by the time
-/// the widget tree exists, so the very first frame can be painted in the right
-/// scheme — an `AsyncValue` here would flash the light theme at a dark-mode
-/// user on every cold start.
-///
-/// Kept alive because `MaterialApp` is the only listener; if it ever stopped
-/// watching, disposing and re-reading would be a needless round trip through
-/// storage. The class carries no `Notifier` suffix so the generator emits
-/// exactly `themeModeProvider`.
 final class ThemeModeNotifierProvider
     extends $NotifierProvider<ThemeModeNotifier, ThemeMode> {
-  /// The app's colour scheme, for `MaterialApp.themeMode`.
-  ///
-  /// Synchronous by design. `PreferencesService` is already loaded by the time
-  /// the widget tree exists, so the very first frame can be painted in the right
-  /// scheme — an `AsyncValue` here would flash the light theme at a dark-mode
-  /// user on every cold start.
-  ///
-  /// Kept alive because `MaterialApp` is the only listener; if it ever stopped
-  /// watching, disposing and re-reading would be a needless round trip through
-  /// storage. The class carries no `Notifier` suffix so the generator emits
-  /// exactly `themeModeProvider`.
   ThemeModeNotifierProvider._()
     : super(
         from: null,
@@ -270,18 +236,6 @@ final class ThemeModeNotifierProvider
 
 String _$themeModeNotifierHash() => r'122cbaa52b1f9a04fde5dd7c5374df9727649e2e';
 
-/// The app's colour scheme, for `MaterialApp.themeMode`.
-///
-/// Synchronous by design. `PreferencesService` is already loaded by the time
-/// the widget tree exists, so the very first frame can be painted in the right
-/// scheme — an `AsyncValue` here would flash the light theme at a dark-mode
-/// user on every cold start.
-///
-/// Kept alive because `MaterialApp` is the only listener; if it ever stopped
-/// watching, disposing and re-reading would be a needless round trip through
-/// storage. The class carries no `Notifier` suffix so the generator emits
-/// exactly `themeModeProvider`.
-
 abstract class _$ThemeModeNotifier extends $Notifier<ThemeMode> {
   ThemeMode build();
   @$mustCallSuper
@@ -300,18 +254,11 @@ abstract class _$ThemeModeNotifier extends $Notifier<ThemeMode> {
   }
 }
 
-/// The saved search terms, so the settings screen can show a count and hide
-/// the clear action when there is nothing to clear.
-
 @ProviderFor(SearchHistoryCount)
 final searchHistoryCountProvider = SearchHistoryCountProvider._();
 
-/// The saved search terms, so the settings screen can show a count and hide
-/// the clear action when there is nothing to clear.
 final class SearchHistoryCountProvider
     extends $NotifierProvider<SearchHistoryCount, int> {
-  /// The saved search terms, so the settings screen can show a count and hide
-  /// the clear action when there is nothing to clear.
   SearchHistoryCountProvider._()
     : super(
         from: null,
@@ -341,9 +288,6 @@ final class SearchHistoryCountProvider
 
 String _$searchHistoryCountHash() =>
     r'311702a3055e5dee9877a0bdea1861a5117e4630';
-
-/// The saved search terms, so the settings screen can show a count and hide
-/// the clear action when there is nothing to clear.
 
 abstract class _$SearchHistoryCount extends $Notifier<int> {
   int build();

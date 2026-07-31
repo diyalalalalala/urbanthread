@@ -4,13 +4,6 @@ import '../../../../core/domain/paginated.dart';
 import '../../../../core/errors/failures.dart';
 import '../../domain/entities/order.dart';
 
-/// State of the order history screen.
-///
-/// A plain Equatable value rather than an `AsyncValue<List<Order>>`, for the
-/// same reason the auth feature uses one: an infinite list has more than
-/// three states. It can be showing rows *and* loading the next page *and*
-/// holding an error from that page — and collapsing that into a single async
-/// slot would blank the list every time the user pulls to refresh.
 class OrdersState extends Equatable {
   const OrdersState({
     this.page = const Paginated<Order>.empty(),
@@ -26,28 +19,20 @@ class OrdersState extends Equatable {
 
   final Paginated<Order> page;
 
-  /// Null means "all statuses" — the chip row's first option.
   final OrderStatus? statusFilter;
 
-  /// A first load or a filter change, where there is nothing to show yet.
   final bool isLoading;
 
-  /// A `loadMore` in flight. Kept apart from [isLoading] so the existing rows
-  /// stay on screen with a spinner at the foot.
   final bool isLoadingMore;
 
   final Failure? failure;
 
-  /// Distinguishes "no orders yet" from "not fetched yet". Without it the
-  /// empty state flashes before the first response lands.
   final bool hasLoadedOnce;
 
   List<Order> get orders => page.items;
 
   bool get isEmpty => hasLoadedOnce && page.isEmpty;
 
-  /// Show the error as a whole screen only when there is nothing behind it;
-  /// otherwise it belongs in a snack bar over the rows we already have.
   bool get showsFailureScreen => failure != null && page.isEmpty;
 
   bool get canLoadMore => page.hasNextPage && !isLoadingMore && !isLoading;
@@ -83,7 +68,6 @@ class OrdersState extends Equatable {
       ];
 }
 
-/// State of a single order screen, including its two mutations.
 class OrderDetailState extends Equatable {
   const OrderDetailState({
     this.order,
@@ -98,14 +82,10 @@ class OrderDetailState extends Equatable {
   final Order? order;
   final bool isLoading;
 
-  /// A cancel or return request in flight.
   final bool isSubmitting;
 
-  /// Failed to load the order at all.
   final Failure? failure;
 
-  /// A mutation was refused — the order is still on screen and still valid,
-  /// so this must not replace it with an error page.
   final Failure? actionFailure;
 
   bool get hasOrder => order != null;
@@ -133,7 +113,6 @@ class OrderDetailState extends Equatable {
       [order, isLoading, isSubmitting, failure, actionFailure];
 }
 
-/// State of the tracking screen.
 class OrderTrackingState extends Equatable {
   const OrderTrackingState({
     this.tracking,

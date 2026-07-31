@@ -1,14 +1,8 @@
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
-/// Typed view over `.env`.
-///
-/// Every value is read once at startup and validated here rather than at the
-/// call site, so a missing or malformed key fails loudly during boot instead
-/// of surfacing as a confusing socket error on the first request.
 abstract final class AppConfig {
   const AppConfig._();
 
-  /// Loads and validates `.env`. Call before `runApp`.
   static Future<void> load() async {
     await dotenv.load(fileName: '.env');
 
@@ -34,17 +28,13 @@ abstract final class AppConfig {
         _ => fallback,
       };
 
-  /// Includes the `/api/v1` prefix. Never ends in a slash.
   static String get apiBaseUrl {
     final raw = _string('API_BASE_URL');
     return raw.endsWith('/') ? raw.substring(0, raw.length - 1) : raw;
   }
 
-  /// Origin the backend embeds in uploaded image URLs. See [mediaOrigin].
   static String get mediaOriginOverride => _string('MEDIA_ORIGIN_OVERRIDE');
 
-  /// The origin [apiBaseUrl] points at — `http://10.0.2.2:5000` for
-  /// `http://10.0.2.2:5000/api/v1`. Image URLs are rewritten onto this.
   static String get mediaOrigin {
     final uri = Uri.parse(apiBaseUrl);
     return Uri(scheme: uri.scheme, host: uri.host, port: uri.port).toString();

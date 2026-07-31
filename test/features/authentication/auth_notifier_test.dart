@@ -21,7 +21,6 @@ void main() {
     id: 'u1',
     name: 'Aarav Sharma',
     email: 'aarav@example.com',
-    isEmailVerified: true,
   );
   const cachedUser = User(
     id: 'u1',
@@ -341,40 +340,6 @@ void main() {
           await container.read(authProvider.notifier).logoutEverywhere();
 
       expect(failure, isNull);
-      expect(container.read(authProvider).status, AuthStatus.unauthenticated);
-    });
-  });
-
-  group('verifyEmail', () {
-    test('promotes the live session', () async {
-      final container = await signedIn();
-      const verified = User(
-        id: 'u1',
-        name: 'Aarav Sharma',
-        email: 'aarav@example.com',
-        isEmailVerified: true,
-      );
-      when(() => repository.verifyEmail('token-123'))
-          .thenAnswer((_) async => const Result.success(verified));
-
-      final failure =
-          await container.read(authProvider.notifier).verifyEmail('token-123');
-
-      expect(failure, isNull);
-      expect(container.read(authProvider).user?.canCheckout, isTrue);
-    });
-
-    test('does not sign anyone in when the link is opened while signed out',
-        () async {
-      final container = makeContainer();
-      container.read(authProvider);
-      when(() => repository.verifyEmail(any()))
-          .thenAnswer((_) async => const Result.success(serverUser));
-
-      await container.read(authProvider.notifier).verifyEmail('token-123');
-
-      // Verifying is all the link does — a token in an email is not a
-      // credential.
       expect(container.read(authProvider).status, AuthStatus.unauthenticated);
     });
   });

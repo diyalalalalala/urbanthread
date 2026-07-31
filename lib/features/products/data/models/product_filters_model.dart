@@ -4,11 +4,6 @@ import '../../domain/entities/product_filters.dart';
 
 part 'product_filters_model.g.dart';
 
-/// Wire format for `GET /products/filters`.
-///
-/// All six keys are always present in the response — the backend builds the
-/// object unconditionally — so the defaults here are belt-and-braces for a
-/// cached payload written by an older build rather than for the live API.
 @JsonSerializable(createToJson: true)
 class ProductFiltersModel {
   const ProductFiltersModel({

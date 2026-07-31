@@ -8,39 +8,12 @@ part of 'categories_notifier.dart';
 
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, type=warning
-/// Drives the categories screen: the taxonomy tree and the brand directory.
-///
-/// The generator strips the `Notifier` suffix, so this is read as
-/// `categoriesProvider`.
-///
-/// Two loads, one await. They are independent endpoints and neither depends
-/// on the other's result, so running them serially would double the time to
-/// first paint for no benefit — and would let a slow `/brands` hold the
-/// taxonomy hostage.
 
 @ProviderFor(CategoriesNotifier)
 final categoriesProvider = CategoriesNotifierProvider._();
 
-/// Drives the categories screen: the taxonomy tree and the brand directory.
-///
-/// The generator strips the `Notifier` suffix, so this is read as
-/// `categoriesProvider`.
-///
-/// Two loads, one await. They are independent endpoints and neither depends
-/// on the other's result, so running them serially would double the time to
-/// first paint for no benefit — and would let a slow `/brands` hold the
-/// taxonomy hostage.
 final class CategoriesNotifierProvider
     extends $NotifierProvider<CategoriesNotifier, CategoriesState> {
-  /// Drives the categories screen: the taxonomy tree and the brand directory.
-  ///
-  /// The generator strips the `Notifier` suffix, so this is read as
-  /// `categoriesProvider`.
-  ///
-  /// Two loads, one await. They are independent endpoints and neither depends
-  /// on the other's result, so running them serially would double the time to
-  /// first paint for no benefit — and would let a slow `/brands` hold the
-  /// taxonomy hostage.
   CategoriesNotifierProvider._()
     : super(
         from: null,
@@ -71,16 +44,6 @@ final class CategoriesNotifierProvider
 String _$categoriesNotifierHash() =>
     r'c2d484ea2ab8489db97a66e2f403416abcf2ab10';
 
-/// Drives the categories screen: the taxonomy tree and the brand directory.
-///
-/// The generator strips the `Notifier` suffix, so this is read as
-/// `categoriesProvider`.
-///
-/// Two loads, one await. They are independent endpoints and neither depends
-/// on the other's result, so running them serially would double the time to
-/// first paint for no benefit — and would let a slow `/brands` hold the
-/// taxonomy hostage.
-
 abstract class _$CategoriesNotifier extends $Notifier<CategoriesState> {
   CategoriesState build();
   @$mustCallSuper
@@ -99,32 +62,12 @@ abstract class _$CategoriesNotifier extends $Notifier<CategoriesState> {
   }
 }
 
-/// The featured slice of the taxonomy, derived rather than re-fetched.
-///
-/// A separate `@riverpod` function instead of a `.select()` on the notifier:
-/// Riverpod 3 does not offer `select` on a generated notifier provider, and a
-/// derived provider only re-emits when its own output changes, which is the
-/// same rebuild saving with less ceremony.
-
 @ProviderFor(featuredCategoryNodes)
 final featuredCategoryNodesProvider = FeaturedCategoryNodesProvider._();
-
-/// The featured slice of the taxonomy, derived rather than re-fetched.
-///
-/// A separate `@riverpod` function instead of a `.select()` on the notifier:
-/// Riverpod 3 does not offer `select` on a generated notifier provider, and a
-/// derived provider only re-emits when its own output changes, which is the
-/// same rebuild saving with less ceremony.
 
 final class FeaturedCategoryNodesProvider
     extends $FunctionalProvider<List<Category>, List<Category>, List<Category>>
     with $Provider<List<Category>> {
-  /// The featured slice of the taxonomy, derived rather than re-fetched.
-  ///
-  /// A separate `@riverpod` function instead of a `.select()` on the notifier:
-  /// Riverpod 3 does not offer `select` on a generated notifier provider, and a
-  /// derived provider only re-emits when its own output changes, which is the
-  /// same rebuild saving with less ceremony.
   FeaturedCategoryNodesProvider._()
     : super(
         from: null,
@@ -161,18 +104,13 @@ final class FeaturedCategoryNodesProvider
 String _$featuredCategoryNodesHash() =>
     r'a606bd65b7561c03f1d6424bd8830e864a642065';
 
-/// Brands flagged as featured, off the already-loaded directory.
-
 @ProviderFor(featuredBrandsFromDirectory)
 final featuredBrandsFromDirectoryProvider =
     FeaturedBrandsFromDirectoryProvider._();
 
-/// Brands flagged as featured, off the already-loaded directory.
-
 final class FeaturedBrandsFromDirectoryProvider
     extends $FunctionalProvider<List<Brand>, List<Brand>, List<Brand>>
     with $Provider<List<Brand>> {
-  /// Brands flagged as featured, off the already-loaded directory.
   FeaturedBrandsFromDirectoryProvider._()
     : super(
         from: null,

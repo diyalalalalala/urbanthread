@@ -5,11 +5,6 @@ import '../../../../core/storage/preferences_service.dart';
 import '../../domain/entities/theme_preference.dart';
 import '../../domain/repositories/settings_repository.dart';
 
-/// Settings backed by [PreferencesService] and the catalogue Hive box.
-///
-/// There is no remote datasource: none of these values exist server-side, so
-/// there is nothing to sync and no failure mode beyond storage itself
-/// refusing to write.
 class SettingsRepositoryImpl implements SettingsRepository {
   const SettingsRepositoryImpl({
     required PreferencesService preferences,
@@ -31,9 +26,6 @@ class SettingsRepositoryImpl implements SettingsRepository {
   @override
   Future<Result<void>> clearCatalogueCache() async {
     try {
-      // Only the catalogue box. The account and activity boxes hold the
-      // user's own data and are cleared on sign-out, not by a "free up space"
-      // action the user expects to be harmless.
       await _catalogueCache.clear();
       return const Result.success(null);
     } on Object catch (error) {

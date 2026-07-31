@@ -47,9 +47,6 @@ class CreateReviewParams {
   final String? title;
 }
 
-/// Writes a review. Gated on a verified email server-side; the UI checks
-/// `User.isEmailVerified` first so the customer gets an explanation instead of
-/// a bare 403.
 class CreateReviewUseCase extends UseCase<Review, CreateReviewParams> {
   const CreateReviewUseCase(this._repository);
 

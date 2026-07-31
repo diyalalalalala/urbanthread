@@ -51,12 +51,7 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
 
     if (!mounted || !created) return;
 
-    // The account is usable straight away, but checkout and reviews stay
-    // closed until the address is verified — so say so rather than letting
-    // the user discover it at the checkout button.
-    context.showSnack(
-      'Account created. Check your email to verify your address.',
-    );
+    context.showSnack('Account created. Welcome to UrbanThread.');
     context.go(widget.redirectTo ?? AppRoutes.home);
   }
 
@@ -73,9 +68,6 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
         children: [
           Text('Already have an account?', style: context.text.bodySmall),
           TextButton(
-            // Registration is pushed from sign-in, so this unwinds rather
-            // than stacking a second sign-in screen on the first. The
-            // fallback covers arriving here from a link.
             onPressed: () => context.popOrGo(AppRoutes.login),
             child: const Text('SIGN IN'),
           ),
@@ -107,8 +99,6 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
               decoration: InputDecoration(
                 labelText: 'Email',
                 hintText: 'you@example.com',
-                // A duplicate address comes back as a 409 whose message is
-                // already user-facing; a 422 attaches it to this field.
                 errorText: validation?.forField('email'),
               ),
               keyboardType: TextInputType.emailAddress,

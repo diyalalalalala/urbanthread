@@ -12,7 +12,6 @@ import '../../domain/entities/theme_preference.dart';
 import '../providers/settings_providers.dart';
 import '../widgets/settings_tile.dart';
 
-/// Appearance, storage, and the ways out of the account.
 class SettingsPage extends ConsumerStatefulWidget {
   const SettingsPage({super.key});
 
@@ -35,9 +34,6 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
         padding: const EdgeInsets.only(bottom: AppDimens.space40),
         children: [
           const SettingsSectionHeader('Appearance'),
-          // Compared against the provider's ThemeMode rather than a second
-          // copy of the preference, so the list can never disagree with what
-          // MaterialApp is actually rendering.
           for (final preference in ThemePreference.values)
             SettingsTile(
               icon: _themeIcon(preference),
@@ -121,10 +117,6 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
     );
   }
 
-  /// Kept in step with `pubspec.yaml` by hand.
-  ///
-  /// `package_info_plus` is not a dependency of this project and core exposes
-  /// no version constant, so there is nothing to read it from at runtime.
   static const _appVersion = '1.0.0 (1)';
 
   IconData _themeIcon(ThemePreference preference) => switch (preference) {
@@ -183,14 +175,10 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
     if (confirmed != true || !mounted) return;
 
     setState(() => _isSigningOut = true);
-    // Always succeeds locally, even offline — refusing would trap the user.
     await ref.read(authProvider.notifier).logout();
     if (!mounted) return;
     setState(() => _isSigningOut = false);
 
-    // Settings was pushed over the tabs, and half of those now need a session
-    // the user just gave up. Dropping the stack for the home tab avoids
-    // popping back into a screen that would immediately bounce to sign-in.
     context.goHome();
   }
 
@@ -204,8 +192,6 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
     if (confirmed != true || !mounted) return;
 
     setState(() => _isSigningOut = true);
-    // Unlike a plain sign-out this one is only meaningful if the server got
-    // it, so a failure is reported rather than swallowed.
     final failure = await ref.read(authProvider.notifier).logoutEverywhere();
     if (!mounted) return;
 

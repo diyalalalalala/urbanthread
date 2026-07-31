@@ -7,15 +7,6 @@ import '../models/home_product_model.dart';
 
 part 'home_remote_datasource.g.dart';
 
-/// The four catalogue collection endpoints the storefront is built from.
-///
-/// All four are the same shape: `data` is a **bare array** with no `meta`,
-/// and `limit` (1–50, default 10) is the only parameter they accept. They are
-/// separate routes rather than sorts on `/products` because the ordering is
-/// computed server-side from sales and recency.
-///
-/// Everything they return is a `.lean()` read, which is why the `primaryImage`
-/// and `inStock` virtuals never appear in these payloads.
 @RestApi()
 abstract class HomeRemoteDataSource {
   factory HomeRemoteDataSource(Dio dio, {String baseUrl}) =

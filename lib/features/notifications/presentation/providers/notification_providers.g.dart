@@ -155,14 +155,8 @@ final class NotificationRepositoryProvider
 String _$notificationRepositoryHash() =>
     r'd4b0b415ecdd5fe26968dbf37f03a760a9239208';
 
-/// Kept alive alongside the badge that consumes it — a use case rebuilt on
-/// every app-bar frame would churn for no benefit.
-
 @ProviderFor(getUnreadCountUseCase)
 final getUnreadCountUseCaseProvider = GetUnreadCountUseCaseProvider._();
-
-/// Kept alive alongside the badge that consumes it — a use case rebuilt on
-/// every app-bar frame would churn for no benefit.
 
 final class GetUnreadCountUseCaseProvider
     extends
@@ -172,8 +166,6 @@ final class GetUnreadCountUseCaseProvider
           GetUnreadCountUseCase
         >
     with $Provider<GetUnreadCountUseCase> {
-  /// Kept alive alongside the badge that consumes it — a use case rebuilt on
-  /// every app-bar frame would churn for no benefit.
   GetUnreadCountUseCaseProvider._()
     : super(
         from: null,

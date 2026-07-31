@@ -1,9 +1,3 @@
-/// The user's chosen colour scheme.
-///
-/// Deliberately not Flutter's `ThemeMode`: the domain layer must not import
-/// Flutter, and this is also the value that gets persisted, so it owns its own
-/// wire format. `settings_providers.dart` maps it to `ThemeMode` at the
-/// presentation boundary.
 enum ThemePreference {
   system('system'),
   light('light'),
@@ -11,7 +5,6 @@ enum ThemePreference {
 
   const ThemePreference(this.wireValue);
 
-  /// The string written to `PreferencesService.themeMode`.
   final String wireValue;
 
   static ThemePreference parse(String? raw) => switch (raw?.toLowerCase()) {

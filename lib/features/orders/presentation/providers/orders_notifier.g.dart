@@ -8,24 +8,12 @@ part of 'orders_notifier.dart';
 
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, type=warning
-/// The paginated order history.
-///
-/// The generator strips the `Notifier` suffix, so this class is reached
-/// through `ordersProvider`.
 
 @ProviderFor(OrdersNotifier)
 final ordersProvider = OrdersNotifierProvider._();
 
-/// The paginated order history.
-///
-/// The generator strips the `Notifier` suffix, so this class is reached
-/// through `ordersProvider`.
 final class OrdersNotifierProvider
     extends $NotifierProvider<OrdersNotifier, OrdersState> {
-  /// The paginated order history.
-  ///
-  /// The generator strips the `Notifier` suffix, so this class is reached
-  /// through `ordersProvider`.
   OrdersNotifierProvider._()
     : super(
         from: null,
@@ -55,11 +43,6 @@ final class OrdersNotifierProvider
 
 String _$ordersNotifierHash() => r'c75000845c3047549efcb8e9aa5b47cd25e0216d';
 
-/// The paginated order history.
-///
-/// The generator strips the `Notifier` suffix, so this class is reached
-/// through `ordersProvider`.
-
 abstract class _$OrdersNotifier extends $Notifier<OrdersState> {
   OrdersState build();
   @$mustCallSuper
@@ -78,27 +61,11 @@ abstract class _$OrdersNotifier extends $Notifier<OrdersState> {
   }
 }
 
-/// One order, by id.
-///
-/// A family, so navigating between two orders does not make them share a
-/// slot — and so the detail screen for an order already visited rebuilds from
-/// its own cache rather than the previous order's data.
-
 @ProviderFor(OrderDetailNotifier)
 final orderDetailProvider = OrderDetailNotifierFamily._();
 
-/// One order, by id.
-///
-/// A family, so navigating between two orders does not make them share a
-/// slot — and so the detail screen for an order already visited rebuilds from
-/// its own cache rather than the previous order's data.
 final class OrderDetailNotifierProvider
     extends $NotifierProvider<OrderDetailNotifier, OrderDetailState> {
-  /// One order, by id.
-  ///
-  /// A family, so navigating between two orders does not make them share a
-  /// slot — and so the detail screen for an order already visited rebuilds from
-  /// its own cache rather than the previous order's data.
   OrderDetailNotifierProvider._({
     required OrderDetailNotifierFamily super.from,
     required String super.argument,
@@ -146,12 +113,6 @@ final class OrderDetailNotifierProvider
 String _$orderDetailNotifierHash() =>
     r'7d6c9d6f45134720b2202283b3b8f7e9b0f0d59e';
 
-/// One order, by id.
-///
-/// A family, so navigating between two orders does not make them share a
-/// slot — and so the detail screen for an order already visited rebuilds from
-/// its own cache rather than the previous order's data.
-
 final class OrderDetailNotifierFamily extends $Family
     with
         $ClassFamilyOverride<
@@ -170,24 +131,12 @@ final class OrderDetailNotifierFamily extends $Family
         isAutoDispose: true,
       );
 
-  /// One order, by id.
-  ///
-  /// A family, so navigating between two orders does not make them share a
-  /// slot — and so the detail screen for an order already visited rebuilds from
-  /// its own cache rather than the previous order's data.
-
   OrderDetailNotifierProvider call(String orderId) =>
       OrderDetailNotifierProvider._(argument: orderId, from: this);
 
   @override
   String toString() => r'orderDetailProvider';
 }
-
-/// One order, by id.
-///
-/// A family, so navigating between two orders does not make them share a
-/// slot — and so the detail screen for an order already visited rebuilds from
-/// its own cache rather than the previous order's data.
 
 abstract class _$OrderDetailNotifier extends $Notifier<OrderDetailState> {
   late final _$args = ref.$arg as String;
@@ -210,15 +159,11 @@ abstract class _$OrderDetailNotifier extends $Notifier<OrderDetailState> {
   }
 }
 
-/// The tracking projection for one order.
-
 @ProviderFor(OrderTrackingNotifier)
 final orderTrackingProvider = OrderTrackingNotifierFamily._();
 
-/// The tracking projection for one order.
 final class OrderTrackingNotifierProvider
     extends $NotifierProvider<OrderTrackingNotifier, OrderTrackingState> {
-  /// The tracking projection for one order.
   OrderTrackingNotifierProvider._({
     required OrderTrackingNotifierFamily super.from,
     required String super.argument,
@@ -266,8 +211,6 @@ final class OrderTrackingNotifierProvider
 String _$orderTrackingNotifierHash() =>
     r'49abe7aae0e00cdecbd15ffe0cf21a7960bc38ea';
 
-/// The tracking projection for one order.
-
 final class OrderTrackingNotifierFamily extends $Family
     with
         $ClassFamilyOverride<
@@ -286,16 +229,12 @@ final class OrderTrackingNotifierFamily extends $Family
         isAutoDispose: true,
       );
 
-  /// The tracking projection for one order.
-
   OrderTrackingNotifierProvider call(String orderId) =>
       OrderTrackingNotifierProvider._(argument: orderId, from: this);
 
   @override
   String toString() => r'orderTrackingProvider';
 }
-
-/// The tracking projection for one order.
 
 abstract class _$OrderTrackingNotifier extends $Notifier<OrderTrackingState> {
   late final _$args = ref.$arg as String;

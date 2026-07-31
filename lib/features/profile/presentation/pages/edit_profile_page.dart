@@ -9,11 +9,6 @@ import '../../../../core/widgets/state_views.dart';
 import '../providers/profile_notifier.dart';
 import '../widgets/failure_from_error.dart';
 
-/// Edits the only two fields `PATCH /users/me` accepts.
-///
-/// Email and role are shown read-only rather than omitted: the validator
-/// silently discards them, so an editable field would look like it worked and
-/// change nothing.
 class EditProfilePage extends ConsumerStatefulWidget {
   const EditProfilePage({super.key});
 
@@ -26,8 +21,6 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
   final _nameController = TextEditingController();
   final _phoneController = TextEditingController();
 
-  /// The validator's own pattern, mirrored so a bad phone is caught before a
-  /// round trip.
   static final _phonePattern = RegExp(r'^[+]?[\d\s().-]{7,20}$');
 
   bool _isSaving = false;
@@ -45,8 +38,6 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
   Widget build(BuildContext context) {
     final profile = ref.watch(profileProvider);
 
-    // Seeded once, from the first successful load. Re-seeding on every build
-    // would fight the user's typing whenever the profile refreshed.
     if (!_seeded && profile.hasValue) {
       _nameController.text = profile.value!.name;
       _phoneController.text = profile.value!.phone;
@@ -134,9 +125,6 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
     final name = _nameController.text.trim();
     final phone = _phoneController.text.trim();
 
-    // Only changed fields are sent. Sending both unchanged is still a valid
-    // request, but sending nothing at all is a 400 — so an untouched form is
-    // treated as "nothing to do" here rather than round-tripped.
     final nextName = name == current.name ? null : name;
     final nextPhone = phone == current.phone ? null : phone;
 

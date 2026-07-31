@@ -6,20 +6,11 @@ import '../../../../core/utils/formatters.dart';
 import '../../domain/entities/order.dart';
 import 'order_status_chip.dart';
 
-/// The order's history, drawn as a vertical stepper.
-///
-/// Two things it must tolerate, both consequences of the wire format: the
-/// array is **`timeline`** (never `statusHistory`), and its entries carry no
-/// `_id`, so rows are keyed by position rather than by identity. There is
-/// always at least one entry — the model seeds "Order placed" on save — so
-/// there is no empty case to design for.
 class OrderTimeline extends StatelessWidget {
   const OrderTimeline({required this.entries, super.key, this.currentStatus});
 
   final List<OrderTimelineEntry> entries;
 
-  /// Highlights the entry the order is actually sitting at. Null on a plain
-  /// history listing.
   final OrderStatus? currentStatus;
 
   @override
@@ -69,8 +60,6 @@ class _TimelineRow extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // The rail: a connector above and below the marker, clipped at the
-          // ends so the line does not float past the first and last steps.
           SizedBox(
             width: 28,
             child: Column(
@@ -134,13 +123,6 @@ class _TimelineRow extends StatelessWidget {
   }
 }
 
-/// The forward-looking view: every step of the happy path, with the ones
-/// already reached filled in.
-///
-/// Complements [OrderTimeline], which only shows what has happened. Together
-/// they answer "where is it?" and "what is left?" — a stepper alone cannot
-/// express a cancellation, so this collapses to a single explanatory row when
-/// the order left the path.
 class OrderProgressStepper extends StatelessWidget {
   const OrderProgressStepper({required this.status, super.key});
 
@@ -150,8 +132,6 @@ class OrderProgressStepper extends StatelessWidget {
   Widget build(BuildContext context) {
     final palette = context.palette;
 
-    // Cancelled and returned are exits, not steps. Drawing them against the
-    // progression would imply five remaining stages that will never come.
     if (status.isTerminal) {
       final colors = orderStatusColors(context, status);
       return Container(
